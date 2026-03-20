@@ -2,15 +2,18 @@
 
 ## 1. Jira Requirement Summary
 
-**Story Description:**
-AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending
+**Story:**
+Parent can allocate and manage funds for a youth account
+
+**Description:**
+As a parent or guardian, I want to allocate and manage funds for my child’s youth account so that I can teach financial responsibility while maintaining visibility and control over spending.
 
 **Acceptance Criteria:**
-- Scenario 1 – Access youth account dashboard: Given the parent is logged into the banking web application When the parent navigates to the youth account section Then the system should display the youth account dashboard with current balance and recent activity
-- Scenario 2 – Allocate funds to youth account: Given the parent is on the youth account dashboard When the parent selects “Add Funds” Then the system should allow the parent to transfer funds from their primary account to the youth account
-- Scenario 3 – Set spending limit: Given the parent is viewing the youth account management section When the parent configures a weekly spending limit Then the system should save and display the limit on the dashboard
-- Scenario 4 – View youth spending activity: Given the parent is viewing the youth account dashboard When the parent selects the activity section Then the system should display recent transactions made from the youth account
-- Scenario 5 – Handle insufficient balance during fund allocation: Given the parent attempts to transfer funds When the selected parent account does not have sufficient balance Then the system should display an error message indicating insufficient funds
+1. Access youth account dashboard: Parent logs in, navigates to youth account section, sees dashboard with current balance and recent activity.
+2. Allocate funds to youth account: Parent selects “Add Funds”, can transfer funds from their primary account to the youth account.
+3. Set spending limit: Parent configures a weekly spending limit, system saves and displays the limit on the dashboard.
+4. View youth spending activity: Parent selects activity section, system displays recent transactions from the youth account.
+5. Handle insufficient balance: If parent’s account lacks funds, system displays an error message.
 
 **UI Tasks / Subtasks:**
 - Design youth account dashboard layout
@@ -22,46 +25,49 @@ AS a parent or guardian I WANT to allocate and manage funds for my child’s you
 
 ## 2. HTML Structure Summary
 
-**Note:** HTML fetch failed (404 error). Unable to retrieve index.html from GitHub. UI structure inferred from Jira requirements and component documentation.
+**Note:** The HTML structure could not be fetched from GitHub (`index.html` not found). The architecture below is based on Jira requirements and reusable component documentation.
 
-**Expected Layout (based on requirements):**
-- Header (with navigation, user avatar, search bar)
-- Main container (dashboard)
-  - Current balance display
-  - Add Funds button
-  - Spending limit configuration
-  - Recent activity/transaction list
-  - Error snackbar/modal for insufficient funds
-- Footer (optional)
+**Expected Layout:**
+- Header (with navigation, user avatar, and actions)
+- Main Container
+  - Balance Card (shows current balance)
+  - Add Funds Card (with transfer form/button)
+  - Spending Limit Card (shows and configures limit)
+  - Activity Section (list of recent transactions)
+  - Error/Notification area (for insufficient funds, etc.)
 
 ---
 
 ## 3. Reusable Components from Library
 
-**Extracted from documentation ZIP:**
-- Header (AavaHeaderComponent)
-- Card (AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent, AavaCardFooterComponent, AavaCardActionsComponent)
-- Button (AavaButtonComponent)
-- Avatar (AavaAvatarsComponent)
-- Tabs (AavaTabsComponent)
-- Snackbar (SnackbarService)
-- Modal (AavaModalComponent)
-- Drawer (AavaDrawerComponent)
-- Grid (AavaGridComponent)
-- Timeline (AavaTimelineComponent)
-- Chip-Tag (AavaTagComponent)
-- Search-Bar (AavaSearchBarComponent)
+- Header
+- Card (Default, Header, Content, Footer, Actions)
+- Button
+- Tabs
+- Avatar
+- Snackbar
+- Dialog
+- Modal
+- Grid
+- Timeline
+- Badge
+- Chip-Tag
+- Dropdown
+- Sidebar
+- Search-Bar
+- Pagination
+- Stepper-Input
 
 ---
 
 ## 4. Jira vs HTML Validation
 
 - **Matching Elements:**
-  - Dashboard, fund allocation, spending limit, activity view, error handling (all described in Jira)
+  - All required dashboard features are mapped to components (see architecture below).
 - **Missing Elements:**
-  - HTML structure not available (index.html fetch failed)
+  - HTML structure could not be validated (index.html missing in GitHub repo).
 - **Extra Elements:**
-  - None (no HTML to compare)
+  - None detected (HTML not available).
 
 ---
 
@@ -69,108 +75,112 @@ AS a parent or guardian I WANT to allocate and manage funds for my child’s you
 
 **Screen:** Youth Account Dashboard
 
+```
 YouthAccountDashboardPage
 ├── HeaderComponent (AavaHeaderComponent)
 │   ├── Logo
-│   ├── NavigationTabs (AavaTabsComponent)
-│   ├── SearchBar (AavaSearchBarComponent)
-│   └── UserAvatar (AavaAvatarsComponent)
+│   ├── Tabs (AavaTabs) [Overview, Activity, Settings]
+│   └── UserActions (Avatar, Icons, Dropdown)
 ├── MainContainer
-│   ├── BalanceCard (AavaDefaultCardComponent)
-│   │   ├── CardHeader (AavaCardHeaderComponent)
-│   │   │   └── BalanceDisplay
-│   │   ├── CardContent (AavaCardContentComponent)
-│   │   │   └── AccountDetails
-│   │   └── CardFooter (AavaCardFooterComponent)
-│   ├── AddFundsSection
-│   │   ├── AddFundsButton (AavaButtonComponent)
-│   │   └── FundTransferModal (AavaModalComponent)
-│   ├── SpendingLimitSection
-│   │   ├── SpendingLimitCard (AavaDefaultCardComponent)
-│   │   │   ├── CardHeader (AavaCardHeaderComponent)
-│   │   │   └── CardContent (AavaCardContentComponent)
-│   │   └── LimitConfigButton (AavaButtonComponent)
-│   │   └── LimitConfigDrawer (AavaDrawerComponent)
-│   ├── ActivitySection
-│   │   ├── ActivityTabs (AavaTabsComponent)
-│   │   └── ActivityTimeline (AavaTimelineComponent)
-│   │   └── ActivityCardList (AavaGridComponent)
-│   │       ├── ActivityCard (AavaDefaultCardComponent)
-│   │       │   ├── CardHeader (AavaCardHeaderComponent)
-│   │       │   ├── CardContent (AavaCardContentComponent)
-│   │       │   └── CardFooter (AavaCardFooterComponent)
-│   │       └── ChipTag (AavaTagComponent)
-│   └── ErrorSnackbar (SnackbarService)
-└── FooterComponent (optional)
+│   ├── BalanceCard (AavaDefaultCard)
+│   │   ├── CardHeader ("Current Balance")
+│   │   └── CardContent (Balance amount, Badge for status)
+│   ├── AddFundsCard (AavaDefaultCard)
+│   │   ├── CardHeader ("Add Funds")
+│   │   └── CardContent (Transfer form: Dropdown for source account, Textbox for amount, Button)
+│   │   └── CardFooter (Button: "Transfer")
+│   ├── SpendingLimitCard (AavaDefaultCard)
+│   │   ├── CardHeader ("Spending Limit")
+│   │   └── CardContent (Stepper-Input/Textbox for limit, Button: "Save Limit")
+│   ├── ActivitySection (AavaDefaultCard)
+│   │   ├── CardHeader ("Recent Activity")
+│   │   └── CardContent (Timeline/List of transactions)
+│   ├── Snackbar/Toast (for notifications/errors)
+│   └── Dialog/Modal (for confirmation/error details)
+└── Sidebar (optional, for navigation)
+```
 
 ---
 
 ## 6. Component Responsibilities
 
 **HeaderComponent**
-- Displays logo, navigation tabs, search bar, and user avatar.
+- Displays logo, navigation tabs (Overview, Activity, Settings), user avatar, and quick actions (icons, dropdown).
 
 **BalanceCard**
-- Shows current youth account balance and account details.
+- Shows current youth account balance and status badge.
 
-**AddFundsSection**
-- Provides Add Funds button and modal for fund transfer interaction.
+**AddFundsCard**
+- Allows parent to select source account, enter amount, and transfer funds to youth account.
+- Shows error dialog/snackbar if insufficient funds.
 
-**SpendingLimitSection**
-- Displays and configures weekly spending limit using card, button, and drawer.
+**SpendingLimitCard**
+- Allows parent to view and set a weekly spending limit for the youth account.
 
 **ActivitySection**
-- Shows recent youth account transactions using tabs, timeline, and card grid.
+- Displays a timeline or list of recent transactions from the youth account.
 
-**ErrorSnackbar**
-- Displays error messages (e.g., insufficient funds) as transient notifications.
+**Snackbar/Toast**
+- Shows notifications for success, errors (e.g., insufficient funds), and confirmations.
+
+**Dialog/Modal**
+- Used for confirmation dialogs or detailed error messages.
+
+**Sidebar**
+- (Optional) For navigation between dashboard sections.
 
 ---
 
 ## 7. Data Flow / Props
 
-YouthAccountDashboardPage
-  -> HeaderComponent (userData, navigationTabs, searchQuery)
-HeaderComponent
-  -> UserAvatar (avatarUrl, profileText, badgeCount)
-  -> NavigationTabs (tabs, activeTabId)
-  -> SearchBar (searchQuery)
-MainContainer
-  -> BalanceCard (balance, accountDetails)
-  -> AddFundsSection (parentAccount, youthAccount, transferAmount)
-  -> SpendingLimitSection (spendingLimit, onLimitChange)
-  -> ActivitySection (activityList, filterTabs)
-  -> ErrorSnackbar (errorMessage)
-ActivitySection
-  -> ActivityTabs (tabs, activeTabId)
-  -> ActivityTimeline (activityList)
-  -> ActivityCardList (activityList)
-ActivityCard
-  -> ChipTag (transactionType, status)
+**YouthAccountDashboardPage**
+- Passes user, account, and transaction data to child components.
+
+**HeaderComponent**
+- Receives: `user`, `tabs`, `activeTabId`
+- Emits: `tabChange`, `userAction`
+
+**BalanceCard**
+- Receives: `balance`, `status`
+
+**AddFundsCard**
+- Receives: `accounts`, `onTransfer`
+- Emits: `transferRequest`
+
+**SpendingLimitCard**
+- Receives: `currentLimit`, `onSaveLimit`
+- Emits: `limitChange`
+
+**ActivitySection**
+- Receives: `transactions`
+
+**Snackbar/Toast**
+- Receives: `message`, `type`
+
+**Dialog/Modal**
+- Receives: `open`, `title`, `content`, `onClose`
 
 ---
 
 ## 8. Layout Structure
 
+```
 Page Layout
-├── Header
-│   ├── Logo
-│   ├── Navigation Tabs
-│   ├── Search Bar
-│   └── User Avatar
-├── Main Container
+├── Header (AavaHeaderComponent)
+├── Main Container (Grid/Flex)
 │   ├── Balance Card
-│   ├── Add Funds Section
-│   ├── Spending Limit Section
-│   ├── Activity Section
-│   │   ├── Activity Tabs
-│   │   ├── Activity Timeline
-│   │   └── Activity Card List
-│   └── Error Snackbar
-└── Footer (optional)
+│   ├── Add Funds Card
+│   ├── Spending Limit Card
+│   └── Activity Section
+├── Snackbar/Toast (overlay)
+├── Dialog/Modal (overlay)
+└── Sidebar (optional)
+```
 
 ---
 
-**Note:** All components are mapped to reusable AAVA Play library components wherever possible. No new custom components are proposed unless required by business logic.
-
-**Missing HTML:** HTML structure could not be validated due to fetch failure. UI architecture is based on Jira requirements and component documentation.
+## Notes
+- All major UI elements are mapped to reusable components from the provided library.
+- No new components are required; all can be composed from existing documented components.
+- HTML structure could not be validated due to missing file in GitHub.
+- The architecture is modular, scalable, and aligns with Jira requirements and available UI library.
