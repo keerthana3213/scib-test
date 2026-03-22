@@ -1,0 +1,613 @@
+UI Component Implementation Specifications
+
+1. Youth Account Dashboard Screen
+
+Component Name
+YouthAccountDashboardPage
+
+Purpose
+Main landing page for parents to view youth account balance, spending limit, recent activity, and access quick actions (add funds, set limit, view activity).
+
+Dependencies
+- SidebarNavigation
+- HeaderBar
+- AccountBalanceCard
+- SpendingLimitCard
+- RecentActivityCard
+- FinancialTipsCard
+- SnackbarAlert
+
+Library Components Used
+- Card (aava-default-card, aava-card-header, aava-card-content, aava-card-footer)
+- Button (aava-button)
+- Tabs (aava-tabs) [if needed for future expansion]
+- Avatar (aava-avatars)
+- Chip-Tag (aava-tag)
+- Snackbar (SnackbarService)
+- Grid (aava-grid)
+- Sidebar (aava-sidebar)
+- Header (aava-header)
+
+TypeScript Specification
+Inputs:
+- youthAccountId: string
+Outputs:
+- onNavigate: { section: string }
+State:
+- dashboardData: YouthAccountDashboard
+- snackbar: { message: string, type: string } | null
+Methods:
+- fetchDashboardData() → Loads dashboard data from API
+- handleAction(action: string) → Handles Add Funds, Set Limit, View Activity
+- showSnackbar(message: string, type: string)
+
+HTML Structure
+- SidebarNavigation (left)
+- HeaderBar (top)
+  - SearchBar
+  - NotificationIcon
+  - AvatarChip
+- Main Content
+  - PageHeader (title, subtitle, action buttons)
+  - Grid (2 cols):
+    - AccountBalanceCard
+    - SpendingLimitCard
+  - RecentActivityCard (list)
+  - FinancialTipsCard
+
+CSS Specification
+Layout Styles:
+- Flex row for app shell
+- Grid for cards
+Component Styles:
+- Card: border-radius, shadow, padding per design tokens
+- Button: primary/secondary/ghost variants
+Responsive Rules:
+- Sidebar collapses on mobile
+- Grid stacks to single column on mobile
+
+2. Sidebar Navigation
+
+Component Name
+SidebarNavigation
+
+Purpose
+Persistent navigation for dashboard, add funds, set limit, activity, errors, and confirmations.
+
+Dependencies
+- None
+Library Components Used
+- Sidebar (aava-sidebar)
+- Menu (aava-menu)
+- Chip-Tag (aava-tag)
+
+TypeScript Specification
+Inputs:
+- selectedSection: string
+Outputs:
+- onSectionChange: { section: string }
+State:
+- menuItems: { label: string, id: string }[]
+Methods:
+- handleMenuClick(section: string)
+
+HTML Structure
+- Brand
+- Section labels
+- Menu list
+- Footer
+
+CSS Specification
+Layout Styles:
+- Fixed width, vertical flex
+Component Styles:
+- Highlight selected
+Responsive Rules:
+- Collapses to icon-only on mobile
+
+3. Header Bar
+
+Component Name
+HeaderBar
+
+Purpose
+Top bar with search, notifications, and parent avatar.
+
+Dependencies
+- AvatarChip
+- NotificationIcon
+- SearchBar
+Library Components Used
+- Header (aava-header)
+- Avatar (aava-avatars)
+- Chip-Tag (aava-tag)
+
+TypeScript Specification
+Inputs:
+- parentName: string
+Outputs:
+- onSearch: { query: string }
+State:
+- notifications: Notification[]
+Methods:
+- handleSearch(query: string)
+- handleNotificationClick()
+
+HTML Structure
+- Search field
+- Notification icon
+- Avatar chip
+
+CSS Specification
+Layout Styles:
+- Flex row, space-between
+Component Styles:
+- Avatar: pill, md
+Responsive Rules:
+- Stacks vertically on mobile
+
+4. Account Balance Card
+
+Component Name
+AccountBalanceCard
+
+Purpose
+Displays current youth account balance and last updated date.
+
+Dependencies
+- None
+Library Components Used
+- Card (aava-default-card)
+
+TypeScript Specification
+Inputs:
+- balance: number
+- currency: string
+- lastUpdated: string
+Outputs: None
+State: None
+Methods: None
+
+HTML Structure
+- Card with stat label, value, subtext
+
+CSS Specification
+Layout Styles:
+- Card, vertical stack
+Component Styles:
+- Large value font
+Responsive Rules:
+- Full width on mobile
+
+5. Spending Limit Card
+
+Component Name
+SpendingLimitCard
+
+Purpose
+Displays current weekly spending limit, allows edit.
+
+Dependencies
+- None
+Library Components Used
+- Card (aava-default-card)
+- Button (aava-button)
+
+TypeScript Specification
+Inputs:
+- limit: number
+- currency: string
+Outputs:
+- onEdit: void
+State: None
+Methods: None
+
+HTML Structure
+- Card with stat label, value, subtext, edit button
+
+CSS Specification
+Layout Styles:
+- Card, vertical stack
+Component Styles:
+- Button: small, secondary
+Responsive Rules:
+- Full width on mobile
+
+6. Recent Activity Card
+
+Component Name
+RecentActivityCard
+
+Purpose
+Shows recent transactions (date, merchant, amount, balance), with View All button.
+
+Dependencies
+- None
+Library Components Used
+- Card (aava-default-card)
+- Button (aava-button)
+
+TypeScript Specification
+Inputs:
+- transactions: RecentTransaction[]
+Outputs:
+- onViewAll: void
+State: None
+Methods: None
+
+HTML Structure
+- Card with list of transactions
+- View All button
+
+CSS Specification
+Layout Styles:
+- Card, vertical stack
+Component Styles:
+- List items
+Responsive Rules:
+- Full width on mobile
+
+7. Financial Tips Card
+
+Component Name
+FinancialTipsCard
+
+Purpose
+Displays financial literacy tips for parents.
+
+Dependencies
+- None
+Library Components Used
+- Card (aava-default-card)
+
+TypeScript Specification
+Inputs:
+- tips: string[]
+Outputs: None
+State: None
+Methods: None
+
+HTML Structure
+- Card with tips
+
+CSS Specification
+Layout Styles:
+- Card, vertical stack
+Component Styles:
+- Subtext
+Responsive Rules:
+- Full width on mobile
+
+8. Snackbar Alert
+
+Component Name
+SnackbarAlert
+
+Purpose
+Transient notification for errors, confirmations, and feedback.
+
+Dependencies
+- None
+Library Components Used
+- Snackbar (SnackbarService)
+
+TypeScript Specification
+Inputs:
+- message: string
+- type: 'success' | 'error' | 'warning' | 'info'
+Outputs:
+- onDismiss: void
+State: None
+Methods: None
+
+HTML Structure
+- Snackbar overlay
+
+CSS Specification
+Layout Styles:
+- Fixed position
+Component Styles:
+- Color by type
+Responsive Rules:
+- Responsive to viewport
+
+9. Fund Transfer Modal/Page
+
+Component Name
+FundTransferModal
+
+Purpose
+Allows parent to transfer funds to youth account, select source, amount, and confirm.
+
+Dependencies
+- Dialog (for confirmation)
+- SnackbarAlert
+Library Components Used
+- Dialog (AavaDialogService)
+- Card (aava-default-card)
+- Button (aava-button)
+- Dropdown (aava-dropdown)
+- Textbox (aava-textbox)
+- Badge (aava-badge)
+
+TypeScript Specification
+Inputs:
+- sourceAccounts: { id: string, name: string }[]
+- transferLimit: number
+- currency: string
+Outputs:
+- onTransfer: { sourceAccountId: string, amount: number }
+- onCancel: void
+State:
+- selectedSource: string
+- amount: number
+Methods:
+- handleTransfer()
+- handleCancel()
+
+HTML Structure
+- Card with select, input, badges, action buttons
+
+CSS Specification
+Layout Styles:
+- Card, vertical stack
+Component Styles:
+- Badge for templates/limits
+Responsive Rules:
+- Full width on mobile
+
+10. Set Spending Limit Modal/Page
+
+Component Name
+SetSpendingLimitModal
+
+Purpose
+Allows parent to set or update weekly spending limit for youth account.
+
+Dependencies
+- Dialog (for confirmation)
+- SnackbarAlert
+Library Components Used
+- Dialog (AavaDialogService)
+- Card (aava-default-card)
+- Button (aava-button)
+- Textbox (aava-textbox)
+
+TypeScript Specification
+Inputs:
+- currentLimit: number
+- currency: string
+Outputs:
+- onSave: { newLimit: number }
+- onCancel: void
+State:
+- newLimit: number
+Methods:
+- handleSave()
+- handleCancel()
+
+HTML Structure
+- Card with info, input, guidance, action buttons
+
+CSS Specification
+Layout Styles:
+- Card, vertical stack
+Component Styles:
+- Info rows
+Responsive Rules:
+- Full width on mobile
+
+11. Transaction List / Activity Page
+
+Component Name
+TransactionListPage
+
+Purpose
+Shows all transactions for youth account, with filtering and pagination.
+
+Dependencies
+- None
+Library Components Used
+- Card (aava-default-card)
+- Grid (aava-grid)
+
+TypeScript Specification
+Inputs:
+- transactions: Transaction[]
+- pagination: Pagination
+Outputs:
+- onFilter: { startDate?: string, endDate?: string }
+- onPageChange: { page: number }
+State:
+- filters: { startDate?: string, endDate?: string }
+- page: number
+Methods:
+- handleFilter()
+- handlePageChange()
+
+HTML Structure
+- Card with list/grid of transactions
+- Filter controls (future)
+
+CSS Specification
+Layout Styles:
+- Card, vertical stack
+Component Styles:
+- List items
+Responsive Rules:
+- Full width on mobile
+
+12. Dialogs & Popups
+
+Component Name
+DialogPopup
+
+Purpose
+Handles confirmation, success, error, and info dialogs for transfer, limit, and errors.
+
+Dependencies
+- SnackbarAlert
+Library Components Used
+- Dialog (AavaDialogService)
+- Button (aava-button)
+
+TypeScript Specification
+Inputs:
+- type: 'confirmation' | 'success' | 'error' | 'info'
+- title: string
+- message: string
+- actions: { label: string, action: string, variant: string }[]
+Outputs:
+- onAction: { action: string }
+State: None
+Methods:
+- handleAction(action: string)
+
+HTML Structure
+- Dialog overlay
+- Title, message, actions
+
+CSS Specification
+Layout Styles:
+- Centered modal
+Component Styles:
+- Variant coloring
+Responsive Rules:
+- Full width on mobile
+
+Jira Requirement Summary
+
+Story Description
+AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending
+
+Acceptance Criteria
+- Scenario 1: Access youth account dashboard (dashboard with balance, recent activity)
+- Scenario 2: Allocate funds to youth account (add funds flow)
+- Scenario 3: Set spending limit (limit config flow)
+- Scenario 4: View youth spending activity (transaction list)
+- Scenario 5: Handle insufficient balance during fund allocation (error dialog)
+
+UI Tasks
+- Design youth account dashboard layout
+- Design fund transfer interaction for youth account
+- Design spending limit configuration interface
+- Design youth account activity view
+
+HTML Structure Summary
+- Sidebar (navigation)
+- Header (search, notification, avatar)
+- Main Container (dashboard, transfer, limit, activity, dialogs)
+- Cards (balance, limit, activity, tips)
+- Forms (transfer, set limit)
+- Lists (transactions)
+- Buttons (actions)
+
+Reusable Components Identified
+- Card
+- Button
+- Tabs
+- Avatar
+- Chip-Tag
+- Snackbar
+- Grid
+- Sidebar
+- Header
+- Dropdown
+- Dialog
+- Badge
+- Textbox
+
+API Summary
+- GET /api/youth-accounts/{youthAccountId}/dashboard → Dashboard data (balance, limit, recent activity)
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer → Transfer funds
+- PUT /api/youth-accounts/{youthAccountId}/spending-limit → Set/update weekly limit
+- GET /api/youth-accounts/{youthAccountId}/transactions → List transactions
+
+API to UI Mapping
+- YouthAccountDashboardPage → GET /dashboard
+- FundTransferModal → POST /fund-transfer
+- SetSpendingLimitModal → PUT /spending-limit
+- TransactionListPage → GET /transactions
+- Error/Success Dialogs → API error/success responses
+
+API Compatibility
+Compatible
+- All required UI flows are supported by APIs
+Missing fields
+- None
+Required transformations
+- Map API models to UI props (e.g., dashboardData.accountBalance → AccountBalanceCard.balance)
+
+Jira vs HTML Validation
+Matching Elements:
+- Dashboard, Add Funds, Set Limit, Activity, Error dialogs, Confirmation dialogs
+Missing Elements:
+- None
+Extra Elements:
+- Financial Tips Card (bonus, not in Jira but value add)
+
+Data Flow / Props
+YouthAccountDashboardPage
+→ AccountBalanceCard (balance, currency, lastUpdated)
+→ SpendingLimitCard (limit, currency)
+→ RecentActivityCard (transactions)
+→ FinancialTipsCard (tips)
+→ SnackbarAlert (snackbar)
+SidebarNavigation
+→ onSectionChange
+HeaderBar
+→ onSearch
+FundTransferModal
+→ onTransfer
+SetSpendingLimitModal
+→ onSave
+TransactionListPage
+→ onFilter, onPageChange
+DialogPopup
+→ onAction
+
+Layout Structure
+- AppShell (SidebarNavigation + Main)
+- Main (HeaderBar + Content)
+- Content (PageHeader + Cards/Modals)
+
+API Integration Strategy
+- On page load, fetch dashboard data
+- On Add Funds, open FundTransferModal, POST to /fund-transfer, show confirmation/error dialog
+- On Set Limit, open SetSpendingLimitModal, PUT to /spending-limit, show confirmation/error dialog
+- On View Activity, fetch transactions
+- Error handling: show SnackbarAlert or DialogPopup
+- State: Store dashboard data, transactions, limits in page state
+
+Component Definitions
+- YouthAccountDashboardPage: Orchestrates all dashboard UI and data
+- SidebarNavigation: Handles navigation
+- HeaderBar: Search, notifications, avatar
+- AccountBalanceCard: Shows balance
+- SpendingLimitCard: Shows/edit limit
+- RecentActivityCard: Shows recent transactions
+- FinancialTipsCard: Shows tips
+- SnackbarAlert: Shows notifications
+- FundTransferModal: Add funds flow
+- SetSpendingLimitModal: Set limit flow
+- TransactionListPage: All transactions
+- DialogPopup: Confirmation, error, success dialogs
+
+Interaction Flows
+- Parent logs in → sees dashboard
+- Click Add Funds → FundTransferModal → Confirm → POST /fund-transfer → Success/Error Dialog
+- Click Set Limit → SetSpendingLimitModal → Save → PUT /spending-limit → Success/Error Dialog
+- Click View Activity → TransactionListPage → GET /transactions
+- Errors (insufficient balance, invalid limit, load error) → SnackbarAlert/DialogPopup
+
+Gaps and Recommendations
+Missing UI
+- None (all Jira flows present)
+Improvements
+- Add filter/search to TransactionListPage
+- Add loading skeletons for API fetches
+- Add accessibility ARIA labels per component docs
+Performance suggestions
+- Use OnPush change detection
+- Lazy load modals/dialogs
+- Debounce search/filter inputs
