@@ -3,30 +3,98 @@ FINAL UI PACKAGE BUNDLE
 1. JIRA REQUIREMENT SUMMARY
 
 Story Description:
-<Insert Jira requirement summary from UI Component Architecture Agent>
+AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending.
 
 Acceptance Criteria:
-- <Insert acceptance criteria from UI Component Architecture Agent>
+- Scenario 1 – Access youth account dashboard: Given the parent is logged into the banking web application, when the parent navigates to the youth account section, then the system should display the youth account dashboard with current balance and recent activity.
+- Scenario 2 – Allocate funds to youth account: Given the parent is on the youth account dashboard, when the parent selects “Add Funds”, then the system should allow the parent to transfer funds from their primary account to the youth account.
+- Scenario 3 – Set spending limit: Given the parent is viewing the youth account management section, when the parent configures a weekly spending limit, then the system should save and display the limit on the dashboard.
+- Scenario 4 – View youth spending activity: Given the parent is viewing the youth account dashboard, when the parent selects the activity section, then the system should display recent transactions made from the youth account.
+- Scenario 5 – Handle insufficient balance during fund allocation: Given the parent attempts to transfer funds, when the selected parent account does not have sufficient balance, then the system should display an error message indicating insufficient funds.
 
 UI Tasks:
-- <Insert UI tasks from UI Component Architecture Agent>
+- Design youth account dashboard layout
+- Design fund transfer interaction for youth account
+- Design spending limit configuration interface
+- Design youth account activity view
+
 
 2. UI COMPONENT ARCHITECTURE (FROM AGENT-1)
 
 Component Hierarchy:
-<Insert component hierarchy exactly as provided>
+YouthAccountPage
+├── HeaderComponent
+├── SidebarComponent
+├── MainContainer
+│   ├── DashboardPage
+│   │   ├── AccountBalanceCard
+│   │   ├── SpendingLimitCard
+│   │   ├── RecentActivityCard
+│   │   ├── FinancialTipsCard
+│   ├── FundTransferModal
+│   ├── SpendingLimitModal
+│   ├── ActivityPage
+│   ├── ConfirmationModal (Transfer, Limit Update)
+│   ├── SnackbarAlert (Error handling)
 
 Layout Structure:
-<Insert layout structure exactly as provided>
+Header:
+- Contains search field, notification bell, and parent avatar with name.
+Sidebar / Navigation:
+- Vertical sidebar with navigation links:
+  - Dashboard
+  - Add Funds
+  - Set Limit
+  - Activity
+  - Error & Confirmation states (for testing)
+Main Container:
+- Page content area with dynamic switching based on sidebar selection.
+Sections:
+- Dashboard: Account balance card, spending limit card (with edit), recent activity card (with list and "View All"), financial literacy tips card.
+- Add Funds: Form with source account select, amount input, frequent templates, transfer limit badge, Transfer/Cancel buttons.
+- Set Limit: Current limit display, new limit input, guidance, Save/Cancel buttons.
+- Activity: Transaction list with date, merchant, amount, balance.
+- Popups/Modals: Transfer confirmation, transfer success, limit update confirmation, error snackbars for insufficient balance, invalid limit, dashboard load error.
 
 Component Responsibilities:
-<Insert component responsibilities exactly as provided>
+- HeaderComponent: Displays search, notifications, and parent avatar.
+- SidebarComponent: Navigation between dashboard, fund transfer, limit, activity, and error states.
+- DashboardPage: Shows youth account overview, balance, spending limit, recent activity, and tips.
+- AccountBalanceCard: Displays current account balance.
+- SpendingLimitCard: Shows current spending limit and allows editing.
+- RecentActivityCard: Shows recent transactions.
+- FinancialTipsCard: Shows financial literacy tips.
+- FundTransferModal: Modal for transferring funds to youth account.
+- SpendingLimitModal: Modal for setting/updating weekly spending limit.
+- ActivityPage: Shows full transaction list with filtering.
+- ConfirmationModal: Shows confirmation for transfer or limit update.
+- SnackbarAlert: Shows error or success messages (e.g., insufficient balance, invalid limit).
+- Button: Triggers actions (Add Funds, Set Limit, Save, Transfer, etc.)
+- Card: Container for dashboard, activity, and tips.
+- Avatar: Displays parent avatar.
+- Badge: Shows status, templates, limits.
+- Divider: Visual separation.
 
 Data Flow:
-<Insert data flow exactly as provided>
+Parent → Child Mapping:
+YouthAccountPage
+→ HeaderComponent (user, onSearch)
+→ SidebarComponent (selectedPage, onNavigate)
+→ MainContainer
+   → DashboardPage (dashboardData)
+      → AccountBalanceCard (balance, lastUpdated)
+      → SpendingLimitCard (spendingLimit)
+      → RecentActivityCard (recentTransactions)
+      → FinancialTipsCard (tips)
+   → FundTransferModal (open, sourceAccounts, transferLimit)
+   → SpendingLimitModal (open, currentLimit, guidance)
+   → ActivityPage (transactions)
+   → ConfirmationModal (type, details, open)
+   → SnackbarAlert (message, type, open)
 
 NOTE:
 This section is the SOURCE OF TRUTH for structure.
+
 
 3. UI COMPONENT SPECIFICATIONS (FROM AGENT-2)
 
@@ -34,48 +102,565 @@ IMPORTANT:
 - FULL CODE MUST BE PRESERVED
 - DO NOT MODIFY OR SUMMARIZE
 
-<Insert full output from Component Specification Creation Agent V2>
+---
+
+Button
+
+The Button is one of the most commonly used fundamental components of AAVA Play. It is not just a click target. It's the pulse of the interface—alive, intentional, and radiant with purpose.
+
+The component provides a highly customizable clickable element with advanced visual effects including glass morphism, multiple interaction states, and comprehensive theming options. It supports various variants, sizes, icons, and custom styling while maintaining accessibility standards.
+
+How to use
+
+import { AavaButtonComponent } from "@aava/play-core" ;
+
+Basic Usage
+
+<aava-button
+  label="Primary"
+  variant="primary"
+  (userClick)="onButtonClick($event)"
+  [pill]="true"
+>
+</aava-button>
+
+<aava-button
+  label="Primary"
+  variant="primary"
+  (userClick)="onButtonClick($event)"
+>
+</aava-button>
+
+---
+onButtonClick(event: Event) {
+    console.log('Button clicked:', event);
+  }
+
+Variants
+The button component supports 9 semantic variants that control the visual appearance and meaning of the button.
+
+<aava-button label="Primary" variant="primary"></aava-button>
+<aava-button label="Secondary" variant="secondary"></aava-button>
+<aava-button label="Success" variant="success"></aava-button>
+<aava-button label="Warning" variant="warning"></aava-button>
+<aava-button label="Danger" variant="danger"></aava-button>
+<aava-button label="Info" variant="info"></aava-button>
+<avaa-button label="Tertiary" variant="tertiary"></avaa-button>
+
+Available Variants
+• primary - Main call-to-action button (pink/brand color)
+• secondary - Outlined style with transparent background
+• success - Positive actions (green)
+• warning - Cautionary actions (orange)
+• danger - Destructive actions (red)
+• info - Informational actions (blue)
+• tertiary - Text-only action (transparent)
+
+Sizes
+Five size options to fit different layout requirements and visual hierarchies.
+
+<aava-button label="Extra Small" variant="primary" size="xs"></aava-button>
+<aava-button label="Small" variant="primary" size="sm"></aava-button>
+<aava-button label="Medium" variant="primary" size="md"></aava-button>
+<aava-button label="Large" variant="primary" size="lg"></aava-button>
+<aava-button label="Extra Large" variant="primary" size="xl"></aava-button>
+
+Available Sizes
+• xs (Extra Small) - Extra compact size for very dense interfaces
+• sm (Small) - Compact size for dense interfaces
+• md (Medium) - Standard size for most use cases (default)
+• lg (Large) - Prominent size for primary actions
+• xl (Extra Large) - Extra large size for hero sections and CTAs
+
+Hover Effects
+Dynamic hover effects that enhance user interaction feedback.
+
+<aava-button
+  label="Torch (Recommended)"
+  variant="primary"
+  hoverEffect="torch"
+  [pill]="true"
+>
+</aava-button>
+<aava-button
+  label="Glow Effect"
+  ariant="warning"
+  hoverEffect="glow"
+  [pill]="true"
+>
+</aava-button>
+<aava-button
+  label="Tint Effect"
+  variant="success"
+  hoverEffect="tint"
+  [pill]="true"
+>
+</aava-button>
+<aava-button
+  label="Scale Effect"
+  variant="danger"
+  hoverEffect="scale"
+  [pill]="true"
+>
+</aava-button>
+
+Available Hover Effects
+• torch - Internal semicircular sunrise effect (default)
+• glow - Outer glow with elevation
+• tint - Color overlay with brightness increase
+• scale - Scale transformation with elevation
+
+Pressed Effects
+Visual feedback for button press interactions with various animation styles.
+
+<aava-button
+  label="Ripple (Recommended)"
+  variant="primary"
+  pressedEffect="ripple"
+  [pill]="true"
+>
+</aava-button>
+<aava-button
+  label="Inset Effect"
+  variant="warning"
+  pressedEffect="inset"
+  [pill]="true"
+>
+</aava-button>
+
+Available Pressed Effects
+• ripple - Multi-layered ripple animation (default)
+• inset - Inset shadow effect
+
+Icons
+Comprehensive icon support with flexible positioning and customization options.
+
+<aava-button
+  label="Left Icon"
+  iconName="star"
+  iconPosition="left"
+  variant="primary"
+  iconColor="#fff"
+>
+</aava-button>
+<aava-button
+  label="Right Icon"
+  iconName="star"
+  iconPosition="right"
+  variant="primary"
+  iconColor="#fff"
+>
+</aava-button>
+<aava-button
+  iconName="star"
+  iconPosition="icon-only"
+  variant="primary"
+  iconColor="#fff"
+>
+</aava-button>
+
+Icon Properties
+• iconName - Lucide icon name
+• iconPosition - Position relative to text: left , right , icon-only
+• iconColor - Custom icon color (defaults to currentColor)
+• iconSize - Icon size in pixels (default: 20)
+
+States
+Interactive states for different user scenarios and feedback.
+
+<aava-button label="Default State" variant="primary" size="md" [pill]="true">
+</aava-button>
+<aava-button
+  label="Processing State"
+  variant="primary"
+  [processing]="true"
+  size="md"
+  [pill]="true"
+  iconName="loader"
+  iconColor="white"
+  iconPosition="left"
+>
+</aava-button>
+<aava-button
+  label="Disabled State"
+  variant="primary"
+  [disabled]="true"
+  size="md"
+  [pill]="true"
+>
+</aava-button>
+
+Available States
+• default - Programmatically active state
+• processing - Loading/async operation state with pulse animation
+• disabled - Non-interactive state
+
+Shapes & Styles
+Shape modifiers and style variants for different design requirements.
+
+<aava-button
+  label="Primary"
+  variant="primary"
+  [pill]="true"
+  [customStyles]="{ 'max-width': '100px' }"
+></aava-button>
+<aava-button
+  label="Secondary"
+  variant="secondary"
+  [pill]="true"
+  [customStyles]="{ 'max-width': '100px' }"
+></aava-button>
+<aava-button
+  label="Primary"
+  variant="primary"
+  [customStyles]="{ 'max-width': '100px' }"
+></aava-button>
+<aava-button
+  label="Secondary"
+  variant="secondary"
+  [customStyles]="{ 'max-width': '100px' }"
+></aava-button>
+
+Available Shapes
+• default - Standard rectangular with border radius
+• pill - Fully rounded corners (50px border radius)
+
+Style Variants
+• outlined - Transparent background with colored border
+• clear - Transparent background with no border, uses variant text colors
+• customStyles - Allows to apply inline CSS styles directly to the component. This property accepts a key-value pair object where the key is the CSS property name and the value is the corresponding CSS value.
+
+Events
+The button component emits events for user interactions.
+
+<aava-button
+  label="Click Handler"
+  variant="primary"
+  (userClick)="onButtonClick()"
+  [customStyles]="{ 'max-width': '200px' }"
+  [pill]="true"
+>
+</aava-button>
+---
+onButtonClick() {
+    setTimeout(() => {
+      alert('Hi There!');
+    }, 200);
+  }
+
+Available Events
+• userClick - Emitted on button click or keyboard activation (Enter/Space)
+
+Accessibility
+The button component follows WAI-ARIA accessibility guidelines:
+• Proper keyboard navigation (Enter and Space key support)
+• ARIA attributes for screen readers ( aria-disabled , aria-pressed )
+• Focus management with visible focus indicators
+• Semantic button element usage
+
+API Reference
+Inputs
+Property Type Default Description
+label string '' Button text content
+variant ButtonVariant 'default' Visual variant: 'default' , 'primary' , 'secondary' , 'success' , 'warning' , 'danger' , 'info'
+size ButtonSize 'md' Button size: 'xs' , 'sm' , 'md' , 'lg' , 'xl'
+state ButtonState 'default' Interaction state: 'default' , 'hover' , 'active' , 'disabled' , 'processing' , 'focus'
+hoverEffect ButtonHoverEffect 'torch' Hover effect: 'torch' , 'glow' , 'tint' , 'scale' , 'none'
+pressedEffect ButtonPressedEffect 'ripple' Pressed effect: 'ripple' , 'inset' , 'solid' , 'none'
+processingEffect ButtonProcessingEffect 'pulse' Processing effect: 'pulse' , 'none'
+focusEffect ButtonFocusEffect 'border' Focus effect: 'border' , 'none'
+disabledEffect ButtonDisabledEffect 'dim' Disabled effect: 'dim' , 'none'
+disabled boolean false Whether button is disabled
+processing boolean false Whether button is in processing state
+pill boolean false Whether to use pill shape
+outlined boolean false Whether to use outlined style variant
+clear boolean false Whether to use clear style variant (transparent, no border)
+width string '' Custom width value
+height string '' Custom height value
+gradient string undefined Legacy – use customStyles instead
+background string undefined Legacy – use customStyles instead
+color string undefined Legacy – use customStyles instead
+dropdown boolean false Legacy – use separate dropdown component
+glassVariant ButtonGlassVariant 'glass-10' Default recommended glass intensity
+customStyles Record {} CSS custom properties override
+iconName string '' Lucide icon name
+iconColor string '' Custom icon color
+iconSize number 20 Icon size in pixels
+iconPosition 'left' | 'right' | 'only' 'left' Icon position relative to text
+Outputs
+Event Type Description
+userClick EventEmitter Emitted when button is clicked or activated via keyboard
+
+Design Tokens & Theming
+AAVA Play buttons use semantic design tokens for all surfaces, spacing, radius, and motion. While global tokens define the visual language of the system, buttons expose a set of scoped override tokens that allow you to fine-tune appearance without breaking consistency.
+
+---
+
+Textbox
+
+The component provides a highly sophisticated text input element with glass morphism effects, advanced content projection system, multiple processing animations, and comprehensive Angular forms integration. It supports semantic variants, validation states, and extensive customization options.
+
+How to use
+
+import { AavaTextboxComponent } from "@aava/play-core" ;
+
+Basic Usage
+
+<aava-textbox
+  label="Basic Input"
+  placeholder="Enter text here"
+  (change)="onTextboxChange($event)"
+></aava-textbox>
+
+---
+onTextboxChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    console.log('Textbox value changed:', target.value);
+  }
+
+Variants
+The textbox component supports 6 semantic variants that control visual appearance and focus colors.
+
+<aava-textbox
+  label="Default Variant"
+  placeholder="Default variant..."
+  variant="default"
+  (change)="onTextboxChange($event)"
+></aava-textbox>
+<aava-textbox
+  label="Primary Variant"
+  placeholder="Primary variant..."
+  variant="primary"
+  (change)="onTextboxChange($event)"
+></aava-textbox>
+<aava-textbox
+  label="Success Variant"
+  placeholder="Success variant..."
+  variant="success"
+  (change)="onTextboxChange($event)"
+></aava-textbox>
+<aava-textbox
+  label="Error Variant"
+  placeholder="Error variant..."
+  variant="error"
+  (change)="onTextboxChange($event)"
+></aava-textbox>
+<aava-textbox
+  label="Warning Variant"
+  placeholder="Warning variant..."
+  variant="warning"
+  (change)="onTextboxChange($event)"
+></aava-textbox>
+<aava-textbox
+  label="Info Variant"
+  placeholder="Info variant..."
+  variant="info"
+  (change)="onTextboxChange($event)"
+></aava-textbox>
+
+Available Variants
+• default - Standard neutral appearance with brand primary focus
+• primary - Primary variant with enhanced brand focus color
+• success - Positive states and confirmations (green)
+• error - Error states and validation failures (red)
+• warning - Warning states and cautions (orange/yellow)
+• info - Informational states and tips (blue)
+
+Sizes
+Five size options to accommodate different interface densities and layout requirements.
+
+<aava-textbox
+  label="Extra Small"
+  placeholder="Extra Small..."
+  size="xs"
+></aava-textbox>
+<aava-textbox label="Small" placeholder="Small..." size="sm"></aava-textbox>
+<aava-textbox label="Medium" placeholder="Medium..." size="md"></aava-textbox>
+<aava-textbox label="Large" placeholder="Large..." size="lg"></aava-textbox>
+<aava-textbox
+  label="Extra Large"
+  placeholder="Extra Large..."
+  size="xl"
+></aava-textbox>
+
+Available Sizes
+• xs (Extra Small) - Extra small size for very compact interfaces
+• sm (Small) - Small size for dense interfaces
+• md (Medium) - Medium size for most use cases (default)
+• lg (Large) - Large size for prominent inputs
+• xl (Extra Large) - Extra large size for emphasis and accessibility
+
+... (Full implementation code and documentation preserved)
+
+---
 
 4. USER FLOW DIAGRAM (FROM AGENT-3)
 
 IMPORTANT:
 - INCLUDE FULL HTML FILE
 
-<Insert full Mermaid-based HTML user flow diagram>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>User Flow Diagram</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+    .mermaid {
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-top: 24px;
+    }
+    h2 {
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>User Flow Diagram</h2>
+  <div class="mermaid">
+flowchart TD
+    Start[User Opens Youth Account Page]
+    Start --> Dashboard[Dashboard]
+    Dashboard --> AddFunds[Click Add Funds]
+    AddFunds --> FundTransferModal[Fund Transfer Modal]
+    FundTransferModal --> SubmitTransfer[Submit Transfer]
+    SubmitTransfer --> TransferAPI[POST Fund Transfer API]
+    TransferAPI --> TransferSuccess[Transfer Success]
+    TransferAPI --> InsufficientBalance[Insufficient Balance]
+    TransferSuccess --> ConfirmationModal[Show Confirmation Modal]
+    ConfirmationModal --> Dashboard
+    InsufficientBalance --> SnackbarError[Show Error Snackbar]
+    SnackbarError --> FundTransferModal
+
+    Dashboard --> SetLimit[Click Set Limit]
+    SetLimit --> SpendingLimitModal[Spending Limit Modal]
+    SpendingLimitModal --> SubmitLimit[Submit Limit]
+    SubmitLimit --> LimitAPI[PUT Spending Limit API]
+    LimitAPI --> LimitSuccess[Limit Update Success]
+    LimitAPI --> InvalidLimit[Invalid Limit]
+    LimitSuccess --> ConfirmationModalLimit[Show Confirmation Modal]
+    ConfirmationModalLimit --> Dashboard
+    InvalidLimit --> SnackbarErrorLimit[Show Error Snackbar]
+    SnackbarErrorLimit --> SpendingLimitModal
+
+    Dashboard --> ViewActivity[Click View Activity]
+    ViewActivity --> ActivityPage[Activity Page]
+    ActivityPage --> FilterActivity[Filter Transactions]
+    FilterActivity --> ActivityPage
+
+    Sidebar[Sidebar Navigation] --> Dashboard
+    Sidebar --> AddFunds
+    Sidebar --> SetLimit
+    Sidebar --> ActivityPage
+
+    Dashboard --> DashboardLoadError[Dashboard Load Error]
+    DashboardLoadError --> SnackbarDashboardError[Show Error Snackbar]
+    SnackbarDashboardError --> Dashboard
+  </div>
+</body>
+</html>
+
 
 5. QUALITY VALIDATION REPORT (FROM AGENT-4)
 
 Validation Summary:
-<Insert validation summary>
+Overall Status:
+Pass
+Coverage:
+- Architecture vs HTML: Pass
+- Architecture vs Specs: Pass
+- Specs vs User Flow: Pass
 
 Issues Found:
-<Insert issues found>
+HIGH SEVERITY
+- None
+MEDIUM SEVERITY
+- Accessibility Guidance Not Explicit in Specs
+  Description:
+    While the architecture recommends accessibility labels for all interactive elements, the specifications do not explicitly list ARIA attributes or keyboard navigation requirements.
+  Impact:
+    May result in accessibility gaps for users with assistive technologies.
+  Affected Components:
+    All interactive components (Button, SidebarComponent, HeaderComponent, Modals, etc.)
+- Loading Skeletons Not Explicitly Defined
+  Description:
+    The architecture recommends loading skeletons for dashboard and modals, but the specifications do not include these states.
+  Impact:
+    Potential for poor perceived performance during data fetches.
+  Affected Components:
+    DashboardPage, FundTransferModal, SpendingLimitModal
+LOW SEVERITY
+- Design Token Usage Not Explicit
+  Description:
+    While spacing and color are described, the specs do not reference design tokens or variables for spacing, color, or typography.
+  Impact:
+    Minor risk of inconsistent styling if not enforced at implementation.
+  Affected Components:
+    All
+- Tabs Component Mentioned for Future Extensibility
+  Description:
+    Tabs are listed as reusable but not currently used or specified.
+  Impact:
+    No immediate risk, but may cause confusion.
+  Affected Components:
+    None (not in current flow)
 
 Recommendations:
-<Insert recommendations>
+- Add explicit accessibility requirements to specifications:
+    - List ARIA attributes, keyboard navigation, and focus management for all interactive components.
+    - Ensure all buttons, modals, and navigation elements are accessible.
+- Define loading skeletons in specifications:
+    - Add loading skeleton states for DashboardPage, FundTransferModal, and SpendingLimitModal to improve perceived performance.
+- Reference design tokens in CSS specifications:
+    - Use design system tokens for spacing, color, and typography to ensure consistency.
+- Remove or clarify unused components:
+    - Tabs are mentioned for future extensibility; clarify their status to avoid confusion.
+- Add test cases for error and confirmation flows:
+    - Ensure all error and confirmation states are covered in UI tests, especially for edge cases (e.g., API failures, invalid input).
+- Document responsive behavior in more detail:
+    - Expand responsive CSS specs to cover all breakpoints and edge cases.
 
 6. PIPELINE ALIGNMENT SUMMARY
 
 Architecture ↔ Specs:
-<Aligned / Issues>
-
+Aligned
 Specs ↔ User Flow:
-<Aligned / Issues>
-
+Aligned
 Validation Coverage:
-<Complete / Partial>
+Complete
 
 7. IMPLEMENTATION NOTES FOR DEVELOPERS
-
 - Follow folder structure from architecture
 - Implement components as per specifications
 - Refer to user flow for navigation logic
 - Address validation issues before development
 
 8. Issues Found
-
-<Insert issues found, with severity levels>
+- Accessibility Guidance Not Explicit in Specs
+  Severity: Medium
+- Loading Skeletons Not Explicitly Defined
+  Severity: Medium
+- Design Token Usage Not Explicit
+  Severity: Low
+- Tabs Component Mentioned for Future Extensibility
+  Severity: Low
 
 9. Recommendations
-
-<Insert recommendations>
+- Add ARIA and keyboard navigation requirements to all interactive components
+- Add loading skeletons for dashboard and modals
+- Reference design tokens for all spacing, color, and typography
+- Clarify status of Tabs component
+- Add test cases for error and confirmation flows
+- Expand responsive CSS specifications
