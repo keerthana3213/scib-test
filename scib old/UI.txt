@@ -1,47 +1,46 @@
-Structured UI Component Architecture
-
 1. Jira Requirement Summary
 
-Story Description:
-AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending.
+Story: Parent can allocate and manage funds for a youth account
+
+Description:
+AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending
 
 Acceptance Criteria:
-- Scenario 1: Access youth account dashboard (parent sees dashboard with current balance and recent activity)
-- Scenario 2: Allocate funds to youth account (parent can transfer funds from primary to youth account)
-- Scenario 3: Set spending limit (parent configures weekly spending limit, system saves/displays limit)
-- Scenario 4: View youth spending activity (parent sees recent transactions)
-- Scenario 5: Handle insufficient balance during fund allocation (error message shown)
+- Scenario 1: Access youth account dashboard (dashboard with current balance and recent activity)
+- Scenario 2: Allocate funds to youth account (Add Funds, transfer from parent to youth)
+- Scenario 3: Set spending limit (configure weekly spending limit, display on dashboard)
+- Scenario 4: View youth spending activity (recent transactions)
+- Scenario 5: Handle insufficient balance (error message on insufficient funds)
 
-UI Tasks/Subtasks:
+UI Tasks (from subtasks):
 - Design youth account dashboard layout
 - Design fund transfer interaction for youth account
 - Design spending limit configuration interface
 - Design youth account activity view
 
-2. Detected UI Layout (from image)
-- Header (with navigation bar: HOME, ASK, RESOURCES, REPORTS, ADMIN)
-- Main Content Container
-  - Prompt: "Select ASK type"
+
+2. Detected UI Layout (from image analysis)
+
+- Header (with navigation: HOME, ASK, RESOURCES, REPORTS, ADMIN)
+- Main Content Area:
+  - Title/Prompt: "Select ASK type"
   - Two large option buttons: Core, Rotational
-  - Two action buttons: EXIT (red), START NOW (greyed out)
+  - Two action buttons: EXIT (red), START NOW (inactive/greyed)
+
 
 3. Reusable Components from Library
+
 - Header (AavaHeaderComponent)
 - Tabs (AavaTabsComponent)
 - Button (AavaButtonComponent)
 - Card (AavaDefaultCardComponent)
-- Avatar (AavaAvatarsComponent)
 - Sidebar (AavaSidebarComponent)
-- Dialog (AavaDialogComponent)
-- Snackbar (AavaSnackbarComponent)
-- Chip-Tag (AavaTagComponent)
 - Grid (AavaGridComponent)
-- Textbox (AavaTextboxComponent)
-- Stepper-Input (AavaStepperInputComponent)
-- Timeline (AavaTimelineComponent)
-- Modal (AavaModalComponent)
-- Dropdown (AavaDropdownComponent)
-- Tooltip (AavaTooltipComponent)
+- Dialog (AavaDialogComponent)
+- Snackbar/Toast (AavaSnackbarComponent/AavaToastComponent)
+- Avatar (AavaAvatarComponent)
+- Chip-Tag (AavaTagComponent)
+
 
 4. UI Component Architecture
 
@@ -49,95 +48,81 @@ Screen: Youth Account Dashboard
 
 YouthAccountDashboardPage
 ├── HeaderComponent (AavaHeaderComponent)
-│   ├── TabsComponent (AavaTabsComponent) [for navigation: HOME, ASK, RESOURCES, REPORTS, ADMIN]
-│   └── AvatarComponent (AavaAvatarsComponent) [user profile]
-├── SidebarComponent (AavaSidebarComponent) [optional, for navigation]
+│   └── TabsComponent (AavaTabsComponent) [for navigation: HOME, ASK, RESOURCES, REPORTS, ADMIN]
 ├── MainContentContainer
-│   ├── PromptBarComponent (AavaPromptBarComponent) ["Select ASK type"]
-│   ├── OptionCardContainer (AavaGridComponent)
-│   │   ├── OptionButtonComponent (AavaButtonComponent) [Core]
-│   │   └── OptionButtonComponent (AavaButtonComponent) [Rotational]
-│   ├── ActionButtonContainer (AavaGridComponent)
-│   │   ├── ExitButtonComponent (AavaButtonComponent, variant="danger")
-│   │   └── StartNowButtonComponent (AavaButtonComponent, variant="secondary", disabled)
-│   └── SnackbarComponent (AavaSnackbarComponent) [for error messages]
-└── DialogComponent (AavaDialogComponent) [for fund allocation, spending limit, or activity details]
+│   ├── DashboardPromptCard (AavaDefaultCardComponent)
+│   │   ├── CardHeader: "Select ASK type"
+│   │   ├── CardContent:
+│   │   │   ├── OptionButtonsContainer (Grid/Flex)
+│   │   │   │   ├── OptionButton (AavaButtonComponent, label="Core", variant="primary", size="lg")
+│   │   │   │   └── OptionButton (AavaButtonComponent, label="Rotational", variant="primary", size="lg")
+│   │   │   └── ActionButtonsContainer (Grid/Flex)
+│   │   │       ├── ExitButton (AavaButtonComponent, label="EXIT", variant="danger", size="md")
+│   │   │       └── StartNowButton (AavaButtonComponent, label="START NOW", variant="secondary", size="md", disabled=true)
+
 
 5. Component Responsibilities
 
 HeaderComponent
-- Displays application logo, navigation tabs, and user avatar/profile.
+- Displays application logo and navigation tabs (HOME, ASK, RESOURCES, REPORTS, ADMIN)
+- Handles navigation events
 
 TabsComponent
-- Provides navigation between dashboard sections (HOME, ASK, etc).
+- Renders navigation tabs, highlights active tab
 
-SidebarComponent
-- Optional: Provides additional navigation or quick links.
+DashboardPromptCard
+- Presents the main prompt ("Select ASK type")
+- Contains option selection and action buttons
 
-PromptBarComponent
-- Displays the "Select ASK type" prompt.
+OptionButton
+- Allows user to select "Core" or "Rotational" ASK type
+- Triggers selection logic
 
-OptionCardContainer
-- Arranges option buttons (Core, Rotational) in a grid layout.
+ExitButton
+- Allows user to exit the flow
+- Styled as destructive (red)
 
-OptionButtonComponent
-- Represents selectable ASK type options.
+StartNowButton
+- Initiates the ASK process
+- Disabled until an option is selected
 
-ActionButtonContainer
-- Arranges action buttons (EXIT, START NOW) in a grid layout.
-
-ExitButtonComponent
-- Triggers exit action, styled as danger (red).
-
-StartNowButtonComponent
-- Triggers start action, styled as secondary, disabled until selection is made.
-
-SnackbarComponent
-- Displays error messages (e.g., insufficient funds).
-
-DialogComponent
-- Handles fund allocation, spending limit configuration, and activity details.
 
 6. Data Flow / Props
 
 YouthAccountDashboardPage
- -> HeaderComponent (userData, navigationTabs)
-HeaderComponent
- -> TabsComponent (tabs: [HOME, ASK, RESOURCES, REPORTS, ADMIN])
- -> AvatarComponent (avatarUrl, userName)
+ -> HeaderComponent (tabs, activeTabId, navigation handlers)
+ -> DashboardPromptCard (promptText, optionButtons, actionButtons)
 
-MainContentContainer
- -> PromptBarComponent (promptText: "Select ASK type")
- -> OptionCardContainer (options: [Core, Rotational])
-OptionCardContainer
- -> OptionButtonComponent (label, selected, onSelect)
+DashboardPromptCard
+ -> OptionButtonsContainer (options: [Core, Rotational], selectedOption, onSelect)
+ -> ActionButtonsContainer (onExit, onStartNow, startNowDisabled)
 
-ActionButtonContainer
- -> ExitButtonComponent (onExit)
- -> StartNowButtonComponent (onStart, disabled)
+OptionButton
+ -> label, variant, size, selected, onClick
 
-SnackbarComponent
- -> errorMessage (visible when error occurs)
+ExitButton
+ -> label="EXIT", variant="danger", onClick
 
-DialogComponent
- -> fundAllocationData, spendingLimitData, activityDetails
+StartNowButton
+ -> label="START NOW", variant="secondary", disabled, onClick
+
 
 7. Layout Structure
 
 Page Layout
 ├── Header (AavaHeaderComponent)
-│   ├── Tabs (AavaTabsComponent)
-│   └── Avatar (AavaAvatarsComponent)
-├── Sidebar (AavaSidebarComponent) [optional]
-├── Main Content Container
-│   ├── PromptBar (AavaPromptBarComponent)
-│   ├── Option Card Grid (AavaGridComponent)
-│   │   ├── Option Button (AavaButtonComponent) [Core]
-│   │   └── Option Button (AavaButtonComponent) [Rotational]
-│   ├── Action Button Grid (AavaGridComponent)
-│   │   ├── Exit Button (AavaButtonComponent, variant="danger")
-│   │   └── Start Now Button (AavaButtonComponent, variant="secondary", disabled)
-│   └── Snackbar (AavaSnackbarComponent)
-└── Dialog (AavaDialogComponent)
+├── Main Content Container (centered)
+│   └── DashboardPromptCard (AavaDefaultCardComponent)
+│       ├── CardHeader: "Select ASK type"
+│       ├── CardContent:
+│       │   ├── OptionButtonsContainer (horizontal, spaced)
+│       │   │   ├── OptionButton: Core
+│       │   │   └── OptionButton: Rotational
+│       │   └── ActionButtonsContainer (horizontal, spaced)
+│       │       ├── ExitButton
+│       │       └── StartNowButton (disabled by default)
 
-All components are mapped to reusable library components wherever possible. No new custom components are required for this layout.
+
+---
+
+All components are mapped to reusable library components. No new components are required for this screen. The architecture is modular, aligns with the visual layout, and fulfills the Jira requirements.
