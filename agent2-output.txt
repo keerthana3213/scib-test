@@ -6,13 +6,14 @@ Page Name:
 YouthAccountPage
 
 Mapped Layout:
-- Header (search, notification, avatar chip)
-- Sidebar (navigation, error/confirmation section, footer)
-- Main Content (dashboard cards, add funds modal, set limit modal, activity page, confirmation modals, snackbar)
+- Header (search, notifications, avatar)
+- Sidebar (Dashboard, Add Funds, Set Limit, Activity, Errors/Confirmations)
+- Main Content (Dashboard cards, Add Funds form/modal, Set Limit form/modal, Activity list, Modals, Snackbars)
 
 Components from A1:
 - HeaderComponent
 - SidebarComponent
+- DashboardPage
 - AccountBalanceCard
 - SpendingLimitCard
 - RecentActivityCard
@@ -20,21 +21,22 @@ Components from A1:
 - FundTransferModal
 - SpendingLimitModal
 - ActivityPage
+- TransactionListCard
 - ConfirmationModal
-- SnackbarComponent
-- TransactionList
+- SuccessModal
+- ErrorSnackbar
 
 2. GLOBAL ARCHITECTURE SUMMARY
 
 Layout Type:
-Mixed (Sidebar + Header + Responsive Grid/Flex for content)
+Mixed (Sidebar + Header + Grid/Flex content)
 
 Main Sections:
 - Header
 - Sidebar
 - Main Content
 - Modals
-- Snackbar/Error States
+- Snackbars
 
 Component Strategy:
 Reused Components:
@@ -45,21 +47,26 @@ Reused Components:
 - Modal
 - Snackbar
 - Timeline
-- Avatar
-- Tag
 - Divider
+- Badge
+- Avatar
+- Tabs
 
 New Components (if any):
+- AccountBalanceCard
+- SpendingLimitCard
+- RecentActivityCard
 - TipsCard
-- TransactionList
+- FundTransferModal
+- SpendingLimitModal
+- TransactionListCard
+- ConfirmationModal
+- SuccessModal
+- ErrorSnackbar
 
 3. FOLDER STRUCTURE
 
 src/
- ├── pages/
- │    └── YouthAccountPage/
- │         ├── YouthAccountPage.tsx
- │
  ├── components/
  │    ├── layout/
  │    │    ├── HeaderComponent
@@ -73,18 +80,28 @@ src/
  │    │    ├── FundTransferModal
  │    │    ├── SpendingLimitModal
  │    │    ├── ConfirmationModal
- │    │    ├── SnackbarComponent
- │    │    ├── TransactionList
+ │    │    ├── SuccessModal
+ │    │    ├── TransactionListCard
  │    │
  │    ├── shared/
  │         ├── Button
  │         ├── Card
  │         ├── Modal
- │         ├── Avatar
- │         ├── Tag
- │         ├── Divider
- │         ├── Timeline
  │         ├── Snackbar
+ │         ├── Divider
+ │         ├── Badge
+ │         ├── Avatar
+ │
+ ├── pages/
+ │    ├── YouthAccountPage/
+ │         ├── YouthAccountPage.tsx
+ │         ├── DashboardPage.tsx
+ │         ├── FundTransferModal.tsx
+ │         ├── SpendingLimitModal.tsx
+ │         ├── ActivityPage.tsx
+ │         ├── ConfirmationModal.tsx
+ │         ├── SuccessModal.tsx
+ │         ├── ErrorSnackbar.tsx
 
 4. COMPONENT IMPLEMENTATION (REPEATS FOR EACH COMPONENT)
 
@@ -97,7 +114,7 @@ Mapped From A1:
 YouthAccountPage
 
 Purpose:
-Top-level container for the youth account dashboard and flows. Handles layout, routing, and data orchestration.
+Top-level container for the youth account management experience. Orchestrates layout, navigation, and data flow.
 
 Parent:
 N/A (root)
@@ -105,82 +122,112 @@ N/A (root)
 Children:
 - HeaderComponent
 - SidebarComponent
-- MainContainer (DashboardPage, FundTransferModal, SpendingLimitModal, ActivityPage, ConfirmationModal, SnackbarComponent)
+- DashboardPage
+- FundTransferModal
+- SpendingLimitModal
+- ActivityPage
+- ConfirmationModal
+- SuccessModal
+- ErrorSnackbar
 
 Dependencies:
-- React Router (for page switching)
-- Context/State management
+- Layout components
+- Feature components
+- Shared components
 
 Library Components Used:
-- None directly (delegates to children)
+- Grid (for main layout)
+- Divider (section separation)
 
 TypeScript Specification
+
 Inputs:
 - user: { name: string, avatarUrl: string }
-- dashboardData: object
-- transactions: Transaction[]
+- notifications: Notification[]
+- menuItems: MenuItem[]
+- dashboardData: { balance, limit, recentActivity, tips }
 - sourceAccounts: Account[]
+- transferLimit: number
+- templates: Template[]
 - currentLimit: number
-- tips: string[]
+- guidance: string
+- transactions: Transaction[]
+- details: { source, amount, recipient }
+- message: string
+- updatedBalance?: number
+- error: { message: string, type: 'error' | 'warning' }
+
 Outputs:
-- onSearch(query: string)
-- onNavigate(page: string)
-- onTransfer(details)
-- onSaveLimit(newLimit: number)
-- onSnackbarDismiss()
+- onMenuSelect(section: string)
+- onAddFunds()
+- onSetLimit()
+- onViewActivity()
+- onTransfer(payload)
+- onSaveLimit(payload)
+- onConfirm(payload)
+- onCloseModal()
+- onDismissError()
+
 State:
-- selectedPage: string
-- modalState: { fundTransferOpen: boolean, limitOpen: boolean, confirmation: null | { type: string, details: object } }
+- selectedSection: string
+- modalState: { fundTransferOpen, setLimitOpen, confirmationOpen, successOpen, errorOpen }
+
 Methods:
-- handlePageChange(page)
-- handleTransfer(details)
-- handleLimitSave(newLimit)
-- handleSnackbar(message, type)
+- handleMenuSelect(section)
+- handleAddFunds()
+- handleSetLimit()
+- handleViewActivity()
+- handleTransfer(payload)
+- handleSaveLimit(payload)
+- handleConfirm(payload)
+- handleCloseModal()
+- handleDismissError()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<YouthAccountPage>
-  <HeaderComponent user={user} onSearch={onSearch} />
-  <SidebarComponent selectedPage={selectedPage} onNavigate={handlePageChange} />
-  <MainContainer>
-    {selectedPage === 'dashboard' && <DashboardPage ... />}
-    {selectedPage === 'activity' && <ActivityPage ... />}
-    {modalState.fundTransferOpen && <FundTransferModal ... />}
-    {modalState.limitOpen && <SpendingLimitModal ... />}
-    {modalState.confirmation && <ConfirmationModal ... />}
-    <SnackbarComponent ... />
-  </MainContainer>
-</YouthAccountPage>
+
+<GridContainer>
+  <HeaderComponent user notifications />
+  <SidebarComponent selectedSection menuItems onMenuSelect />
+  <MainContentArea>
+    <DashboardPage dashboardData onAddFunds onSetLimit onViewActivity />
+    <FundTransferModal sourceAccounts transferLimit templates onTransfer onCancel />
+    <SpendingLimitModal currentLimit guidance onSave onCancel />
+    <ActivityPage transactions onFilter />
+    <ConfirmationModal details onConfirm onBack />
+    <SuccessModal message updatedBalance onClose />
+    <ErrorSnackbar message type onDismiss />
+  </MainContentArea>
+</GridContainer>
 
 CSS SPECIFICATION
+
 Layout:
-- display: flex (main layout)
-- Sidebar: fixed width, collapsible
+- display: grid; grid-template-areas: 'sidebar header' 'sidebar main';
+- Sidebar: fixed width, full height
 - Header: sticky top
-- MainContainer: flex-grow, responsive grid for cards
+- MainContentArea: flex column, gap between cards/sections
+
 Spacing:
-- 24px gap between sidebar/content
-- 16px padding in content area
+- padding: 24px main content
+- gap: 16px between cards
+
 Component Styles:
-- .youth-account-page
-- .main-container
+- Sidebar: background, active menu highlight
+- Header: shadow, avatar alignment
+
 Responsive:
 - Sidebar collapses to icons on < 900px
-- Cards stack vertically on < 600px
+- Main content stacks vertically on mobile
 
 API INTEGRATION
-- On mount: GET /api/youth-accounts/{id}/dashboard, GET /transactions
-- On transfer: POST /fund-transfer
-- On limit save: PUT /spending-limit
+- All child components handle their own API calls via props/events
 
 ERROR HANDLING
-- API failure: show SnackbarComponent with error
-- Validation error: show inline or modal error
+- ErrorSnackbar shown for any API/UI error
 
 INTERACTION FLOW
-- User selects nav → updates selectedPage
-- User clicks Add Funds → opens FundTransferModal
-- User submits transfer → API call → ConfirmationModal/Snackbar
-- User sets limit → opens SpendingLimitModal → API call → ConfirmationModal/Snackbar
+- Menu select → update selectedSection → show relevant page/modal
+- Add Funds/Set Limit → open modal → submit → API call → confirmation/success/error
 
 ---
 
@@ -193,56 +240,67 @@ Mapped From A1:
 HeaderComponent
 
 Purpose:
-Displays search bar, notification icon, and parent avatar chip.
+Displays app logo, search bar, notifications, and parent avatar.
 
 Parent:
 YouthAccountPage
 
 Children:
-- SearchBar (from library)
-- NotificationIcon (from library or custom)
-- Avatar (from library)
-- Tag (for name)
+- Avatar (library)
+- Search-Bar (library)
+- Icon (notification)
 
 Dependencies:
-- Search-Bar.pdf
-- Avatar.pdf
-- Tag.pdf
+- Avatar
+- Search-Bar
+- Icon
 
 Library Components Used:
-- SearchBar → search input
-- Avatar → user image
-- Tag → user name
+- Header (layout)
+- Avatar (user image)
+- Search-Bar (search input)
+- Icon (notification)
 
 TypeScript Specification
+
 Inputs:
 - user: { name: string, avatarUrl: string }
-- onSearch: (query: string) => void
+- notifications: Notification[]
+
 Outputs:
-- searchChange(query: string)
+- onSearchChange(value: string)
+- onNotificationClick()
+
 State:
 - searchText: string
+
 Methods:
-- handleSearchChange(e)
+- handleSearchChange(value)
+- handleNotificationClick()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Header>
-  <SearchBar value={searchText} onChange={handleSearchChange} />
-  <NotificationIcon />
-  <Avatar src={user.avatarUrl} />
-  <Tag>{user.name}</Tag>
+  <Logo />
+  <Search-Bar value=searchText onChange=onSearchChange />
+  <Icon name="notification" onClick=onNotificationClick />
+  <Avatar src=user.avatarUrl label=user.name />
 </Header>
 
 CSS SPECIFICATION
+
 Layout:
-- display: flex; align-items: center; justify-content: space-between
+- display: flex; align-items: center; justify-content: space-between;
+
 Spacing:
 - gap: 16px between elements
+
 Component Styles:
-- .header
-- .avatar-chip
+- Avatar: circle, 40px
+- Notification icon: badge for unread
+
 Responsive:
-- Stack vertically on < 600px
+- Search bar collapses to icon on mobile
 
 API INTEGRATION
 - None
@@ -251,7 +309,8 @@ ERROR HANDLING
 - None
 
 INTERACTION FLOW
-- User types in search → searchChange event
+- Search input → onSearchChange
+- Notification icon → onNotificationClick
 
 ---
 
@@ -264,63 +323,62 @@ Mapped From A1:
 SidebarComponent
 
 Purpose:
-Navigation for dashboard, add funds, set limit, activity, error/confirmation section, footer.
+Navigation for dashboard, funds, limit, activity, errors. Shows footer with version/copyright.
 
 Parent:
 YouthAccountPage
 
 Children:
-- Menu (from library)
-- Divider
-- Error/Confirmation section
+- Menu (library)
+- Divider (library)
 - Footer
 
 Dependencies:
-- Sidebar.pdf
-- Menu.pdf
-- Divider.pdf
+- Menu
+- Divider
 
 Library Components Used:
-- Sidebar → container
-- Menu → navigation links
-- Divider → section separation
+- Sidebar
+- Menu
+- Divider
 
 TypeScript Specification
+
 Inputs:
-- selectedPage: string
-- onNavigate: (page: string) => void
+- selectedSection: string
+- menuItems: MenuItem[]
+
 Outputs:
-- collapseToggle
+- onMenuSelect(section: string)
+
 State:
-- isCollapsed: boolean
+- None
+
 Methods:
-- handleNavClick(page)
-- handleCollapseToggle()
+- handleMenuSelect(section)
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Sidebar>
-  <Menu selected={selectedPage} onSelect={handleNavClick}>
-    <MenuItem>Dashboard</MenuItem>
-    <MenuItem>Add Funds</MenuItem>
-    <MenuItem>Set Limit</MenuItem>
-    <MenuItem>Activity</MenuItem>
-  </Menu>
+  <Menu items=menuItems selected=selectedSection onSelect=onMenuSelect />
   <Divider />
-  <ErrorConfirmationSection />
-  <Footer>v1.0.0 © Bank</Footer>
+  <Footer>v1.0.0 © 2024</Footer>
 </Sidebar>
 
 CSS SPECIFICATION
+
 Layout:
-- width: 240px; min-width: 64px (collapsed)
-- display: flex; flex-direction: column
+- display: flex; flex-direction: column; height: 100%;
+
 Spacing:
 - gap: 8px between menu items
+
 Component Styles:
-- .sidebar
-- .sidebar-collapsed
+- Active menu item highlight
+- Footer: small, muted
+
 Responsive:
-- Collapses to icons on < 900px
+- Collapses to icons on mobile
 
 API INTEGRATION
 - None
@@ -329,12 +387,101 @@ ERROR HANDLING
 - None
 
 INTERACTION FLOW
-- User clicks nav → onNavigate
-- User toggles collapse → collapseToggle
+- Menu item click → onMenuSelect
 
 ---
 
-### 4.4 AccountBalanceCard
+### 4.4 DashboardPage
+
+Component Type:
+Feature
+
+Mapped From A1:
+DashboardPage
+
+Purpose:
+Shows youth account overview: balance, limit, recent activity, tips.
+
+Parent:
+YouthAccountPage
+
+Children:
+- AccountBalanceCard
+- SpendingLimitCard
+- RecentActivityCard
+- TipsCard
+
+Dependencies:
+- Card
+- Button
+- Divider
+
+Library Components Used:
+- Card
+- Button
+- Divider
+
+TypeScript Specification
+
+Inputs:
+- dashboardData: { balance, limit, recentActivity, tips }
+
+Outputs:
+- onAddFunds()
+- onSetLimit()
+- onViewActivity()
+
+State:
+- None
+
+Methods:
+- handleAddFunds()
+- handleSetLimit()
+- handleViewActivity()
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<DashboardContainer>
+  <CardGroup>
+    <AccountBalanceCard balance lastUpdated />
+    <SpendingLimitCard limit period onEditLimit />
+    <RecentActivityCard recentTransactions onViewAll />
+    <TipsCard tips />
+  </CardGroup>
+  <ButtonGroup>
+    <Button onClick=onAddFunds>Add Funds</Button>
+    <Button onClick=onSetLimit>Set Limit</Button>
+    <Button onClick=onViewActivity>View Activity</Button>
+  </ButtonGroup>
+</DashboardContainer>
+
+CSS SPECIFICATION
+
+Layout:
+- display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+- gap: 24px between cards
+
+Spacing:
+- margin-bottom: 16px for button group
+
+Component Styles:
+- Card: shadow, rounded
+
+Responsive:
+- Cards stack vertically on mobile
+
+API INTEGRATION
+- GET /api/youth-accounts/{youthAccountId}/dashboard
+
+ERROR HANDLING
+- ErrorSnackbar shown on API error
+
+INTERACTION FLOW
+- Button click → open modal/page
+
+---
+
+### 4.5 AccountBalanceCard
 
 Component Type:
 Feature
@@ -343,60 +490,74 @@ Mapped From A1:
 AccountBalanceCard
 
 Purpose:
-Displays youth account balance, currency, and last updated time.
+Displays current account balance and last updated time.
 
 Parent:
 DashboardPage
 
 Children:
-- Card (from library)
+- Badge (for currency)
 
 Dependencies:
-- Card.pdf
+- Card
+- Badge
 
 Library Components Used:
-- Card → container
+- Card
+- Badge
 
 TypeScript Specification
+
 Inputs:
 - balance: number
-- currency: string
 - lastUpdated: string
+
 Outputs:
 - None
+
 State:
 - None
+
 Methods:
 - None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Card>
-  <BalanceAmount>{balance} {currency}</BalanceAmount>
-  <LastUpdated>{lastUpdated}</LastUpdated>
+  <Title>Account Balance</Title>
+  <Amount>
+    <Badge>USD</Badge> $balance
+  </Amount>
+  <LastUpdated>Last updated: lastUpdated</LastUpdated>
 </Card>
 
 CSS SPECIFICATION
+
 Layout:
-- display: flex; flex-direction: column; align-items: flex-start
+- display: flex; flex-direction: column; align-items: flex-start;
+
 Spacing:
-- padding: 24px
+- gap: 8px
+
 Component Styles:
-- .balance-card
+- Amount: large font
+- Badge: small, colored
+
 Responsive:
-- Full width on mobile
+- Font size scales on mobile
 
 API INTEGRATION
-- GET /api/youth-accounts/{id}/dashboard
+- GET /api/youth-accounts/{youthAccountId}/dashboard
 
 ERROR HANDLING
-- Show '--' if data missing
+- None (handled by parent)
 
 INTERACTION FLOW
 - None
 
 ---
 
-### 4.5 SpendingLimitCard
+### 4.6 SpendingLimitCard
 
 Component Type:
 Feature
@@ -405,64 +566,71 @@ Mapped From A1:
 SpendingLimitCard
 
 Purpose:
-Displays and allows editing of weekly spending limit.
+Shows current spending limit and period, allows edit.
 
 Parent:
 DashboardPage
 
 Children:
-- Card
-- Button (Edit)
+- Button (edit)
 
 Dependencies:
-- Card.pdf
-- Button.pdf
+- Card
+- Button
 
 Library Components Used:
 - Card
 - Button
 
 TypeScript Specification
+
 Inputs:
 - limit: number
-- currency: string
-- onEdit: () => void
+- period: string
+
 Outputs:
-- editClick
+- onEditLimit()
+
 State:
 - None
+
 Methods:
-- handleEditClick()
+- handleEditLimit()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Card>
-  <LimitAmount>{limit} {currency}</LimitAmount>
-  <Button onClick={handleEditClick}>Edit</Button>
+  <Title>Spending Limit</Title>
+  <LimitAmount>$limit / period</LimitAmount>
+  <Button onClick=onEditLimit>Edit</Button>
 </Card>
 
 CSS SPECIFICATION
+
 Layout:
-- display: flex; justify-content: space-between; align-items: center
+- display: flex; flex-direction: column; align-items: flex-start;
+
 Spacing:
-- padding: 24px
+- gap: 8px
+
 Component Styles:
-- .limit-card
+- LimitAmount: bold
+
 Responsive:
-- Full width on mobile
+- Button full width on mobile
 
 API INTEGRATION
-- GET /api/youth-accounts/{id}/dashboard
-- PUT /api/youth-accounts/{id}/spending-limit
+- GET /api/youth-accounts/{youthAccountId}/dashboard
 
 ERROR HANDLING
-- Show error Snackbar on PUT failure
+- None (handled by parent)
 
 INTERACTION FLOW
-- User clicks Edit → opens SpendingLimitModal
+- Edit button → open SpendingLimitModal
 
 ---
 
-### 4.6 RecentActivityCard
+### 4.7 RecentActivityCard
 
 Component Type:
 Feature
@@ -471,20 +639,19 @@ Mapped From A1:
 RecentActivityCard
 
 Purpose:
-Displays recent transactions and allows navigation to full activity page.
+Shows recent transactions with option to view all.
 
 Parent:
 DashboardPage
 
 Children:
-- Card
-- Timeline (for activity)
-- Button (View All)
+- Timeline (library)
+- Button (view all)
 
 Dependencies:
-- Card.pdf
-- Timeline.pdf
-- Button.pdf
+- Card
+- Timeline
+- Button
 
 Library Components Used:
 - Card
@@ -492,44 +659,53 @@ Library Components Used:
 - Button
 
 TypeScript Specification
+
 Inputs:
-- transactions: Transaction[]
-- onViewAll: () => void
+- recentTransactions: Transaction[]
+
 Outputs:
-- viewAllClick
+- onViewAll()
+
 State:
 - None
+
 Methods:
-- handleViewAllClick()
+- handleViewAll()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Card>
-  <Timeline items={transactions.slice(0,5)} />
-  <Button onClick={handleViewAllClick}>View All</Button>
+  <Title>Recent Activity</Title>
+  <Timeline items=recentTransactions />
+  <Button onClick=onViewAll>View All</Button>
 </Card>
 
 CSS SPECIFICATION
+
 Layout:
-- display: flex; flex-direction: column
+- display: flex; flex-direction: column;
+
 Spacing:
-- padding: 24px
+- gap: 8px
+
 Component Styles:
-- .activity-card
+- Timeline: vertical, compact
+
 Responsive:
-- Full width on mobile
+- Timeline items stack on mobile
 
 API INTEGRATION
-- GET /api/youth-accounts/{id}/dashboard
+- GET /api/youth-accounts/{youthAccountId}/dashboard
 
 ERROR HANDLING
-- Show '--' if no transactions
+- None (handled by parent)
 
 INTERACTION FLOW
-- User clicks View All → navigates to ActivityPage
+- View All button → navigate to ActivityPage
 
 ---
 
-### 4.7 TipsCard
+### 4.8 TipsCard
 
 Component Type:
 Feature
@@ -538,60 +714,70 @@ Mapped From A1:
 TipsCard
 
 Purpose:
-Displays financial literacy tips for parents/children.
+Shows financial literacy tips.
 
 Parent:
 DashboardPage
 
 Children:
-- Card
-- List
+- List (tips)
 
 Dependencies:
-- Card.pdf
+- Card
 
 Library Components Used:
 - Card
 
 TypeScript Specification
+
 Inputs:
 - tips: string[]
+
 Outputs:
 - None
+
 State:
 - None
+
 Methods:
 - None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Card>
+  <Title>Tips</Title>
   <ul>
-    {tips.map(tip => <li>{tip}</li>)}
+    <li>tip</li>
+    ...
   </ul>
 </Card>
 
 CSS SPECIFICATION
+
 Layout:
-- display: flex; flex-direction: column
+- display: flex; flex-direction: column;
+
 Spacing:
-- padding: 24px
+- gap: 4px
+
 Component Styles:
-- .tips-card
+- List: bullet points
+
 Responsive:
-- Full width on mobile
+- List font size scales
 
 API INTEGRATION
 - None
 
 ERROR HANDLING
-- Show '--' if no tips
+- None
 
 INTERACTION FLOW
 - None
 
 ---
 
-### 4.8 FundTransferModal
+### 4.9 FundTransferModal
 
 Component Type:
 Feature
@@ -606,66 +792,88 @@ Parent:
 YouthAccountPage
 
 Children:
-- Modal
-- Form (source account, amount, templates)
-- Button (Transfer, Cancel)
+- Dropdown (source account)
+- Textbox (amount)
+- Chip-Tag (templates)
+- Button (transfer/cancel)
+- Snackbar (error)
 
 Dependencies:
-- Modal.pdf
-- Button.pdf
+- Modal
+- Dropdown
+- Textbox
+- Chip-Tag
+- Button
+- Snackbar
 
 Library Components Used:
 - Modal
+- Dropdown
+- Textbox
+- Chip-Tag
 - Button
+- Snackbar
 
 TypeScript Specification
+
 Inputs:
 - sourceAccounts: Account[]
-- onTransfer: (details) => void
-- onCancel: () => void
+- transferLimit: number
+- templates: Template[]
+
 Outputs:
-- transferSubmit
-- cancel
+- onTransfer(payload: { source: string, amount: number })
+- onCancel()
+
 State:
 - selectedSource: string
 - amount: number
+- selectedTemplate: string
+
 Methods:
-- handleTransferSubmit()
+- handleSourceChange(value)
+- handleAmountChange(value)
+- handleTemplateSelect(template)
+- handleTransfer()
 - handleCancel()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Modal title="Add Funds">
-  <Form>
-    <Dropdown options={sourceAccounts} value={selectedSource} onChange={...} />
-    <Textbox value={amount} onChange={...} />
-    <Button onClick={handleTransferSubmit}>Transfer</Button>
-    <Button variant="secondary" onClick={handleCancel}>Cancel</Button>
-  </Form>
+  <Dropdown options=sourceAccounts value=selectedSource onChange=handleSourceChange />
+  <Textbox value=amount onChange=handleAmountChange placeholder="Amount" />
+  <Chip-Tag items=templates onSelect=handleTemplateSelect />
+  <Button onClick=handleTransfer disabled={!amount || !selectedSource}>Transfer</Button>
+  <Button variant="secondary" onClick=handleCancel>Cancel</Button>
+  <Snackbar message error onDismiss />
 </Modal>
 
 CSS SPECIFICATION
+
 Layout:
-- Modal centered, max-width: 400px
+- display: flex; flex-direction: column; gap: 16px;
+
 Spacing:
-- 16px between fields
+- margin-top: 8px for buttons
+
 Component Styles:
-- .fund-transfer-modal
+- Modal: fixed width, centered
+
 Responsive:
-- Fullscreen modal on mobile
+- Modal full width on mobile
 
 API INTEGRATION
-- POST /api/youth-accounts/{id}/fund-transfer
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer
 
 ERROR HANDLING
-- Show Snackbar on insufficient balance (API 400/403)
-- Inline validation for amount
+- Show Snackbar on insufficient balance or validation error
 
 INTERACTION FLOW
-- User fills form → clicks Transfer → API call → ConfirmationModal/Snackbar
+- Transfer button → API call → ConfirmationModal/SuccessModal/ErrorSnackbar
 
 ---
 
-### 4.9 SpendingLimitModal
+### 4.10 SpendingLimitModal
 
 Component Type:
 Feature
@@ -674,71 +882,85 @@ Mapped From A1:
 SpendingLimitModal
 
 Purpose:
-Modal for setting/updating weekly spending limit.
+Modal for setting/updating spending limit.
 
 Parent:
 YouthAccountPage
 
 Children:
-- Modal
-- Form (new limit input, guidance)
-- Button (Save, Cancel)
+- Textbox (new limit)
+- Prompt-Bar (guidance)
+- Button (save/cancel)
+- Snackbar (error)
 
 Dependencies:
-- Modal.pdf
-- Button.pdf
+- Modal
+- Textbox
+- Prompt-Bar
+- Button
+- Snackbar
 
 Library Components Used:
 - Modal
+- Textbox
+- Prompt-Bar
 - Button
+- Snackbar
 
 TypeScript Specification
+
 Inputs:
 - currentLimit: number
-- onSave: (newLimit: number) => void
-- onCancel: () => void
+- guidance: string
+
 Outputs:
-- save
-- cancel
+- onSave(newLimit: number)
+- onCancel()
+
 State:
 - newLimit: number
+
 Methods:
+- handleLimitChange(value)
 - handleSave()
 - handleCancel()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
+
 <Modal title="Set Spending Limit">
-  <Form>
-    <Textbox value={newLimit} onChange={...} />
-    <div class="guidance">Set a weekly spending limit for your child.</div>
-    <Button onClick={handleSave}>Save</Button>
-    <Button variant="secondary" onClick={handleCancel}>Cancel</Button>
-  </Form>
+  <Prompt-Bar message=guidance />
+  <Textbox value=newLimit onChange=handleLimitChange placeholder="New Limit" />
+  <Button onClick=handleSave disabled={!newLimit}>Save</Button>
+  <Button variant="secondary" onClick=handleCancel>Cancel</Button>
+  <Snackbar message error onDismiss />
 </Modal>
 
 CSS SPECIFICATION
+
 Layout:
-- Modal centered, max-width: 400px
+- display: flex; flex-direction: column; gap: 16px;
+
 Spacing:
-- 16px between fields
+- margin-top: 8px for buttons
+
 Component Styles:
-- .spending-limit-modal
+- Modal: fixed width, centered
+
 Responsive:
-- Fullscreen modal on mobile
+- Modal full width on mobile
 
 API INTEGRATION
-- PUT /api/youth-accounts/{id}/spending-limit
+- PUT /api/youth-accounts/{youthAccountId}/spending-limit
 
 ERROR HANDLING
-- Show Snackbar on invalid/failed update
-- Inline validation for limit
+- Show Snackbar on invalid limit or API error
 
 INTERACTION FLOW
-- User enters limit → clicks Save → API call → ConfirmationModal/Snackbar
+- Save button → API call → ConfirmationModal/SuccessModal/ErrorSnackbar
 
 ---
 
-### 4.10 ActivityPage
+### 4.11 ActivityPage
 
 Component Type:
 Feature
@@ -747,59 +969,146 @@ Mapped From A1:
 ActivityPage
 
 Purpose:
-Displays all transactions for the youth account, with optional filters.
+Shows all transactions for the youth account.
 
 Parent:
 YouthAccountPage
 
 Children:
-- TransactionList
-- FilterBar (optional)
+- TransactionListCard
+- Tabs (filter)
 
 Dependencies:
-- None (uses TransactionList)
+- TransactionListCard
+- Tabs
 
 Library Components Used:
-- None
+- Tabs
 
 TypeScript Specification
+
 Inputs:
 - transactions: Transaction[]
+
 Outputs:
-- filterChange
+- onFilter(filter: string)
+
 State:
-- filters: { startDate?: string, endDate?: string }
+- selectedFilter: string
+
 Methods:
-- handleFilterChange()
+- handleFilterChange(filter)
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<ActivityPage>
-  <FilterBar onChange={handleFilterChange} />
-  <TransactionList transactions={filteredTransactions} />
-</ActivityPage>
+
+<ActivityContainer>
+  <Tabs options=["All", "Deposits", "Withdrawals"] value=selectedFilter onChange=handleFilterChange />
+  <TransactionListCard transactions />
+</ActivityContainer>
 
 CSS SPECIFICATION
+
 Layout:
-- display: flex; flex-direction: column
+- display: flex; flex-direction: column; gap: 16px;
+
 Spacing:
-- 16px between filter and list
+- margin-top: 16px
+
 Component Styles:
-- .activity-page
+- Tabs: underline active
+
 Responsive:
-- Full width on mobile
+- Tabs scroll horizontally on mobile
 
 API INTEGRATION
-- GET /api/youth-accounts/{id}/transactions
+- GET /api/youth-accounts/{youthAccountId}/transactions
 
 ERROR HANDLING
-- Show '--' if no transactions
+- ErrorSnackbar on API error
 
 INTERACTION FLOW
-- User sets filter → filterChange → update list
+- Tab select → filter transactions
 
 ---
 
-### 4.11 ConfirmationModal
+### 4.12 TransactionListCard
+
+Component Type:
+Feature
+
+Mapped From A1:
+TransactionListCard
+
+Purpose:
+Card for displaying a list of transactions.
+
+Parent:
+ActivityPage
+
+Children:
+- List (transactions)
+- Badge (type)
+
+Dependencies:
+- Card
+- Badge
+
+Library Components Used:
+- Card
+- Badge
+
+TypeScript Specification
+
+Inputs:
+- transactions: Transaction[]
+
+Outputs:
+- None
+
+State:
+- None
+
+Methods:
+- None
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Card>
+  <Title>Transactions</Title>
+  <ul>
+    <li>
+      <Badge>type</Badge> $amount - date - description
+    </li>
+    ...
+  </ul>
+</Card>
+
+CSS SPECIFICATION
+
+Layout:
+- display: flex; flex-direction: column;
+
+Spacing:
+- gap: 8px
+
+Component Styles:
+- Badge: color by type (deposit/withdrawal)
+
+Responsive:
+- List font size scales
+
+API INTEGRATION
+- GET /api/youth-accounts/{youthAccountId}/transactions
+
+ERROR HANDLING
+- None (handled by parent)
+
+INTERACTION FLOW
+- None
+
+---
+
+### 4.13 ConfirmationModal
 
 Component Type:
 Feature
@@ -808,241 +1117,271 @@ Mapped From A1:
 ConfirmationModal
 
 Purpose:
-Shows confirmation for fund transfer or limit update.
+Modal to confirm fund transfer or limit update.
 
 Parent:
 YouthAccountPage
 
 Children:
-- Modal
-- Button (Confirm, Back)
+- Divider
+- Button (confirm/back)
 
 Dependencies:
-- Modal.pdf
-- Button.pdf
+- Modal
+- Divider
+- Button
+
+Library Components Used:
+- Modal
+- Divider
+- Button
+
+TypeScript Specification
+
+Inputs:
+- details: { source, amount, recipient }
+
+Outputs:
+- onConfirm()
+- onBack()
+
+State:
+- None
+
+Methods:
+- handleConfirm()
+- handleBack()
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Modal title="Confirm Action">
+  <DetailsList>
+    <li>Source: details.source</li>
+    <li>Amount: $details.amount</li>
+    <li>Recipient: details.recipient</li>
+  </DetailsList>
+  <Divider />
+  <Button onClick=handleConfirm>Confirm</Button>
+  <Button variant="secondary" onClick=handleBack>Back</Button>
+</Modal>
+
+CSS SPECIFICATION
+
+Layout:
+- display: flex; flex-direction: column; gap: 16px;
+
+Spacing:
+- margin-top: 8px for buttons
+
+Component Styles:
+- Modal: fixed width, centered
+
+Responsive:
+- Modal full width on mobile
+
+API INTEGRATION
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer
+- PUT /api/youth-accounts/{youthAccountId}/spending-limit
+
+ERROR HANDLING
+- ErrorSnackbar on API error
+
+INTERACTION FLOW
+- Confirm button → API call → SuccessModal/ErrorSnackbar
+
+---
+
+### 4.14 SuccessModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+SuccessModal
+
+Purpose:
+Modal for success messages (transfer, limit update).
+
+Parent:
+YouthAccountPage
+
+Children:
+- Button (close)
+
+Dependencies:
+- Modal
+- Button
 
 Library Components Used:
 - Modal
 - Button
 
 TypeScript Specification
+
 Inputs:
-- type: 'transfer' | 'limit'
-- details: object
-- onConfirm: () => void
-- onBack: () => void
+- message: string
+- updatedBalance?: number
+
 Outputs:
-- confirm
-- back
+- onClose()
+
 State:
 - None
+
 Methods:
-- handleConfirm()
-- handleBack()
+- handleClose()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<Modal title={type === 'transfer' ? 'Confirm Transfer' : 'Confirm Limit'}>
-  <ReviewDetails details={details} />
-  <Button onClick={handleConfirm}>Confirm</Button>
-  <Button variant="secondary" onClick={handleBack}>Back</Button>
+
+<Modal title="Success">
+  <Message>message</Message>
+  <If updatedBalance>
+    <UpdatedBalance>New Balance: $updatedBalance</UpdatedBalance>
+  </If>
+  <Button onClick=handleClose>Close</Button>
 </Modal>
 
 CSS SPECIFICATION
+
 Layout:
-- Modal centered, max-width: 400px
+- display: flex; flex-direction: column; align-items: center; gap: 16px;
+
 Spacing:
-- 16px between buttons
+- margin-top: 8px for button
+
 Component Styles:
-- .confirmation-modal
+- Success color theme
+
 Responsive:
-- Fullscreen modal on mobile
+- Modal full width on mobile
 
 API INTEGRATION
-- None (confirmation only)
+- None
 
 ERROR HANDLING
-- Show error Snackbar if confirmation fails
+- None
 
 INTERACTION FLOW
-- User reviews details → clicks Confirm/Back
+- Close button → dismiss modal
 
 ---
 
-### 4.12 SnackbarComponent
+### 4.15 ErrorSnackbar
 
 Component Type:
 Feature
 
 Mapped From A1:
-SnackbarComponent
+ErrorSnackbar
 
 Purpose:
-Shows transient notifications/errors at the bottom of the page.
+Shows error/warning messages (e.g., insufficient balance).
 
 Parent:
 YouthAccountPage
 
 Children:
-- Snackbar (from library)
+- Snackbar (library)
 
 Dependencies:
-- Snackbar.pdf
+- Snackbar
 
 Library Components Used:
 - Snackbar
 
 TypeScript Specification
+
 Inputs:
 - message: string
-- type: 'success' | 'error' | 'info' | 'warning'
-- onDismiss: () => void
+- type: 'error' | 'warning'
+
 Outputs:
-- dismiss
+- onDismiss()
+
 State:
-- visible: boolean
+- None
+
 Methods:
 - handleDismiss()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<Snackbar open={visible} type={type} onClose={handleDismiss}>
-  {message}
-</Snackbar>
+
+<Snackbar message type onDismiss=handleDismiss />
 
 CSS SPECIFICATION
+
 Layout:
-- position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+- position: fixed; bottom: 24px; right: 24px;
+
 Spacing:
-- min-width: 320px
+- padding: 16px
+
 Component Styles:
-- .snackbar
+- Error: red background
+- Warning: yellow background
+
 Responsive:
-- Full width on mobile
+- Snackbar full width on mobile
 
 API INTEGRATION
-- None
+- None (driven by parent error state)
 
 ERROR HANDLING
-- Used for all transient errors
+- Self-handling
 
 INTERACTION FLOW
-- User sees message → auto-dismiss or manual dismiss
+- Dismiss button → onDismiss
 
 ---
 
-### 4.13 TransactionList
-
-Component Type:
-Feature
-
-Mapped From A1:
-TransactionList
-
-Purpose:
-Displays a list of transactions.
-
-Parent:
-ActivityPage
-
-Children:
-- List
-- Divider
-
-Dependencies:
-- Divider.pdf
-
-Library Components Used:
-- Divider
-
-TypeScript Specification
-Inputs:
-- transactions: Transaction[]
-Outputs:
-- None
-State:
-- None
-Methods:
-- None
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<ul class="transaction-list">
-  {transactions.map(txn => (
-    <li>
-      <div class="txn-row">
-        <span class="txn-date">{txn.date}</span>
-        <span class="txn-desc">{txn.description}</span>
-        <span class="txn-amount">{txn.amount}</span>
-      </div>
-      <Divider />
-    </li>
-  ))}
-</ul>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; flex-direction: column
-Spacing:
-- 8px between items
-Component Styles:
-- .transaction-list
-- .txn-row
-Responsive:
-- Full width on mobile
-
-API INTEGRATION
-- GET /api/youth-accounts/{id}/transactions
-
-ERROR HANDLING
-- Show '--' if no transactions
-
-INTERACTION FLOW
-- None
-
 5. COMPONENT MAPPING SUMMARY
 
-| A1 Component      | Final Component      | Type    |
-|-------------------|---------------------|---------|
-| Header            | HeaderComponent     | Layout  |
-| Sidebar           | SidebarComponent    | Layout  |
-| Card              | AccountBalanceCard  | Feature |
-| Card              | SpendingLimitCard   | Feature |
-| Card              | RecentActivityCard  | Feature |
-| Card              | TipsCard            | Feature |
-| Modal             | FundTransferModal   | Feature |
-| Modal             | SpendingLimitModal  | Feature |
-| Modal             | ConfirmationModal   | Feature |
-| Snackbar          | SnackbarComponent   | Feature |
-| Timeline          | RecentActivityCard  | Feature |
-| TransactionList   | TransactionList     | Feature |
+| A1 Component      | Final Component        | Type    |
+|-------------------|-----------------------|---------|
+| Header            | HeaderComponent       | Layout  |
+| Sidebar           | SidebarComponent      | Layout  |
+| DashboardPage     | DashboardPage         | Feature |
+| AccountBalanceCard| AccountBalanceCard    | Feature |
+| SpendingLimitCard | SpendingLimitCard     | Feature |
+| RecentActivityCard| RecentActivityCard    | Feature |
+| TipsCard          | TipsCard              | Feature |
+| FundTransferModal | FundTransferModal     | Feature |
+| SpendingLimitModal| SpendingLimitModal    | Feature |
+| ActivityPage      | ActivityPage          | Feature |
+| TransactionListCard| TransactionListCard  | Feature |
+| ConfirmationModal | ConfirmationModal     | Feature |
+| SuccessModal      | SuccessModal          | Feature |
+| ErrorSnackbar     | ErrorSnackbar         | Feature |
 
 6. DATA FLOW (FROM AGENT-1)
 
 Parent → Child:
-<YouthAccountPage>
-→ HeaderComponent (user)
-→ SidebarComponent (selectedPage)
-→ MainContainer (pageData)
-  → DashboardPage (dashboardData)
-    → AccountBalanceCard (balance, currency, lastUpdated)
-    → SpendingLimitCard (limit, currency)
-    → RecentActivityCard (transactions)
-    → TipsCard (tips)
-  → FundTransferModal (sourceAccounts)
-  → SpendingLimitModal (currentLimit)
-  → ActivityPage (transactions)
-  → ConfirmationModal (type, details)
-  → SnackbarComponent (message, type)
+YouthAccountPage
+→ HeaderComponent (user, notifications)
+→ SidebarComponent (selectedSection, menuItems)
+→ MainContainer
+   → DashboardPage (dashboardData)
+      → AccountBalanceCard (balance, lastUpdated)
+      → SpendingLimitCard (limit, period)
+      → RecentActivityCard (recentTransactions)
+      → TipsCard (tips)
+   → FundTransferModal (sourceAccounts, transferLimit, templates)
+   → SpendingLimitModal (currentLimit, guidance)
+   → ActivityPage (transactions)
+      → TransactionListCard (transactions)
+   → ConfirmationModal (details)
+   → SuccessModal (message, updatedBalance)
+   → ErrorSnackbar (message, type)
 
 7. API USAGE SUMMARY
 
 Component → API:
-- DashboardPage → GET /api/youth-accounts/{id}/dashboard
-- AccountBalanceCard → GET /api/youth-accounts/{id}/dashboard
-- SpendingLimitCard → GET /api/youth-accounts/{id}/dashboard, PUT /spending-limit
-- RecentActivityCard → GET /api/youth-accounts/{id}/dashboard
-- FundTransferModal → POST /fund-transfer
-- SpendingLimitModal → PUT /spending-limit
-- ActivityPage → GET /transactions
-- TransactionList → GET /transactions
+- DashboardPage → GET /api/youth-accounts/{youthAccountId}/dashboard
+- FundTransferModal → POST /api/youth-accounts/{youthAccountId}/fund-transfer
+- SpendingLimitModal → PUT /api/youth-accounts/{youthAccountId}/spending-limit
+- ActivityPage, TransactionListCard → GET /api/youth-accounts/{youthAccountId}/transactions
+- ConfirmationModal → POST/PUT as above
+- ErrorSnackbar → Error responses from any API
 
 8. NOTES & CONSTRAINTS
 
@@ -1051,6 +1390,7 @@ Component → API:
 - Prefer reusable library components
 - HTML must be pseudo-code ONLY (NOT real framework code)
 - CSS should include only key classes and layout rules, not full stylesheets
-- All error and confirmation states must use SnackbarComponent or ConfirmationModal
-- All API errors must be surfaced to the user
-- All modals must be accessible and responsive
+- All API errors must be surfaced via ErrorSnackbar
+- All modals must be accessible and keyboard navigable
+- Use OnPush change detection for all feature components
+- Lazy load modals and activity page for performance
