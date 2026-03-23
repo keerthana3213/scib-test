@@ -6,19 +6,27 @@ Page Name:
 YouthAccountPage
 
 Mapped Layout:
-- Header (search, notification, avatar)
-- Sidebar (Dashboard, Add Funds, Set Limit, Activity, Errors/Confirmations)
-- Main Content (Dashboard, Fund Transfer, Set Limit, Activity, Modals, Snackbars)
+- Header (application header with search, notification, avatar)
+- Sidebar (navigation: Dashboard, Add Funds, Set Limit, Activity, popups)
+- Main Content (dashboard, transfer, limit, activity, errors, confirmations)
+- Cards: Account Balance, Spending Limit, Recent Activity, Financial Tips
+- Modals: Fund Transfer, Spending Limit, Confirmation, Success, Error Snackbars
 
 Components from A1:
 - HeaderComponent
 - SidebarComponent
-- DashboardPage
+- AccountBalanceCard
+- SpendingLimitCard
+- RecentActivityCard
+- FinancialTipsCard
+- ButtonGroup
 - FundTransferModal
 - SpendingLimitModal
-- ActivityPage
-- Snackbar
-- ConfirmationModals
+- TransactionListCard
+- TransferConfirmationModal
+- TransferSuccessModal
+- LimitUpdateConfirmationModal
+- Snackbar (DashboardLoadError, InsufficientBalanceError, InvalidLimitError)
 
 2. GLOBAL ARCHITECTURE SUMMARY
 
@@ -30,6 +38,7 @@ Main Sections:
 - Sidebar
 - Main Content
 - Modals
+- Snackbars
 
 Component Strategy:
 Reused Components:
@@ -41,18 +50,23 @@ Reused Components:
 - Snackbar
 - Timeline
 - Avatar
-- Tag
+- Chip-Tag
 - Divider
-- Badge
+- Grid
+- Tabs
+- Dialog
 
 New Components (if any):
 - AccountBalanceCard
 - SpendingLimitCard
 - RecentActivityCard
-- TipsCard
+- FinancialTipsCard
 - FundTransferModal
 - SpendingLimitModal
-- ConfirmationModals
+- TransactionListCard
+- TransferConfirmationModal
+- TransferSuccessModal
+- LimitUpdateConfirmationModal
 
 3. FOLDER STRUCTURE
 
@@ -70,11 +84,13 @@ src/
  │    │    ├── AccountBalanceCard
  │    │    ├── SpendingLimitCard
  │    │    ├── RecentActivityCard
- │    │    ├── TipsCard
+ │    │    ├── FinancialTipsCard
  │    │    ├── FundTransferModal
  │    │    ├── SpendingLimitModal
- │    │    ├── ActivityPage
- │    │    ├── ConfirmationModals
+ │    │    ├── TransactionListCard
+ │    │    ├── TransferConfirmationModal
+ │    │    ├── TransferSuccessModal
+ │    │    ├── LimitUpdateConfirmationModal
  │    │
  │    ├── shared/
  │         ├── Button
@@ -83,11 +99,13 @@ src/
  │         ├── Snackbar
  │         ├── Timeline
  │         ├── Avatar
- │         ├── Tag
+ │         ├── Chip-Tag
  │         ├── Divider
- │         ├── Badge
+ │         ├── Grid
+ │         ├── Tabs
+ │         ├── Dialog
 
-4. COMPONENT IMPLEMENTATION
+4. COMPONENT IMPLEMENTATION (REPEATS FOR EACH COMPONENT)
 
 ### 4.1 YouthAccountPage
 
@@ -98,88 +116,97 @@ Mapped From A1:
 YouthAccountPage
 
 Purpose:
-Top-level container for the youth account management experience. Orchestrates layout, navigation, and data flow.
+Top-level container for the youth account dashboard, orchestrates layout, data flow, and API integration.
 
 Parent:
-N/A (root)
+N/A
 
 Children:
 - HeaderComponent
 - SidebarComponent
-- DashboardPage
-- FundTransferModal
-- SpendingLimitModal
-- ActivityPage
-- Snackbar
+- DashboardSection
+- FundTransferSection
+- SpendingLimitSection
+- ActivitySection
 - ConfirmationModals
+- ErrorSnackbars
 
 Dependencies:
-- All layout, feature, and shared components
+- All child components
 
 Library Components Used:
-- None directly (delegates to children)
+- Grid (for layout)
 
 TypeScript Specification
-
 Inputs:
-- None
+- user: object
+- navItems: array
+- dashboardData: object
+- transactions: array
+- tips: array
+- error: string
+- snackbarType: string
 Outputs:
-- None
+- onSearch(payload)
+- onNavSelect(payload)
+- onTransfer(payload)
+- onSaveLimit(payload)
+- onRetry()
 State:
-- selectedMenu: string
-- dashboardData: YouthAccountDashboard
-- transactions: Transaction[]
-- pagination: Pagination
-- snackbar: { message: string, variant: string, action: SnackbarAction, visible: boolean }
-- modalState: { fundTransferOpen: boolean, spendingLimitOpen: boolean, confirmation: ConfirmationModalState }
+- selectedSection: string
+- modalState: {transferOpen, limitOpen, confirmationOpen, successOpen}
+- errorState: {dashboard, transfer, limit}
 Methods:
-- handleMenuSelect(menu: string)
-- handleAddFunds()
-- handleSetLimit()
-- handleViewActivity()
-- handleSnackbarDismiss()
-- handleModalClose()
+- fetchDashboard() → Loads dashboard data
+- handleTransfer() → Handles fund transfer
+- handleLimitSave() → Handles limit update
+- handleSnackbar() → Shows error messages
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<MainLayout>
-  <HeaderComponent />
-  <SidebarComponent />
-  <MainContent>
-    <DashboardPage />
-    <FundTransferModal />
-    <SpendingLimitModal />
-    <ActivityPage />
-    <Snackbar />
-    <ConfirmationModals />
-  </MainContent>
-</MainLayout>
+<YouthAccountPage>
+  <HeaderComponent user onSearch />
+  <Grid>
+    <SidebarComponent navItems selected onNavSelect />
+    <MainContainer>
+      <DashboardSection />
+      <FundTransferSection />
+      <SpendingLimitSection />
+      <ActivitySection />
+      <ConfirmationModals />
+      <ErrorSnackbars />
+    </MainContainer>
+  </Grid>
+</YouthAccountPage>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex (main layout)
-- Sidebar: fixed width, collapsible
-- MainContent: flex-grow, grid for cards
+- display: grid (main)
+- grid-template-columns: sidebar + main
+- gap: 24px
 Spacing:
-- 24px padding main content
-- 16px gap between cards
+- padding: 32px main content
 Component Styles:
-- Responsive breakpoints for sidebar collapse
+- .main-container, .dashboard-section, .modals
 Responsive:
-- Sidebar collapses below 1024px
-- Main content stacks vertically on mobile
+- @media (max-width: 1280px): sidebar collapses, grid stacks
 
 API INTEGRATION
-- On mount: GET /api/youth-accounts/{id}/dashboard
-- On menu select: GET /api/youth-accounts/{id}/transactions (if Activity)
+- fetchDashboard() → GET /api/youth-accounts/{id}/dashboard
+- handleTransfer() → POST /api/youth-accounts/{id}/fund-transfer
+- handleLimitSave() → PUT /api/youth-accounts/{id}/spending-limit
+- fetchTransactions() → GET /api/youth-accounts/{id}/transactions
 
 ERROR HANDLING
-- API failure: Show Snackbar with error message
+- API failure → show snackbar (DashboardLoadError, InsufficientBalanceError, InvalidLimitError)
+- Validation error → inline message or snackbar
 
 INTERACTION FLOW
-- Menu select → content switch → API call if needed
-- Action button click → open modal → submit → API call
+User Action → UI → API
+- Click nav → section change
+- Click Add Funds → open modal → submit → API call
+- Click Set Limit → open modal → submit → API call
+- Click View Activity → show transaction list
+- API error → show snackbar
 
 ---
 
@@ -192,67 +219,61 @@ Mapped From A1:
 HeaderComponent
 
 Purpose:
-Displays app logo, search, notification, and user avatar.
+Displays application logo, search, notification, and parent avatar.
 
 Parent:
 YouthAccountPage
 
 Children:
-- Avatar (from library)
-- Icon (search, notification)
+- Avatar
+- SearchBar
+- Icon
 
 Dependencies:
-- @aava/play-core: AavaHeaderComponent, AavaAvatarComponent, AavaIconComponent
+- @aava/play-core: AavaHeaderComponent, AavaTabs, AavaIcon, AavaAvatars
 
 Library Components Used:
-- Header → main layout
-- Avatar → user avatar
-- Icon → search, notification
+- Header → layout
+- Tabs → navigation
+- Icon → actions
+- Avatar → user
 
 TypeScript Specification
-
 Inputs:
-- logoUrl: string
-- userName: string
-- avatarUrl: string
+- user: object
+- onSearch: function
 Outputs:
-- onSearchChange(searchText: string)
-- onNotificationClick()
-- onAvatarClick()
+- searchChange(payload)
 State:
 - searchText: string
 Methods:
-- handleSearchChange()
-- handleNotificationClick()
-- handleAvatarClick()
+- onSearchChange() → emits searchChange
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-header>
+<AavaHeaderComponent>
   <div left-content>
-    <img src={logoUrl} />
+    <Logo />
+  </div>
+  <div center-content>
+    <Tabs />
   </div>
   <div right-content>
-    <div class="search-box">
-      <aava-icon iconName="search" />
-      <input [(ngModel)]="searchText" (input)="handleSearchChange()" />
-    </div>
-    <aava-icon iconName="bell" (click)="handleNotificationClick()" />
-    <aava-avatars [imageUrl]="avatarUrl" (click)="handleAvatarClick()" />
+    <SearchBar />
+    <Icon name="notification" />
+    <Avatar user />
   </div>
-</aava-header>
+</AavaHeaderComponent>
 
 CSS SPECIFICATION
-
 Layout:
 - display: grid (three columns)
 - align-items: center
 Spacing:
-- 16px gap between right-content items
+- gap: 16px
 Component Styles:
-- .search-box: flex, border-radius, background
+- .header__left, .header__center, .header__right
 Responsive:
-- Center content hidden below 1280px
+- @media (max-width: 1280px): center-content hides, right-content stacks
 
 API INTEGRATION
 - None
@@ -261,9 +282,7 @@ ERROR HANDLING
 - None
 
 INTERACTION FLOW
-- Input in search → onSearchChange
-- Click notification → onNotificationClick
-- Click avatar → onAvatarClick
+- User types in search → searchChange event
 
 ---
 
@@ -276,13 +295,14 @@ Mapped From A1:
 SidebarComponent
 
 Purpose:
-Provides navigation for dashboard, fund transfer, set limit, activity, and error/confirmation views.
+Navigation for dashboard, fund transfer, limit, activity, errors, confirmations.
 
 Parent:
 YouthAccountPage
 
 Children:
-- MenuItems (library or custom)
+- NavItems
+- Footer
 
 Dependencies:
 - @aava/play-core: AavaSidebarComponent
@@ -291,44 +311,32 @@ Library Components Used:
 - Sidebar
 
 TypeScript Specification
-
 Inputs:
-- menuItems: MenuItem[]
-- selectedMenu: string
+- navItems: array
+- selected: string
 Outputs:
-- onMenuSelect(menu: string)
+- navSelect(payload)
 State:
 - isCollapsed: boolean
 Methods:
-- handleCollapseToggle()
+- onCollapseToggle() → toggles sidebar
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-sidebar [isCollapsed]="isCollapsed">
-  <div slot="content">
-    <ul>
-      <li *ngFor="let item of menuItems" [class.active]="item.active" (click)="onMenuSelect(item.key)">
-        <span class="nav-icon">{item.icon}</span>
-        <span *ngIf="!isCollapsed">{item.label}</span>
-      </li>
-    </ul>
-  </div>
-  <div slot="footer">
-    <span class="sidebar-footer">Version 1.0.0</span>
-  </div>
-</aava-sidebar>
+<AavaSidebarComponent [navItems] [selected] (navSelect)>
+  <NavItems />
+  <Footer />
+</AavaSidebarComponent>
 
 CSS SPECIFICATION
-
 Layout:
-- width: 280px (expanded), 70px (collapsed)
-- flex-direction: column
+- display: flex (column)
+- width: 280px (collapsed: 70px)
 Spacing:
-- 24px padding
+- gap: 16px
 Component Styles:
-- .active: background highlight
+- .sidebar, .nav-item, .footer
 Responsive:
-- Collapses below 1024px
+- @media (max-width: 1280px): sidebar collapses
 
 API INTEGRATION
 - None
@@ -337,91 +345,11 @@ ERROR HANDLING
 - None
 
 INTERACTION FLOW
-- Click menu item → onMenuSelect
-- Collapse toggle → handleCollapseToggle
+- User clicks nav → navSelect event
 
 ---
 
-### 4.4 DashboardPage
-
-Component Type:
-Feature
-
-Mapped From A1:
-DashboardPage
-
-Purpose:
-Displays youth account overview, balance, spending limit, recent activity, tips, and quick actions.
-
-Parent:
-YouthAccountPage
-
-Children:
-- AccountBalanceCard
-- SpendingLimitCard
-- RecentActivityCard
-- TipsCard
-- QuickActions (AddFundsButton, SetLimitButton, ViewActivityButton)
-
-Dependencies:
-- Card, Button, Tag, Badge (library)
-
-Library Components Used:
-- Card (aava-default-card, aava-card-header, aava-card-content, aava-card-footer)
-- Button (aava-button)
-- Tag, Badge
-
-TypeScript Specification
-
-Inputs:
-- dashboardData: YouthAccountDashboard
-Outputs:
-- onAddFunds()
-- onSetLimit()
-- onViewActivity()
-State:
-- loading: boolean
-- error: string | null
-Methods:
-- fetchDashboardData()
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<div class="dashboard-grid">
-  <AccountBalanceCard />
-  <SpendingLimitCard />
-  <RecentActivityCard />
-  <TipsCard />
-  <div class="quick-actions">
-    <aava-button label="Add Funds" (userClick)="onAddFunds()" />
-    <aava-button label="Set Limit" (userClick)="onSetLimit()" />
-    <aava-button label="View Activity" (userClick)="onViewActivity()" />
-  </div>
-</div>
-
-CSS SPECIFICATION
-
-Layout:
-- display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-Spacing:
-- 24px gap
-Component Styles:
-- .quick-actions: flex, gap: 16px
-Responsive:
-- Cards stack vertically on mobile
-
-API INTEGRATION
-- fetchDashboardData() → GET /api/youth-accounts/{id}/dashboard
-
-ERROR HANDLING
-- error: Show Snackbar with error message
-
-INTERACTION FLOW
-- Click quick action → emit event
-
----
-
-### 4.5 AccountBalanceCard
+### 4.4 AccountBalanceCard
 
 Component Type:
 Feature
@@ -430,23 +358,22 @@ Mapped From A1:
 AccountBalanceCard
 
 Purpose:
-Shows current youth account balance.
+Shows youth account balance and last updated date.
 
 Parent:
-DashboardPage
+DashboardSection
 
 Children:
-- None
+- CardHeader
+- CardContent
 
 Dependencies:
-- Card, Badge
+- @aava/play-core: AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent
 
 Library Components Used:
 - Card
-- Badge
 
 TypeScript Specification
-
 Inputs:
 - balance: number
 - currency: string
@@ -459,41 +386,38 @@ Methods:
 - None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-default-card>
-  <aava-card-header>
-    <span>Account Balance</span>
-    <aava-badge label="{currency}" />
-  </aava-card-header>
-  <aava-card-content>
-    <div class="balance-amount">{balance}</div>
-    <div class="last-updated">Last updated: {lastUpdated}</div>
-  </aava-card-content>
-</aava-default-card>
+<AavaDefaultCard>
+  <AavaCardHeader>
+    <h4>Account Balance</h4>
+  </AavaCardHeader>
+  <AavaCardContent>
+    <BalanceDisplay balance currency />
+    <LastUpdated lastUpdated />
+  </AavaCardContent>
+</AavaDefaultCard>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex; flex-direction: column
+- display: flex (column)
 Spacing:
-- 16px between header/content
+- padding: 24px
 Component Styles:
-- .balance-amount: font-size: 2rem; font-weight: bold
+- .balance, .last-updated
 Responsive:
-- Full width on mobile
+- width: 100%
 
 API INTEGRATION
-- Bound via DashboardPage
+- GET /api/youth-accounts/{id}/dashboard
 
 ERROR HANDLING
-- None
+- API error → show DashboardLoadError snackbar
 
 INTERACTION FLOW
 - None
 
 ---
 
-### 4.6 SpendingLimitCard
+### 4.5 SpendingLimitCard
 
 Component Type:
 Feature
@@ -502,70 +426,68 @@ Mapped From A1:
 SpendingLimitCard
 
 Purpose:
-Shows current spending limit and allows editing.
+Shows current spending limit and allows edit.
 
 Parent:
-DashboardPage
+DashboardSection
 
 Children:
-- None
+- CardHeader
+- CardContent
+- EditButton
 
 Dependencies:
-- Card, Button, Tag
+- @aava/play-core: AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent, AavaButtonComponent
 
 Library Components Used:
 - Card
 - Button
-- Tag
 
 TypeScript Specification
-
 Inputs:
 - limit: number
-- period: string
+- currency: string
+- onEdit: function
 Outputs:
-- onEditLimit()
+- edit()
 State:
 - None
 Methods:
 - None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-default-card>
-  <aava-card-header>
-    <span>Spending Limit</span>
-    <aava-tag label="{period}" />
-  </aava-card-header>
-  <aava-card-content>
-    <div class="limit-amount">{limit}</div>
-    <aava-button label="Edit" variant="secondary" size="sm" (userClick)="onEditLimit()" />
-  </aava-card-content>
-</aava-default-card>
+<AavaDefaultCard>
+  <AavaCardHeader>
+    <h4>Spending Limit</h4>
+    <AavaButton label="Edit" (click)=onEdit />
+  </AavaCardHeader>
+  <AavaCardContent>
+    <LimitDisplay limit currency />
+  </AavaCardContent>
+</AavaDefaultCard>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex; flex-direction: column
+- display: flex (column)
 Spacing:
-- 16px between header/content
+- padding: 24px
 Component Styles:
-- .limit-amount: font-size: 1.5rem; font-weight: 600
+- .limit, .edit-button
 Responsive:
-- Full width on mobile
+- width: 100%
 
 API INTEGRATION
-- Bound via DashboardPage
+- GET /api/youth-accounts/{id}/dashboard
 
 ERROR HANDLING
-- None
+- API error → show DashboardLoadError snackbar
 
 INTERACTION FLOW
-- Click Edit → onEditLimit
+- Click Edit → open SpendingLimitModal
 
 ---
 
-### 4.7 RecentActivityCard
+### 4.6 RecentActivityCard
 
 Component Type:
 Feature
@@ -574,94 +496,91 @@ Mapped From A1:
 RecentActivityCard
 
 Purpose:
-Shows recent transactions.
+Shows recent transactions (date, merchant, amount, balance).
 
 Parent:
-DashboardPage
+DashboardSection
 
 Children:
-- None
+- CardHeader
+- CardContent
+- Timeline
 
 Dependencies:
-- Card, Timeline, Button
+- @aava/play-core: AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent, AavaTimelineComponent
 
 Library Components Used:
 - Card
 - Timeline
-- Button
 
 TypeScript Specification
-
 Inputs:
-- transactions: RecentTransaction[]
+- transactions: array
 Outputs:
-- onViewAll()
+- None
 State:
 - None
 Methods:
 - None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-default-card>
-  <aava-card-header>
-    <span>Recent Activity</span>
-  </aava-card-header>
-  <aava-card-content>
-    <aava-timeline [items]="transactions" />
-    <aava-button label="View All" variant="primary" size="sm" (userClick)="onViewAll()" />
-  </aava-card-content>
-</aava-default-card>
+<AavaDefaultCard>
+  <AavaCardHeader>
+    <h4>Recent Activity</h4>
+  </AavaCardHeader>
+  <AavaCardContent>
+    <AavaTimeline [items]=transactions />
+  </AavaCardContent>
+</AavaDefaultCard>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex; flex-direction: column
+- display: flex (column)
 Spacing:
-- 16px between timeline/button
+- padding: 24px
 Component Styles:
-- .timeline: margin-bottom: 8px
+- .timeline
 Responsive:
-- Full width on mobile
+- width: 100%
 
 API INTEGRATION
-- Bound via DashboardPage
+- GET /api/youth-accounts/{id}/dashboard
 
 ERROR HANDLING
-- None
+- API error → show DashboardLoadError snackbar
 
 INTERACTION FLOW
-- Click View All → onViewAll
+- None
 
 ---
 
-### 4.8 TipsCard
+### 4.7 FinancialTipsCard
 
 Component Type:
 Feature
 
 Mapped From A1:
-TipsCard
+FinancialTipsCard
 
 Purpose:
 Shows financial literacy tips.
 
 Parent:
-DashboardPage
+DashboardSection
 
 Children:
-- None
+- CardHeader
+- CardContent
 
 Dependencies:
-- Card
+- @aava/play-core: AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent
 
 Library Components Used:
 - Card
 
 TypeScript Specification
-
 Inputs:
-- tips: string[]
+- tips: array
 Outputs:
 - None
 State:
@@ -670,28 +589,26 @@ Methods:
 - None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-default-card>
-  <aava-card-header>
-    <span>Financial Tips</span>
-  </aava-card-header>
-  <aava-card-content>
+<AavaDefaultCard>
+  <AavaCardHeader>
+    <h4>Financial Tips</h4>
+  </AavaCardHeader>
+  <AavaCardContent>
     <ul>
-      <li *ngFor="let tip of tips">{tip}</li>
+      <li *ngFor="let tip of tips">{{ tip }}</li>
     </ul>
-  </aava-card-content>
-</aava-default-card>
+  </AavaCardContent>
+</AavaDefaultCard>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex; flex-direction: column
+- display: flex (column)
 Spacing:
-- 8px between tips
+- padding: 24px
 Component Styles:
-- ul: list-style: disc; padding-left: 16px
+- .tips-list
 Responsive:
-- Full width on mobile
+- width: 100%
 
 API INTEGRATION
 - None
@@ -701,6 +618,64 @@ ERROR HANDLING
 
 INTERACTION FLOW
 - None
+
+---
+
+### 4.8 ButtonGroup
+
+Component Type:
+Shared
+
+Mapped From A1:
+ButtonGroup
+
+Purpose:
+Renders grouped action buttons.
+
+Parent:
+DashboardSection, FundTransferModal, SpendingLimitModal
+
+Children:
+- Button
+
+Dependencies:
+- @aava/play-core: AavaButtonComponent
+
+Library Components Used:
+- Button
+
+TypeScript Specification
+Inputs:
+- actions: array
+Outputs:
+- onClick(payload)
+State:
+- None
+Methods:
+- None
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+<div class="button-group">
+  <AavaButton *ngFor="let action of actions" [label]=action.label (click)=onClick(action) />
+</div>
+
+CSS SPECIFICATION
+Layout:
+- display: flex
+- gap: 12px
+Component Styles:
+- .button-group
+Responsive:
+- flex-wrap: wrap
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+- User clicks button → onClick event
 
 ---
 
@@ -713,80 +688,77 @@ Mapped From A1:
 FundTransferModal
 
 Purpose:
-Modal for transferring funds from parent to youth account.
+Modal for transferring funds to youth account.
 
 Parent:
-YouthAccountPage
+FundTransferSection
 
 Children:
-- Form fields (source account, amount, template)
-- Button
+- Form (SourceAccountSelect, AmountInput, Templates, TransferLimitBadge)
+- ButtonGroup (Transfer, Cancel)
 
 Dependencies:
-- Modal, Button, Dropdown, Snackbar
+- @aava/play-core: AavaDialogService, AavaButtonComponent, AavaTextboxComponent, AavaChipTagComponent
 
 Library Components Used:
-- Modal (AavaDialogService)
+- Modal
 - Button
-- Dropdown
-- Snackbar
+- Chip-Tag
+- Textbox
 
 TypeScript Specification
-
 Inputs:
-- sourceAccounts: Account[]
-- transferLimit: number
-- templates: TransferTemplate[]
-Outputs:
-- onTransfer(payload: { source: string, amount: number, template: string })
-- onCancel()
-State:
+- sourceAccounts: array
 - selectedSource: string
 - amount: number
-- error: string | null
+- templates: array
+- transferLimit: number
+- currency: string
+Outputs:
+- onTransfer(payload)
+- onCancel()
+State:
+- formState: {source, amount}
 Methods:
-- handleTransfer()
+- handleTransfer() → POST /api/youth-accounts/{id}/fund-transfer
 - handleCancel()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<Modal>
+<AavaModal>
   <div dialog-header>
-    <span>Transfer Funds</span>
+    <h4>Transfer Funds</h4>
   </div>
   <div dialog-body>
-    <Dropdown label="Source Account" [options]="sourceAccounts" [(ngModel)]="selectedSource" />
-    <Textbox label="Amount" [(ngModel)]="amount" />
-    <Dropdown label="Template" [options]="templates" />
-    <div class="transfer-limit">Transfer Limit: {transferLimit}</div>
-    <Snackbar *ngIf="error" message="{error}" variant="danger" />
+    <SourceAccountSelect [accounts]=sourceAccounts />
+    <AmountInput [currency]=currency />
+    <Templates [templates]=templates />
+    <TransferLimitBadge [limit]=transferLimit />
   </div>
   <div dialog-footer>
-    <aava-button label="Cancel" variant="secondary" (userClick)="onCancel()" />
-    <aava-button label="Transfer" variant="primary" (userClick)="handleTransfer()" />
+    <ButtonGroup actions=[Transfer, Cancel] />
   </div>
-</Modal>
+</AavaModal>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex; flex-direction: column
+- width: 400px
+- display: flex (column)
 Spacing:
-- 16px between fields
+- gap: 24px
 Component Styles:
-- .transfer-limit: font-size: 0.9rem; color: #888
+- .modal-form, .modal-footer
 Responsive:
-- Modal width: 400-600px, max-width: 90vw
+- max-width: 90vw
 
 API INTEGRATION
 - handleTransfer() → POST /api/youth-accounts/{id}/fund-transfer
 
 ERROR HANDLING
-- Insufficient balance: Show Snackbar with error
-- Validation error: Inline message
+- API error → show InsufficientBalanceError snackbar
+- Validation error → inline message
 
 INTERACTION FLOW
-- Fill form → Transfer → API call → Success/Failure modal or Snackbar
+- User fills form → clicks Transfer → API call → confirmation modal
 
 ---
 
@@ -802,151 +774,363 @@ Purpose:
 Modal for setting/updating weekly spending limit.
 
 Parent:
-YouthAccountPage
+SpendingLimitSection
 
 Children:
-- Form fields (new limit)
-- Button
+- InfoRow (CurrentLimit)
+- Input (NewLimitInput)
+- InfoRow (Guidance)
+- ButtonGroup (Save, Cancel)
 
 Dependencies:
-- Modal, Button, Snackbar
+- @aava/play-core: AavaDialogService, AavaButtonComponent, AavaTextboxComponent
 
 Library Components Used:
-- Modal (AavaDialogService)
+- Modal
 - Button
-- Snackbar
+- Textbox
 
 TypeScript Specification
-
 Inputs:
 - currentLimit: number
+- newLimit: number
 - guidance: string
+- currency: string
 Outputs:
-- onSave(newLimit: number)
+- onSave(payload)
 - onCancel()
 State:
-- newLimit: number
-- error: string | null
+- formState: {newLimit}
 Methods:
-- handleSave()
+- handleSave() → PUT /api/youth-accounts/{id}/spending-limit
 - handleCancel()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<Modal>
+<AavaModal>
   <div dialog-header>
-    <span>Set Spending Limit</span>
+    <h4>Set Spending Limit</h4>
   </div>
   <div dialog-body>
-    <div class="current-limit">Current Limit: {currentLimit}</div>
-    <Textbox label="New Limit" [(ngModel)]="newLimit" />
-    <div class="guidance">{guidance}</div>
-    <Snackbar *ngIf="error" message="{error}" variant="danger" />
+    <InfoRow label="Current Limit" value=currentLimit />
+    <NewLimitInput />
+    <InfoRow label="Guidance" value=guidance />
   </div>
   <div dialog-footer>
-    <aava-button label="Cancel" variant="secondary" (userClick)="onCancel()" />
-    <aava-button label="Save" variant="primary" (userClick)="handleSave()" />
+    <ButtonGroup actions=[Save, Cancel] />
   </div>
-</Modal>
+</AavaModal>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex; flex-direction: column
+- width: 400px
+- display: flex (column)
 Spacing:
-- 16px between fields
+- gap: 24px
 Component Styles:
-- .current-limit: font-size: 1rem; color: #555
-- .guidance: font-size: 0.9rem; color: #888
+- .modal-form, .modal-footer
 Responsive:
-- Modal width: 400-600px, max-width: 90vw
+- max-width: 90vw
 
 API INTEGRATION
 - handleSave() → PUT /api/youth-accounts/{id}/spending-limit
 
 ERROR HANDLING
-- Invalid limit: Show Snackbar with error
-- Validation error: Inline message
+- API error → show InvalidLimitError snackbar
+- Validation error → inline message
 
 INTERACTION FLOW
-- Fill form → Save → API call → Success/Failure modal or Snackbar
+- User fills form → clicks Save → API call → confirmation modal
 
 ---
 
-### 4.11 ActivityPage
+### 4.11 TransactionListCard
 
 Component Type:
 Feature
 
 Mapped From A1:
-ActivityPage
+TransactionListCard
 
 Purpose:
-Shows full transaction history.
+Shows full transaction list with date, merchant, amount, balance.
 
 Parent:
-YouthAccountPage
+ActivitySection
 
 Children:
-- Timeline/ListItem
-- Pagination
+- CardHeader
+- CardContent
+- Timeline
 
 Dependencies:
-- Timeline, Card, Pagination
+- @aava/play-core: AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent, AavaTimelineComponent
 
 Library Components Used:
-- Timeline
 - Card
-- Pagination
+- Timeline
 
 TypeScript Specification
-
 Inputs:
-- transactions: Transaction[]
-- pagination: Pagination
+- transactions: array
 Outputs:
-- onPageChange(page: number)
+- None
 State:
-- loading: boolean
-- error: string | null
+- None
 Methods:
-- fetchTransactions(page: number)
+- None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-default-card>
-  <aava-card-header>
-    <span>Transaction History</span>
-  </aava-card-header>
-  <aava-card-content>
-    <aava-timeline [items]="transactions" />
-    <Pagination [pagination]="pagination" (pageChange)="onPageChange($event)" />
-  </aava-card-content>
-</aava-default-card>
+<AavaDefaultCard>
+  <AavaCardHeader>
+    <h4>Transaction List</h4>
+  </AavaCardHeader>
+  <AavaCardContent>
+    <AavaTimeline [items]=transactions />
+  </AavaCardContent>
+</AavaDefaultCard>
 
 CSS SPECIFICATION
-
 Layout:
-- display: flex; flex-direction: column
+- display: flex (column)
 Spacing:
-- 16px between timeline/pagination
+- padding: 24px
 Component Styles:
-- .timeline: margin-bottom: 8px
+- .timeline
 Responsive:
-- Full width on mobile
+- width: 100%
 
 API INTEGRATION
-- fetchTransactions(page) → GET /api/youth-accounts/{id}/transactions?page={page}
+- GET /api/youth-accounts/{id}/transactions
 
 ERROR HANDLING
-- error: Show Snackbar with error message
+- API error → show DashboardLoadError snackbar
 
 INTERACTION FLOW
-- Page change → fetchTransactions
+- None
 
 ---
 
-### 4.12 Snackbar
+### 4.12 TransferConfirmationModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+TransferConfirmationModal
+
+Purpose:
+Modal to confirm fund transfer details.
+
+Parent:
+ConfirmationModals
+
+Children:
+- InfoRow (sourceAccount, amount, recipient)
+- ButtonGroup (Confirm, Back)
+
+Dependencies:
+- @aava/play-core: AavaDialogService, AavaButtonComponent
+
+Library Components Used:
+- Modal
+- Button
+
+TypeScript Specification
+Inputs:
+- sourceAccount: string
+- amount: number
+- recipient: string
+Outputs:
+- onConfirm()
+- onBack()
+State:
+- None
+Methods:
+- handleConfirm() → POST /api/youth-accounts/{id}/fund-transfer
+- handleBack()
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+<AavaModal>
+  <div dialog-header>
+    <h4>Confirm Transfer</h4>
+  </div>
+  <div dialog-body>
+    <InfoRow label="Source Account" value=sourceAccount />
+    <InfoRow label="Amount" value=amount />
+    <InfoRow label="Recipient" value=recipient />
+  </div>
+  <div dialog-footer>
+    <ButtonGroup actions=[Confirm, Back] />
+  </div>
+</AavaModal>
+
+CSS SPECIFICATION
+Layout:
+- width: 400px
+- display: flex (column)
+Spacing:
+- gap: 24px
+Component Styles:
+- .modal-form, .modal-footer
+Responsive:
+- max-width: 90vw
+
+API INTEGRATION
+- handleConfirm() → POST /api/youth-accounts/{id}/fund-transfer
+
+ERROR HANDLING
+- API error → show InsufficientBalanceError snackbar
+
+INTERACTION FLOW
+- User reviews details → clicks Confirm → API call → success modal
+
+---
+
+### 4.13 TransferSuccessModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+TransferSuccessModal
+
+Purpose:
+Modal to show transfer success and updated balance.
+
+Parent:
+ConfirmationModals
+
+Children:
+- InfoRow (updatedBalance, currency)
+- ButtonGroup (Dashboard, ViewActivity)
+
+Dependencies:
+- @aava/play-core: AavaDialogService, AavaButtonComponent
+
+Library Components Used:
+- Modal
+- Button
+
+TypeScript Specification
+Inputs:
+- updatedBalance: number
+- currency: string
+Outputs:
+- onDashboard()
+- onViewActivity()
+State:
+- None
+Methods:
+- handleDashboard()
+- handleViewActivity()
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+<AavaModal>
+  <div dialog-header>
+    <h4>Transfer Successful</h4>
+  </div>
+  <div dialog-body>
+    <InfoRow label="Updated Balance" value=updatedBalance />
+  </div>
+  <div dialog-footer>
+    <ButtonGroup actions=[Dashboard, ViewActivity] />
+  </div>
+</AavaModal>
+
+CSS SPECIFICATION
+Layout:
+- width: 400px
+- display: flex (column)
+Spacing:
+- gap: 24px
+Component Styles:
+- .modal-form, .modal-footer
+Responsive:
+- max-width: 90vw
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+- User clicks Dashboard or ViewActivity → navigation
+
+---
+
+### 4.14 LimitUpdateConfirmationModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+LimitUpdateConfirmationModal
+
+Purpose:
+Modal to show limit update success.
+
+Parent:
+ConfirmationModals
+
+Children:
+- InfoRow (newLimit, currency)
+- ButtonGroup (Dashboard)
+
+Dependencies:
+- @aava/play-core: AavaDialogService, AavaButtonComponent
+
+Library Components Used:
+- Modal
+- Button
+
+TypeScript Specification
+Inputs:
+- newLimit: number
+- currency: string
+Outputs:
+- onDashboard()
+State:
+- None
+Methods:
+- handleDashboard()
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+<AavaModal>
+  <div dialog-header>
+    <h4>Limit Updated</h4>
+  </div>
+  <div dialog-body>
+    <InfoRow label="New Limit" value=newLimit />
+  </div>
+  <div dialog-footer>
+    <ButtonGroup actions=[Dashboard] />
+  </div>
+</AavaModal>
+
+CSS SPECIFICATION
+Layout:
+- width: 400px
+- display: flex (column)
+Spacing:
+- gap: 24px
+Component Styles:
+- .modal-form, .modal-footer
+Responsive:
+- max-width: 90vw
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+- User clicks Dashboard → navigation
+
+---
+
+### 4.15 Snackbar (DashboardLoadError, InsufficientBalanceError, InvalidLimitError)
 
 Component Type:
 Shared
@@ -955,184 +1139,98 @@ Mapped From A1:
 Snackbar
 
 Purpose:
-Shows transient notifications/errors (e.g., insufficient balance, invalid limit).
+Shows error messages for dashboard load, insufficient balance, invalid limit.
 
 Parent:
-YouthAccountPage
+ErrorSnackbars
 
 Children:
 - None
 
 Dependencies:
-- Snackbar (library)
+- @aava/play-core: SnackbarService
 
 Library Components Used:
 - Snackbar
 
 TypeScript Specification
-
 Inputs:
 - message: string
-- variant: string
-- action: SnackbarAction
+- type: string
 Outputs:
-- onDismiss()
-- onAction()
+- onRetry()
+- onDashboard()
 State:
-- visible: boolean
+- None
 Methods:
-- handleDismiss()
-- handleAction()
+- show(message, type)
+- dismiss()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<aava-snackbar [message]="message" [variant]="variant" [action]="action" [visible]="visible" (dismiss)="handleDismiss()" (action)="handleAction()" />
+<Snackbar [message]=message [type]=type (onRetry) (onDashboard) />
 
 CSS SPECIFICATION
-
 Layout:
-- position: fixed; bottom: 24px; right: 24px
+- position: fixed (bottom-center or top-center)
 Spacing:
-- 16px padding
+- margin: 16px
 Component Styles:
-- .snackbar: border-radius, shadow
+- .snackbar-error, .snackbar-warning
 Responsive:
-- Full width on mobile, bottom: 0
+- width: auto, max-width: 400px
 
 API INTEGRATION
 - None
 
 ERROR HANDLING
-- None (displays error messages)
+- Dismiss on timeout or user action
 
 INTERACTION FLOW
-- Show/hide based on error or action
-
----
-
-### 4.13 ConfirmationModals
-
-Component Type:
-Feature
-
-Mapped From A1:
-ConfirmationModals
-
-Purpose:
-Shows confirmation/success/error dialogs for transfer and limit actions.
-
-Parent:
-YouthAccountPage
-
-Children:
-- Modal
-- Button
-- Icon
-
-Dependencies:
-- Modal, Button, Icon
-
-Library Components Used:
-- Modal (AavaDialogService)
-- Button
-- Icon
-
-TypeScript Specification
-
-Inputs:
-- type: 'transfer' | 'limit' | 'error'
-- details: object
-Outputs:
-- onConfirm()
-- onClose()
-State:
-- visible: boolean
-Methods:
-- handleConfirm()
-- handleClose()
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-
-<Modal *ngIf="visible">
-  <div dialog-header>
-    <aava-icon [iconName]="getIcon(type)" />
-    <span>{getTitle(type)}</span>
-  </div>
-  <div dialog-body>
-    <div>{getMessage(details)}</div>
-  </div>
-  <div dialog-footer>
-    <aava-button label="Close" variant="secondary" (userClick)="handleClose()" />
-    <aava-button *ngIf="type !== 'error'" label="Confirm" variant="primary" (userClick)="handleConfirm()" />
-  </div>
-</Modal>
-
-CSS SPECIFICATION
-
-Layout:
-- display: flex; flex-direction: column
-Spacing:
-- 16px between sections
-Component Styles:
-- .modal: border-radius, shadow
-Responsive:
-- Modal width: 400-600px, max-width: 90vw
-
-API INTEGRATION
-- None
-
-ERROR HANDLING
-- None (displays error/confirmation)
-
-INTERACTION FLOW
-- Show/hide based on action result
+- API error → show snackbar
+- User clicks Retry → onRetry event
+- User clicks Dashboard → onDashboard event
 
 ---
 
 5. COMPONENT MAPPING SUMMARY
 
-| A1 Component      | Final Component      | Type    |
-|-------------------|---------------------|---------|
-| Header            | HeaderComponent     | Layout  |
-| Sidebar           | SidebarComponent    | Layout  |
-| Card              | AccountBalanceCard  | Feature |
-| Card              | SpendingLimitCard   | Feature |
-| Card              | RecentActivityCard  | Feature |
-| Card              | TipsCard            | Feature |
-| Modal             | FundTransferModal   | Feature |
-| Modal             | SpendingLimitModal  | Feature |
-| Modal             | ConfirmationModals  | Feature |
-| Snackbar          | Snackbar            | Shared  |
-| Timeline          | Timeline            | Shared  |
-| Avatar            | Avatar              | Shared  |
-| Tag               | Tag                 | Shared  |
-| Divider           | Divider             | Shared  |
-| Badge             | Badge               | Shared  |
+| A1 Component           | Final Component             | Type    |
+|-----------------------|-----------------------------|---------|
+| Header                | HeaderComponent             | Layout  |
+| Sidebar               | SidebarComponent            | Layout  |
+| Card                  | AccountBalanceCard          | Feature |
+| Card                  | SpendingLimitCard           | Feature |
+| Card                  | RecentActivityCard          | Feature |
+| Card                  | FinancialTipsCard           | Feature |
+| ButtonGroup           | ButtonGroup                 | Shared  |
+| Modal                 | FundTransferModal           | Feature |
+| Modal                 | SpendingLimitModal          | Feature |
+| Modal                 | TransferConfirmationModal   | Feature |
+| Modal                 | TransferSuccessModal        | Feature |
+| Modal                 | LimitUpdateConfirmationModal| Feature |
+| Snackbar              | Snackbar                    | Shared  |
 
 6. DATA FLOW (FROM AGENT-1)
 
 Parent → Child:
-YouthAccountPage
-→ HeaderComponent (logoUrl, userName, avatarUrl)
-→ SidebarComponent (menuItems, selectedMenu)
-→ DashboardPage (dashboardData)
-  → AccountBalanceCard (balance, currency, lastUpdated)
-  → SpendingLimitCard (limit, period)
-  → RecentActivityCard (transactions)
-  → TipsCard (tips)
-→ FundTransferModal (sourceAccounts, transferLimit, templates)
-→ SpendingLimitModal (currentLimit, guidance)
-→ ActivityPage (transactions, pagination)
-→ Snackbar (message, variant, action)
-→ ConfirmationModals (type, details)
+<YouthAccountPage>
+→ HeaderComponent (user, onSearch)
+→ SidebarComponent (navItems, selected)
+→ MainContainer
+   → DashboardSection (balance, limit, transactions, tips)
+   → FundTransferSection (sourceAccounts, templates, transferLimit)
+   → SpendingLimitSection (currentLimit, guidance)
+   → ActivitySection (transactions)
+   → ConfirmationModals (transfer details, updated balance, new limit)
+   → ErrorSnackbars (error messages)
 
 7. API USAGE SUMMARY
 
 Component → API:
-- DashboardPage → GET /api/youth-accounts/{youthAccountId}/dashboard
-- FundTransferModal → POST /api/youth-accounts/{youthAccountId}/fund-transfer
-- SpendingLimitModal → PUT /api/youth-accounts/{youthAccountId}/spending-limit
-- ActivityPage → GET /api/youth-accounts/{youthAccountId}/transactions
+- YouthAccountPage → GET /api/youth-accounts/{id}/dashboard
+- FundTransferModal, TransferConfirmationModal → POST /api/youth-accounts/{id}/fund-transfer
+- SpendingLimitModal → PUT /api/youth-accounts/{id}/spending-limit
+- TransactionListCard → GET /api/youth-accounts/{id}/transactions
 
 8. NOTES & CONSTRAINTS
 
@@ -1141,5 +1239,8 @@ Component → API:
 - Prefer reusable library components
 - HTML must be pseudo-code ONLY (NOT real framework code)
 - CSS should include only key classes and layout rules, not full stylesheets
-- All import patterns and usage must follow the UI component library documentation
-- Responsive and accessibility best practices must be followed
+- All API error handling must use Snackbar
+- All modals must use Modal from library
+- All cards must use Card from library
+- All navigation must use Sidebar from library
+- All icons, avatars, and tabs must use library components
