@@ -7,25 +7,25 @@ AS a parent or guardian I WANT to allocate and manage funds for my child’s you
 
 Acceptance Criteria:
 - Scenario 1: Access youth account dashboard (dashboard with current balance and recent activity)
-- Scenario 2: Allocate funds to youth account (Add Funds, transfer from parent to youth)
+- Scenario 2: Allocate funds to youth account (Add Funds action, transfer from parent to youth)
 - Scenario 3: Set spending limit (configure weekly spending limit, display on dashboard)
 - Scenario 4: View youth spending activity (recent transactions)
 - Scenario 5: Handle insufficient balance (error message on insufficient funds)
 
-UI Tasks (from subtasks):
+UI Tasks / Subtasks:
 - Design youth account dashboard layout
 - Design fund transfer interaction for youth account
 - Design spending limit configuration interface
 - Design youth account activity view
 
 
-2. Detected UI Layout (from image analysis)
+2. Detected UI Layout (from image)
 
 - Header (with navigation: HOME, ASK, RESOURCES, REPORTS, ADMIN)
 - Main Content Area:
-  - Title/Prompt: "Select ASK type"
+  - Title: "Select ASK type"
   - Two large option buttons: Core, Rotational
-  - Two action buttons: EXIT (red), START NOW (inactive/greyed)
+  - Action Buttons: EXIT (red), START NOW (inactive/greyed)
 
 
 3. Reusable Components from Library
@@ -33,13 +33,14 @@ UI Tasks (from subtasks):
 - Header (AavaHeaderComponent)
 - Tabs (AavaTabsComponent)
 - Button (AavaButtonComponent)
-- Card (AavaDefaultCardComponent)
-- Sidebar (AavaSidebarComponent)
+- Card (AavaDefaultCardComponent, AavaCardHeaderComponent, etc.)
+- Dialog (AavaDialogService)
+- Snackbar (AavaSnackbarComponent)
 - Grid (AavaGridComponent)
-- Dialog (AavaDialogComponent)
-- Snackbar/Toast (AavaSnackbarComponent/AavaToastComponent)
 - Avatar (AavaAvatarComponent)
 - Chip-Tag (AavaTagComponent)
+- Dropdown (AavaDropdownComponent)
+- Modal (AavaModalComponent)
 
 
 4. UI Component Architecture
@@ -48,81 +49,71 @@ Screen: Youth Account Dashboard
 
 YouthAccountDashboardPage
 ├── HeaderComponent (AavaHeaderComponent)
-│   └── TabsComponent (AavaTabsComponent) [for navigation: HOME, ASK, RESOURCES, REPORTS, ADMIN]
+│   └── TabsComponent (AavaTabsComponent) [HOME, ASK, RESOURCES, REPORTS, ADMIN]
 ├── MainContentContainer
-│   ├── DashboardPromptCard (AavaDefaultCardComponent)
-│   │   ├── CardHeader: "Select ASK type"
-│   │   ├── CardContent:
-│   │   │   ├── OptionButtonsContainer (Grid/Flex)
-│   │   │   │   ├── OptionButton (AavaButtonComponent, label="Core", variant="primary", size="lg")
-│   │   │   │   └── OptionButton (AavaButtonComponent, label="Rotational", variant="primary", size="lg")
-│   │   │   └── ActionButtonsContainer (Grid/Flex)
-│   │   │       ├── ExitButton (AavaButtonComponent, label="EXIT", variant="danger", size="md")
-│   │   │       └── StartNowButton (AavaButtonComponent, label="START NOW", variant="secondary", size="md", disabled=true)
+│   ├── TitleSection ("Select ASK type")
+│   ├── AskTypeOptionsCard (AavaDefaultCardComponent)
+│   │   ├── OptionButton (AavaButtonComponent) [Core]
+│   │   └── OptionButton (AavaButtonComponent) [Rotational]
+│   └── ActionButtonsRow
+│       ├── ExitButton (AavaButtonComponent, variant="danger")
+│       └── StartNowButton (AavaButtonComponent, variant="secondary", disabled)
+└── DialogComponent (AavaDialogService) [for error/confirmation]
 
 
 5. Component Responsibilities
 
-HeaderComponent
-- Displays application logo and navigation tabs (HOME, ASK, RESOURCES, REPORTS, ADMIN)
-- Handles navigation events
-
-TabsComponent
-- Renders navigation tabs, highlights active tab
-
-DashboardPromptCard
-- Presents the main prompt ("Select ASK type")
-- Contains option selection and action buttons
-
-OptionButton
-- Allows user to select "Core" or "Rotational" ASK type
-- Triggers selection logic
-
-ExitButton
-- Allows user to exit the flow
-- Styled as destructive (red)
-
-StartNowButton
-- Initiates the ASK process
-- Disabled until an option is selected
+- HeaderComponent: Displays the application header and navigation tabs.
+- TabsComponent: Renders navigation options (HOME, ASK, RESOURCES, REPORTS, ADMIN).
+- MainContentContainer: Contains the main dashboard content.
+- TitleSection: Shows the "Select ASK type" prompt.
+- AskTypeOptionsCard: Container for the ASK type selection buttons.
+- OptionButton: Allows user to select "Core" or "Rotational" ASK type.
+- ActionButtonsRow: Contains EXIT and START NOW action buttons.
+- ExitButton: Triggers exit/cancel flow.
+- StartNowButton: Initiates the ASK process (disabled until selection).
+- DialogComponent: Handles confirmation, errors (e.g., insufficient funds), and other modal dialogs.
 
 
 6. Data Flow / Props
 
 YouthAccountDashboardPage
- -> HeaderComponent (tabs, activeTabId, navigation handlers)
- -> DashboardPromptCard (promptText, optionButtons, actionButtons)
-
-DashboardPromptCard
- -> OptionButtonsContainer (options: [Core, Rotational], selectedOption, onSelect)
- -> ActionButtonsContainer (onExit, onStartNow, startNowDisabled)
-
-OptionButton
- -> label, variant, size, selected, onClick
-
-ExitButton
- -> label="EXIT", variant="danger", onClick
-
-StartNowButton
- -> label="START NOW", variant="secondary", disabled, onClick
+  -> HeaderComponent (userData, navigationTabs)
+HeaderComponent
+  -> TabsComponent (tabs, activeTab)
+MainContentContainer
+  -> TitleSection (static text)
+  -> AskTypeOptionsCard (selectedAskType, onSelectAskType)
+AskTypeOptionsCard
+  -> OptionButton (type, selected, onClick)
+MainContentContainer
+  -> ActionButtonsRow (onExit, onStartNow, startNowEnabled)
+ActionButtonsRow
+  -> ExitButton (onClick)
+  -> StartNowButton (onClick, disabled)
+DialogComponent
+  <- (open/close, dialogType, message)
 
 
 7. Layout Structure
 
 Page Layout
-├── Header (AavaHeaderComponent)
-├── Main Content Container (centered)
-│   └── DashboardPromptCard (AavaDefaultCardComponent)
-│       ├── CardHeader: "Select ASK type"
-│       ├── CardContent:
-│       │   ├── OptionButtonsContainer (horizontal, spaced)
-│       │   │   ├── OptionButton: Core
-│       │   │   └── OptionButton: Rotational
-│       │   └── ActionButtonsContainer (horizontal, spaced)
-│       │       ├── ExitButton
-│       │       └── StartNowButton (disabled by default)
+├── Header (fixed)
+├── Main Content (centered container)
+│   ├── TitleSection
+│   ├── AskTypeOptionsCard (horizontal or grid layout for option buttons)
+│   └── ActionButtonsRow (horizontal alignment, right-aligned or centered)
+└── Dialog (modal overlay as needed)
 
 
----
+Component Mapping to Library:
+- Header: AavaHeaderComponent
+- Tabs: AavaTabsComponent
+- Card: AavaDefaultCardComponent
+- Button: AavaButtonComponent
+- Dialog: AavaDialogService
+- Grid: AavaGridComponent (if layout requires)
+- Snackbar: AavaSnackbarComponent (for notifications)
+- Avatar/Chip-Tag/Dropdown/Modal: Available for future extensibility
 
-All components are mapped to reusable library components. No new components are required for this screen. The architecture is modular, aligns with the visual layout, and fulfills the Jira requirements.
+All components are reused from the library; no new base components are required for this screen.
