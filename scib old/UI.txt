@@ -1,0 +1,155 @@
+----
+1. Jira Requirement Summary
+
+Story: Parent can allocate and manage funds for a youth account
+
+Description:
+AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending
+
+Acceptance Criteria:
+- Scenario 1: Access youth account dashboard (parent sees dashboard with balance and activity)
+- Scenario 2: Allocate funds to youth account (parent can transfer funds)
+- Scenario 3: Set spending limit (parent configures weekly limit)
+- Scenario 4: View youth spending activity (parent sees transactions)
+- Scenario 5: Handle insufficient balance (error message shown)
+
+Subtasks:
+- Design youth account activity view
+- Design spending limit configuration interface
+- Design fund transfer interaction for youth account
+- Design youth account dashboard layout
+
+Linked Issues:
+- Create API to retrieve youth account dashboard details
+- Create API for parent to transfer funds to youth account
+- Create API for configuring youth spending limit
+- Create API to retrieve youth account transaction history
+- Define OpenAPI/Swagger specification for youth account APIs
+
+----
+2. Detected UI Layout (from image)
+
+- Header (Navigation bar): HOME | ASK (selected) | RESOURCES | REPORTS | ADMIN
+- Main Content Container:
+  - Title: "Select ASK type"
+  - Two large option buttons: Core, Rotational
+  - Two action buttons below: EXIT (red, prominent), START NOW (greyed out, disabled)
+
+----
+3. Reusable Components from Library
+
+- Card (aava-default-card, aava-card-header, aava-card-content, aava-card-footer, aava-card-actions)
+- Button (aava-button)
+- Modal (AavaDialogService, modal content projection)
+- Sidebar (aava-sidebar)
+- Grid (for layout)
+- Tabs (aava-tabs)
+- Avatar (aava-avatar)
+- Snackbar (aava-snackbar)
+- Dialog (aava-dialog)
+- Search-Bar (aava-search-bar)
+- Accordion (aava-accordion)
+
+----
+4. UI Component Architecture
+
+Screen: Youth Account Dashboard
+
+YouthAccountDashboardPage
+├── HeaderComponent
+│   ├── NavigationTabsComponent (Tabs: HOME, ASK, RESOURCES, REPORTS, ADMIN)
+├── SidebarComponent (optional, for navigation/profile)
+├── MainContentContainer
+│   ├── TitleSectionComponent ("Select ASK type")
+│   ├── OptionCardContainer (Grid)
+│   │   ├── OptionCardComponent (Core)
+│   │   │   └── OptionButtonComponent (aava-button, variant="primary", size="xl")
+│   │   ├── OptionCardComponent (Rotational)
+│   │   │   └── OptionButtonComponent (aava-button, variant="primary", size="xl")
+│   ├── ActionButtonContainer (Grid)
+│   │   ├── ExitButtonComponent (aava-button, variant="danger", size="md", pill, prominent)
+│   │   ├── StartNowButtonComponent (aava-button, variant="secondary", size="md", disabled)
+├── SnackbarComponent (for error messages, e.g., insufficient funds)
+├── ModalComponent (for fund allocation, spending limit configuration, transaction details)
+
+----
+5. Component Responsibilities
+
+HeaderComponent:
+- Displays navigation bar with tabs
+- Handles navigation state
+
+NavigationTabsComponent:
+- Renders tab options, highlights selected
+
+SidebarComponent:
+- Provides navigation/profile (optional, if dashboard expands)
+
+TitleSectionComponent:
+- Displays "Select ASK type" title
+
+OptionCardContainer:
+- Grid layout for option cards
+
+OptionCardComponent:
+- Displays option (Core/Rotational)
+- Contains main action button
+
+OptionButtonComponent:
+- Triggers selection of ASK type
+- Uses aava-button with variant and size props
+
+ActionButtonContainer:
+- Grid layout for action buttons
+
+ExitButtonComponent:
+- Exits the flow
+- Uses aava-button, variant="danger", pill, prominent
+
+StartNowButtonComponent:
+- Starts the process
+- Uses aava-button, variant="secondary", disabled
+
+SnackbarComponent:
+- Shows error messages (e.g., insufficient funds)
+
+ModalComponent:
+- Handles fund allocation, spending limit, transaction details
+- Uses modal content projection (header, body, footer)
+
+----
+6. Data Flow / Props
+
+YouthAccountDashboardPage
+ -> NavigationTabsComponent (tabs, selectedTab)
+ -> OptionCardContainer (options: [Core, Rotational])
+    -> OptionCardComponent (optionType, isSelected)
+       -> OptionButtonComponent (label, variant, size, onClick)
+ -> ActionButtonContainer
+    -> ExitButtonComponent (onClick)
+    -> StartNowButtonComponent (disabled, onClick)
+ -> SnackbarComponent (message, type)
+ -> ModalComponent (modalType, data, onClose)
+
+----
+7. Layout Structure
+
+Page Layout
+├── Header (Navigation bar)
+├── Main Content Container
+│   ├── Title Section
+│   ├── Option Card Grid
+│   │   ├── Core Option Card
+│   │   ├── Rotational Option Card
+│   ├── Action Button Grid
+│   │   ├── Exit Button
+│   │   ├── Start Now Button
+├── Snackbar (for errors)
+├── Modal (for fund allocation, spending limit, transaction details)
+
+----
+Notes:
+- All buttons, cards, modals, and navigation tabs are mapped to reusable components from the library.
+- No new components are created unless the UI element is not covered by the library.
+- The architecture aligns with the visual layout, Jira requirements, and component documentation.
+- Accessibility, responsive design, and semantic structure are ensured by the component library.
