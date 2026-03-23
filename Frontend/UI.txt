@@ -1,0 +1,156 @@
+Jira Requirement Summary
+
+Story: Parent can allocate and manage funds for a youth account
+
+Description:
+AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending.
+
+Acceptance Criteria:
+1. Access youth account dashboard: Parent sees dashboard with current balance and recent activity.
+2. Allocate funds: Parent can transfer funds from their primary account to the youth account.
+3. Set spending limit: Parent can configure a weekly spending limit, which is displayed on the dashboard.
+4. View youth spending activity: Parent can view recent transactions from the youth account.
+5. Handle insufficient balance: If parent’s account lacks funds, an error message is shown.
+
+UI Tasks (from subtasks):
+- Design youth account dashboard layout
+- Design fund transfer interaction for youth account
+- Design spending limit configuration interface
+- Design youth account activity view
+
+
+Detected UI Layout (from image):
+- Top Navigation Bar (HOME, ASK, RESOURCES, REPORTS, ADMIN)
+- Main Section
+  - Title: Core ASK List
+  - Search and Filter Bar (search by role, DPP group, initiator; filter by status and DPP group; Clear Filters button)
+  - Create New ASK Button (primary action)
+- Content Area
+  - Empty State: No Core ASKs Found, with illustration and Create First ASK button
+
+
+Reusable Components from Library:
+- Header (AavaHeaderComponent)
+- Tabs (AavaTabsComponent)
+- Card (AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent, AavaCardFooterComponent)
+- Button (AavaButtonComponent)
+- Avatar (AavaAvatarsComponent)
+- Chip-Tag (AavaTagComponent)
+- Grid (AavaGridComponent)
+- Snackbar (AavaSnackbarComponent)
+- Dialog/Modal (AavaDialogComponent, AavaModalComponent)
+- Textbox (AavaTextboxComponent)
+- Dropdown (AavaDropdownComponent)
+
+
+UI Component Architecture
+
+Screen: Youth Account Dashboard
+
+YouthAccountDashboardPage
+├── HeaderComponent (AavaHeaderComponent)
+│   ├── Logo
+│   ├── Navigation Tabs (AavaTabsComponent)
+│   └── User Avatar (AavaAvatarsComponent)
+├── MainContainer
+│   ├── DashboardTitle ("Youth Account Dashboard")
+│   ├── SearchAndFilterBar
+│   │   ├── Textbox (AavaTextboxComponent) [search by role, group, initiator]
+│   │   ├── Dropdown (AavaDropdownComponent) [status, DPP group]
+│   │   └── Button (AavaButtonComponent) [Clear Filters]
+│   ├── ActionBar
+│   │   └── Button (AavaButtonComponent) [Add Funds]
+│   ├── BalanceCard (AavaDefaultCardComponent)
+│   │   ├── CardHeader (AavaCardHeaderComponent) [Current Balance, Spending Limit]
+│   │   └── CardContent (AavaCardContentComponent) [Balance, Limit, Avatar]
+│   ├── ActivitySection
+│   │   ├── Tabs (AavaTabsComponent) [Recent Activity, Fund Transfers, Spending Limits]
+│   │   └── ActivityList (AavaGridComponent or Card List)
+│   │       └── ActivityItemCard (AavaDefaultCardComponent)
+│   └── EmptyState (if no activity)
+│       ├── Illustration/Icon
+│       ├── Message ("No Activity Found")
+│       └── Button (AavaButtonComponent) [Create First Transaction]
+├── Snackbar (AavaSnackbarComponent) [for error/success messages]
+└── Dialog/Modal (AavaDialogComponent/AavaModalComponent) [for Add Funds, Set Spending Limit]
+
+
+Component Responsibilities
+
+HeaderComponent
+- Displays logo, navigation tabs, and user avatar.
+- Handles navigation and user menu actions.
+
+SearchAndFilterBar
+- Allows searching and filtering of dashboard data (role, group, initiator, status).
+- Triggers filter actions and clearing of filters.
+
+BalanceCard
+- Shows current youth account balance and configured spending limit.
+- Displays parent/youth avatar.
+
+ActivitySection
+- Tabbed navigation for recent activity, fund transfers, and spending limits.
+- Displays a list of activity items or an empty state if none exist.
+
+ActivityItemCard
+- Shows details of a single transaction or activity (date, amount, type, status).
+
+Snackbar
+- Displays error or success messages (e.g., insufficient funds).
+
+Dialog/Modal
+- Used for Add Funds and Set Spending Limit interactions.
+- Contains forms for entering amounts, selecting accounts, and confirming actions.
+
+
+Data Flow / Props
+
+YouthAccountDashboardPage
+  -> HeaderComponent (userData, navigationTabs)
+  -> SearchAndFilterBar (filters, onFilterChange)
+  -> BalanceCard (balance, spendingLimit, avatarUrl)
+  -> ActivitySection (activityTabs, activityData)
+  -> Snackbar (message, type)
+  -> Dialog/Modal (isOpen, dialogType, formData)
+
+HeaderComponent
+  -> Tabs (tabs, activeTabId, onTabChange)
+  -> Avatar (avatarUrl, profileText)
+
+SearchAndFilterBar
+  -> Textbox (value, onInput)
+  -> Dropdown (options, selectedValue, onChange)
+  -> Button (onClick)
+
+BalanceCard
+  -> CardHeader (title, subtitle)
+  -> CardContent (balance, spendingLimit, avatarUrl)
+
+ActivitySection
+  -> Tabs (tabList, activeTab, onTabChange)
+  -> ActivityList (activityItems)
+
+ActivityItemCard
+  -> CardHeader (title, icon)
+  -> CardContent (details)
+
+Snackbar
+  -> message, type
+
+Dialog/Modal
+  -> isOpen, dialogType, formData, onSubmit, onClose
+
+
+Layout Structure
+
+Page Layout
+├── Header (AavaHeaderComponent)
+├── Main Container
+│   ├── Dashboard Title
+│   ├── Search and Filter Bar
+│   ├── Action Bar (Add Funds)
+│   ├── Balance Card
+│   ├── Activity Section (Tabs + List)
+│   └── Empty State (if no activity)
+└── Snackbar/Dialog (as overlays)

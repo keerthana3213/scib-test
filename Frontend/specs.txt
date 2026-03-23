@@ -1,0 +1,76 @@
+Specs for Youth Account Dashboard UI Architecture
+
+1. HeaderComponent (AavaHeaderComponent)
+   - Props: logoUrl, navigationTabs, userAvatar
+   - Children: Tabs (AavaTabsComponent), Avatar (AavaAvatarsComponent)
+   - Events: tabChange, avatarClick
+
+2. SearchAndFilterBar
+   - Children: Textbox (AavaTextboxComponent), Dropdown (AavaDropdownComponent), Button (AavaButtonComponent)
+   - Props: filters, onFilterChange
+   - Events: filterChange, clearFilters
+
+3. BalanceCard (AavaDefaultCardComponent)
+   - Children: CardHeader (AavaCardHeaderComponent), CardContent (AavaCardContentComponent)
+   - Props: balance, spendingLimit, avatarUrl
+
+4. ActivitySection
+   - Children: Tabs (AavaTabsComponent), ActivityList (AavaGridComponent or Card List)
+   - Props: activityTabs, activityData
+   - Events: tabChange
+
+5. ActivityItemCard (AavaDefaultCardComponent)
+   - Children: CardHeader, CardContent
+   - Props: transactionData (date, amount, type, status)
+
+6. Snackbar (AavaSnackbarComponent)
+   - Props: message, type
+   - Events: close
+
+7. Dialog/Modal (AavaDialogComponent/AavaModalComponent)
+   - Props: isOpen, dialogType, formData
+   - Events: submit, close
+
+8. Button (AavaButtonComponent)
+   - Props: label, variant, size, onClick
+
+9. Tabs (AavaTabsComponent)
+   - Props: tabs, activeTabId, variant, size, onTabChange
+
+10. Avatar (AavaAvatarsComponent)
+    - Props: imageUrl, size, shape, badgeState, badgeCount, profileText
+
+11. Grid (AavaGridComponent)
+    - Props: items, columns
+
+12. Chip-Tag (AavaTagComponent)
+    - Props: label, color, pill, size
+
+13. Textbox (AavaTextboxComponent)
+    - Props: value, placeholder, onInput
+
+14. Dropdown (AavaDropdownComponent)
+    - Props: options, selectedValue, onChange
+
+15. Modal/Dialog (AavaModalComponent/AavaDialogComponent)
+    - Props: isOpen, dialogType, formData, onSubmit, onClose
+
+Accessibility & Responsiveness:
+- All components must support keyboard navigation and ARIA attributes.
+- Header and Tabs must be responsive (collapse/stack on mobile).
+- Cards and Grid must adapt to available screen width.
+- Dialogs/Modals must trap focus and be dismissible via keyboard.
+- Snackbar must be announced to screen readers.
+
+Styling & Theming:
+- Use design tokens and CSS custom properties as per component docs.
+- Support light/dark themes as per Header/Card guidelines.
+- Maintain consistent spacing, border radius, and color schemes.
+
+Error Handling:
+- Show Snackbar with error message on insufficient funds or failed actions.
+- Dialogs must validate input before submission.
+
+State Management:
+- Tabs and filters must persist state on navigation within dashboard.
+- Dialog open/close state managed by parent container.
