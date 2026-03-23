@@ -1,0 +1,445 @@
+## UI COMPONENT ARCHITECTURE
+
+1. JIRA REQUIREMENT SUMMARY
+
+Story Description:
+AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending
+
+Acceptance Criteria:
+- Scenario 1 – Access youth account dashboard: Given the parent is logged into the banking web application When the parent navigates to the youth account section Then the system should display the youth account dashboard with current balance and recent activity
+- Scenario 2 – Allocate funds to youth account: Given the parent is on the youth account dashboard When the parent selects “Add Funds” Then the system should allow the parent to transfer funds from their primary account to the youth account
+- Scenario 3 – Set spending limit: Given the parent is viewing the youth account management section When the parent configures a weekly spending limit Then the system should save and display the limit on the dashboard
+- Scenario 4 – View youth spending activity: Given the parent is viewing the youth account dashboard When the parent selects the activity section Then the system should display recent transactions made from the youth account
+- Scenario 5 – Handle insufficient balance during fund allocation: Given the parent attempts to transfer funds When the selected parent account does not have sufficient balance Then the system should display an error message indicating insufficient funds
+
+UI Tasks:
+- Design youth account dashboard layout
+- Design fund transfer interaction for youth account
+- Design spending limit configuration interface
+- Design youth account activity view
+
+2. HTML STRUCTURE SUMMARY (SOURCE OF TRUTH)
+
+Header:
+- Search field, notification icon, avatar chip with parent name
+
+Sidebar / Navigation:
+- Brand icon/name, navigation menu: Dashboard, Add Funds, Set Limit, Activity
+- Error/confirmation menu: Dashboard Load Error, Insufficient Balance Error, Invalid Limit Error, Transfer Confirmation, Transfer Success, Limit Update Confirmation
+- Footer: version, copyright
+
+Main Container:
+- Dashboard page: Account balance card, spending limit card (with edit), recent activity card (list), financial literacy tips card
+- Add Funds page: Fund transfer form (source account, amount, templates, transfer limit), transfer/cancel buttons
+- Transfer Confirmation: Review details, confirm/back buttons
+- Transfer Success: Success badge, updated balance, dashboard/activity buttons
+- Insufficient Balance Error: Error snackbar, retry/dashboard buttons
+- Set Limit page: Current limit, new limit input, guidance, save/cancel buttons
+- Limit Update Confirmation: Success badge, new limit, dashboard button
+- Invalid Limit Error: Error snackbar, retry/dashboard buttons
+- Activity page: Transaction list (date, merchant, amount, balance)
+- Dashboard Load Error: Error snackbar, retry/support buttons
+
+Sections:
+- Cards: Account balance, spending limit, recent activity, tips
+- Forms: Fund transfer, set limit
+- Lists: Transaction list
+- Buttons: Add Funds, Set Limit, View Activity, Transfer, Cancel, Confirm, Retry, Save
+- Modals: Transfer confirmation, transfer success, limit update confirmation, error snackbars
+
+3. LAYOUT STRUCTURE (MANDATORY)
+
+Page Layout Hierarchy:
+
+YouthAccountPage
+├── Header
+├── Main Layout
+│   ├── Sidebar
+│   └── Content Area
+│       ├── DashboardPage
+│       │   ├── AccountBalanceCard
+│       │   ├── SpendingLimitCard
+│       │   ├── RecentActivityCard
+│       │   ├── TipsCard
+│       ├── FundTransferPage
+│       │   ├── FundTransferForm
+│       │   ├── TransferConfirmationModal
+│       │   ├── TransferSuccessModal
+│       │   ├── InsufficientBalanceSnackbar
+│       ├── SpendingLimitPage
+│       │   ├── LimitEditForm
+│       │   ├── LimitUpdateConfirmationModal
+│       │   ├── InvalidLimitSnackbar
+│       ├── ActivityPage
+│       │   ├── TransactionListCard
+│       ├── DashboardLoadErrorSnackbar
+
+Layout Type:
+- Mixed (Sidebar + Header + Grid/Flex content)
+
+4. REUSABLE COMPONENTS IDENTIFIED
+
+From Library (ZIP):
+- Header
+- Sidebar
+- Card
+- Button
+- Modal
+- Snackbar
+- Timeline
+- Avatar
+- Tag (Chip)
+- Divider
+
+5. UI COMPONENT ARCHITECTURE
+
+YouthAccountPage
+├── HeaderComponent
+├── SidebarComponent
+├── MainContainer
+│   ├── DashboardPage
+│   │   ├── AccountBalanceCard
+│   │   ├── SpendingLimitCard
+│   │   ├── RecentActivityCard
+│   │   ├── TipsCard
+│   ├── FundTransferPage
+│   │   ├── FundTransferForm
+│   │   ├── TransferConfirmationModal
+│   │   ├── TransferSuccessModal
+│   │   ├── InsufficientBalanceSnackbar
+│   ├── SpendingLimitPage
+│   │   ├── LimitEditForm
+│   │   ├── LimitUpdateConfirmationModal
+│   │   ├── InvalidLimitSnackbar
+│   ├── ActivityPage
+│   │   ├── TransactionListCard
+│   ├── DashboardLoadErrorSnackbar
+
+6. COMPONENT DEFINITIONS
+
+Component Name: HeaderComponent
+Purpose:
+- Displays search, notification, avatar chip, parent name
+Props:
+- searchText: string
+- parentName: string
+- avatarUrl: string
+State:
+- searchText: string
+Events:
+- onSearchChange
+API Binding:
+- None
+
+Component Name: SidebarComponent
+Purpose:
+- Navigation menu, error/confirmation menu, branding, footer
+Props:
+- menuItems: MenuItem[]
+- selectedMenu: string
+State:
+- isCollapsed: boolean
+Events:
+- onMenuSelect
+API Binding:
+- None
+
+Component Name: AccountBalanceCard
+Purpose:
+- Displays youth account balance, last updated
+Props:
+- accountBalance: number
+- lastUpdated: string
+State:
+- None
+Events:
+- None
+API Binding:
+- GET /api/youth-accounts/{youthAccountId}/dashboard
+
+Component Name: SpendingLimitCard
+Purpose:
+- Displays current spending limit, edit button
+Props:
+- spendingLimit: number
+- weeklyLimit: number
+State:
+- None
+Events:
+- onEditLimit
+API Binding:
+- GET /api/youth-accounts/{youthAccountId}/dashboard
+
+Component Name: RecentActivityCard
+Purpose:
+- Shows recent transactions
+Props:
+- recentTransactions: Transaction[]
+State:
+- None
+Events:
+- onViewAll
+API Binding:
+- GET /api/youth-accounts/{youthAccountId}/dashboard
+
+Component Name: TipsCard
+Purpose:
+- Financial literacy tips
+Props:
+- tips: string[]
+State:
+- None
+Events:
+- None
+API Binding:
+- None
+
+Component Name: FundTransferForm
+Purpose:
+- Fund transfer form (source, amount, templates, transfer limit)
+Props:
+- sourceAccounts: Account[]
+- transferLimit: number
+State:
+- selectedSource: string
+- amount: number
+Events:
+- onTransfer
+- onCancel
+API Binding:
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer
+
+Component Name: TransferConfirmationModal
+Purpose:
+- Confirm transfer details
+Props:
+- sourceAccount: string
+- amount: number
+- recipient: string
+State:
+- None
+Events:
+- onConfirm
+- onBack
+API Binding:
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer
+
+Component Name: TransferSuccessModal
+Purpose:
+- Show transfer success, updated balance
+Props:
+- updatedBalance: number
+State:
+- None
+Events:
+- onDashboard
+- onViewActivity
+API Binding:
+- None
+
+Component Name: InsufficientBalanceSnackbar
+Purpose:
+- Error message for insufficient balance
+Props:
+- message: string
+State:
+- None
+Events:
+- onRetry
+- onDashboard
+API Binding:
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer (error 400)
+
+Component Name: LimitEditForm
+Purpose:
+- Set new weekly spending limit
+Props:
+- currentLimit: number
+- guidance: string
+State:
+- newLimit: number
+Events:
+- onSave
+- onCancel
+API Binding:
+- PUT /api/youth-accounts/{youthAccountId}/spending-limit
+
+Component Name: LimitUpdateConfirmationModal
+Purpose:
+- Show limit update success
+Props:
+- newLimit: number
+State:
+- None
+Events:
+- onDashboard
+API Binding:
+- None
+
+Component Name: InvalidLimitSnackbar
+Purpose:
+- Error message for invalid limit value
+Props:
+- message: string
+State:
+- None
+Events:
+- onRetry
+- onDashboard
+API Binding:
+- PUT /api/youth-accounts/{youthAccountId}/spending-limit (error 400)
+
+Component Name: TransactionListCard
+Purpose:
+- List youth account transactions
+Props:
+- transactions: Transaction[]
+State:
+- None
+Events:
+- None
+API Binding:
+- GET /api/youth-accounts/{youthAccountId}/transactions
+
+Component Name: DashboardLoadErrorSnackbar
+Purpose:
+- Error message for dashboard load failure
+Props:
+- message: string
+State:
+- None
+Events:
+- onRetry
+- onSupport
+API Binding:
+- GET /api/youth-accounts/{youthAccountId}/dashboard (error 404/403)
+
+7. DATA FLOW / PROPS
+
+Parent → Child Mapping:
+YouthAccountPage
+→ HeaderComponent (searchText, parentName, avatarUrl)
+→ SidebarComponent (menuItems, selectedMenu)
+→ MainContainer
+   → DashboardPage (accountBalance, spendingLimit, recentTransactions, tips)
+   → FundTransferPage (sourceAccounts, transferLimit)
+   → SpendingLimitPage (currentLimit, guidance)
+   → ActivityPage (transactions)
+
+8. API SUMMARY
+
+Available APIs:
+- GET /api/youth-accounts/{youthAccountId}/dashboard → Fetch dashboard data (balance, limit, recent activity)
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer → Add funds
+- PUT /api/youth-accounts/{youthAccountId}/spending-limit → Update weekly limit
+- GET /api/youth-accounts/{youthAccountId}/transactions → List transactions
+
+9. API TO UI MAPPING
+
+Component → API:
+- DashboardPage → GET /api/youth-accounts/{youthAccountId}/dashboard
+- FundTransferForm, TransferConfirmationModal → POST /api/youth-accounts/{youthAccountId}/fund-transfer
+- LimitEditForm → PUT /api/youth-accounts/{youthAccountId}/spending-limit
+- TransactionListCard → GET /api/youth-accounts/{youthAccountId}/transactions
+- Error Snackbars/Modals → API error responses (400, 403, 404)
+
+10. API COMPATIBILITY
+
+Compatible:
+- All required UI actions (dashboard, fund transfer, limit update, activity) are supported by OpenAPI endpoints
+Missing:
+- None
+Transformations:
+- UI fields map directly to API request/response models (sourceAccountId, transferAmount, weeklyLimit, etc.)
+
+11. JIRA vs HTML VALIDATION
+
+Matching Elements:
+- Dashboard cards (balance, limit, activity)
+- Fund transfer form and confirmation
+- Spending limit edit and confirmation
+- Transaction list/activity
+- Error handling (insufficient balance, invalid limit, dashboard load)
+Missing Elements:
+- None
+Extra Elements:
+- Financial literacy tips card (not explicitly in Jira, but enhances user experience)
+
+12. FOLDER STRUCTURE (MANDATORY)
+
+src/
+ ├── components/
+ │    ├── layout/
+ │    │    ├── HeaderComponent
+ │    │    ├── SidebarComponent
+ │    │
+ │    ├── feature/
+ │    │    ├── AccountBalanceCard
+ │    │    ├── SpendingLimitCard
+ │    │    ├── RecentActivityCard
+ │    │    ├── TipsCard
+ │    │    ├── FundTransferForm
+ │    │    ├── TransferConfirmationModal
+ │    │    ├── TransferSuccessModal
+ │    │    ├── LimitEditForm
+ │    │    ├── LimitUpdateConfirmationModal
+ │    │    ├── TransactionListCard
+ │    │
+ │    ├── shared/
+ │         ├── Button
+ │         ├── Card
+ │         ├── Modal
+ │         ├── Snackbar
+ │         ├── Avatar
+ │         ├── Tag
+ │         ├── Divider
+ │
+ ├── pages/
+ │    ├── YouthAccountPage/
+ │         ├── YouthAccountPage.tsx
+
+13. INTERACTION FLOWS
+
+User Action → UI → API
+- Click "Add Funds"
+  → Open FundTransferForm
+  → Submit
+  → Call POST /api/youth-accounts/{youthAccountId}/fund-transfer
+  → Show TransferConfirmationModal
+  → Confirm
+  → Show TransferSuccessModal
+
+- Click "Set Limit"
+  → Open LimitEditForm
+  → Submit
+  → Call PUT /api/youth-accounts/{youthAccountId}/spending-limit
+  → Show LimitUpdateConfirmationModal
+
+- Click "View Activity"
+  → Open ActivityPage
+  → Call GET /api/youth-accounts/{youthAccountId}/transactions
+
+- Error (Insufficient Balance)
+  → Show InsufficientBalanceSnackbar
+  → Retry
+
+- Error (Invalid Limit)
+  → Show InvalidLimitSnackbar
+  → Retry
+
+- Error (Dashboard Load)
+  → Show DashboardLoadErrorSnackbar
+  → Retry/Support
+
+14. GAPS & RECOMMENDATIONS
+
+Missing UI:
+- None (all Jira requirements are covered)
+Improvements:
+- Financial literacy tips card enhances user experience
+- Consider adding timeline component for activity history if needed
+Performance:
+- Use OnPush change detection for cards, modals, snackbars
+- Lazy load transaction list and modals
+- Optimize avatar and tag rendering for large lists
+
