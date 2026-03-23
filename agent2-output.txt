@@ -1,1 +1,1317 @@
-<FULL OUTPUT STRING>
+## UI COMPONENT SPECIFICATIONS
+
+1. INPUT REFERENCE (FROM AGENT-1)
+
+Page Name:
+YouthAccountDashboardPage
+
+Mapped Layout:
+Mixed layout (Sidebar: Flex, Main: Grid/Flex, Cards: Grid, Modals: Overlay/Absolute)
+
+Components from A1:
+- HeaderComponent
+- SidebarComponent
+- AccountOverviewCard
+- SpendingLimitCard
+- RecentActivityCard
+- TipsCard
+- QuickActions
+- FundTransferModal
+- SpendingLimitModal
+- ActivityTimeline
+- TransactionList
+- ConfirmationModal
+- SuccessModal
+- SnackbarComponent
+
+2. GLOBAL ARCHITECTURE SUMMARY
+
+Layout Type:
+Mixed (Sidebar: Flex, Main: Grid/Flex, Cards: Grid, Modals: Overlay/Absolute)
+
+Main Sections:
+- Header
+- Sidebar
+- Main Content
+- Modals
+- Snackbars
+
+Component Strategy:
+Reused Components:
+- Header
+- Sidebar
+- Card
+- Button
+- Modal
+- Snackbar
+- Timeline
+- Avatar
+- Badge
+- Divider
+- Chip-Tag
+
+New Components (if any):
+- AccountOverviewCard
+- SpendingLimitCard
+- RecentActivityCard
+- TipsCard
+- QuickActions
+- FundTransferModal
+- SpendingLimitModal
+- ActivityTimeline
+- TransactionList
+- ConfirmationModal
+- SuccessModal
+
+3. FOLDER STRUCTURE
+
+src/
+ ├── pages/
+ │    └── YouthAccountDashboard/
+ │         ├── YouthAccountDashboardPage.tsx
+ │
+ ├── components/
+ │    ├── layout/
+ │    │    ├── HeaderComponent
+ │    │    ├── SidebarComponent
+ │    │
+ │    ├── feature/
+ │    │    ├── AccountOverviewCard
+ │    │    ├── SpendingLimitCard
+ │    │    ├── RecentActivityCard
+ │    │    ├── TipsCard
+ │    │    ├── QuickActions
+ │    │    ├── FundTransferModal
+ │    │    ├── SpendingLimitModal
+ │    │    ├── ActivityTimeline
+ │    │    ├── TransactionList
+ │    │    ├── ConfirmationModal
+ │    │    ├── SuccessModal
+ │    │
+ │    ├── shared/
+ │         ├── Button
+ │         ├── Card
+ │         ├── Modal
+ │         ├── Snackbar
+ │         ├── Avatar
+ │         ├── Badge
+ │         ├── Divider
+ │         ├── ChipTag
+
+4. COMPONENT IMPLEMENTATION
+
+### 4.1 HeaderComponent
+
+Component Type:
+Layout
+
+Mapped From A1:
+HeaderComponent
+
+Purpose:
+Application header with search, notification, and user avatar
+
+Parent:
+YouthAccountDashboardPage
+
+Children:
+- SearchBar
+- NotificationIcon
+- AvatarComponent
+
+Dependencies:
+- SearchBar (shared)
+- NotificationIcon (shared)
+- Avatar (library)
+- ChipTag (library)
+
+Library Components Used:
+- Header → container
+- Avatar → parent avatar
+- ChipTag → parent name
+- Button → notification icon
+
+TypeScript Specification
+
+Inputs:
+- searchText: string
+- avatarUrl: string
+- parentName: string
+
+Outputs:
+- onSearchChange(searchText: string)
+- onNotificationClick()
+
+State:
+- searchText: string
+
+Methods:
+- handleSearchChange(searchText: string): void → updates searchText
+- handleNotificationClick(): void → triggers notification action
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Header>
+  <SearchBar value={searchText} onChange={handleSearchChange} />
+  <Button icon="notification" onClick={handleNotificationClick} />
+  <Avatar src={avatarUrl} />
+  <ChipTag label={parentName} />
+</Header>
+
+CSS SPECIFICATION
+
+Layout:
+- flex horizontal alignment
+- space-between for main items
+
+Spacing:
+- padding: 16px
+- gap: 12px
+
+Component Styles:
+- .header-container
+- .avatar-chip
+
+Responsive:
+- @media (max-width: 600px) → stack vertically, reduce padding
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+User types in search → onSearchChange → filter dashboard
+User clicks notification → onNotificationClick → open notifications
+
+---
+
+### 4.2 SidebarComponent
+
+Component Type:
+Layout
+
+Mapped From A1:
+SidebarComponent
+
+Purpose:
+Navigation menu for dashboard, fund transfer, limit, activity, errors, confirmations
+
+Parent:
+YouthAccountDashboardPage
+
+Children:
+- NavigationMenu
+- SectionLabels
+- Footer
+
+Dependencies:
+- Menu (library)
+- Divider (library)
+- Button (library)
+
+Library Components Used:
+- Sidebar → container
+- Menu → navigation
+- Divider → section separation
+- Button → menu actions
+
+TypeScript Specification
+
+Inputs:
+- menuItems: MenuItem[]
+- selectedMenu: string
+
+Outputs:
+- onMenuSelect(menu: string)
+
+State:
+- isCollapsed: boolean
+
+Methods:
+- handleMenuSelect(menu: string): void → updates selectedMenu
+- toggleCollapse(): void → toggles sidebar
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Sidebar>
+  <Menu items={menuItems} selected={selectedMenu} onSelect={handleMenuSelect} />
+  <Divider />
+  <Footer>
+    <Button label="Collapse" onClick={toggleCollapse} />
+  </Footer>
+</Sidebar>
+
+CSS SPECIFICATION
+
+Layout:
+- flex vertical
+- fixed width: 240px
+
+Spacing:
+- padding: 20px
+- gap: 16px
+
+Component Styles:
+- .sidebar-container
+- .menu-item-selected
+
+Responsive:
+- @media (max-width: 600px) → collapsible sidebar
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+User selects menu → onMenuSelect → update main content
+User collapses sidebar → toggleCollapse
+
+---
+
+### 4.3 AccountOverviewCard
+
+Component Type:
+Feature
+
+Mapped From A1:
+AccountOverviewCard
+
+Purpose:
+Display youth account balance and summary
+
+Parent:
+MainContainer
+
+Children:
+- CardHeader
+- CardContent
+- CardFooter
+
+Dependencies:
+- Card (library)
+- Badge (library)
+
+Library Components Used:
+- Card → container
+- Badge → balance status
+
+TypeScript Specification
+
+Inputs:
+- accountBalance: number
+- lastUpdated: string
+
+Outputs:
+- None
+
+State:
+- None
+
+Methods:
+- fetchDashboard(): Promise → GET /api/youth-accounts/{youthAccountId}/dashboard
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Card>
+  <CardHeader title="Youth Account Balance" />
+  <CardContent>
+    <Badge label={accountBalance} />
+    <span>Last updated: {lastUpdated}</span>
+  </CardContent>
+</Card>
+
+CSS SPECIFICATION
+
+Layout:
+- grid area in dashboard
+
+Spacing:
+- margin: 12px
+
+Component Styles:
+- .account-balance-card
+- .balance-badge
+
+Responsive:
+- @media (max-width: 600px) → full width card
+
+API INTEGRATION
+- fetchDashboard() → GET /api/youth-accounts/{youthAccountId}/dashboard
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+
+INTERACTION FLOW
+On load → fetchDashboard → display balance
+
+---
+
+### 4.4 SpendingLimitCard
+
+Component Type:
+Feature
+
+Mapped From A1:
+SpendingLimitCard
+
+Purpose:
+Display and edit spending limit
+
+Parent:
+MainContainer
+
+Children:
+- CardHeader
+- CardContent
+- CardFooter
+
+Dependencies:
+- Card (library)
+- Badge (library)
+- Button (library)
+
+Library Components Used:
+- Card → container
+- Badge → limit status
+- Button → edit action
+
+TypeScript Specification
+
+Inputs:
+- spendingLimit: number
+- weeklyLimit: number
+
+Outputs:
+- onEditLimit()
+
+State:
+- None
+
+Methods:
+- fetchDashboard(): Promise → GET /api/youth-accounts/{youthAccountId}/dashboard
+- handleEditLimit(): void → open SpendingLimitModal
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Card>
+  <CardHeader title="Weekly Spending Limit" />
+  <CardContent>
+    <Badge label={spendingLimit} />
+    <span>Weekly Limit: {weeklyLimit}</span>
+  </CardContent>
+  <CardFooter>
+    <Button label="Edit Limit" onClick={handleEditLimit} />
+  </CardFooter>
+</Card>
+
+CSS SPECIFICATION
+
+Layout:
+- grid area in dashboard
+
+Spacing:
+- margin: 12px
+
+Component Styles:
+- .spending-limit-card
+- .limit-badge
+
+Responsive:
+- @media (max-width: 600px) → full width card
+
+API INTEGRATION
+- fetchDashboard() → GET /api/youth-accounts/{youthAccountId}/dashboard
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+
+INTERACTION FLOW
+User clicks Edit Limit → handleEditLimit → open modal
+
+---
+
+### 4.5 RecentActivityCard
+
+Component Type:
+Feature
+
+Mapped From A1:
+RecentActivityCard
+
+Purpose:
+Display recent transactions
+
+Parent:
+MainContainer
+
+Children:
+- CardHeader
+- CardContent
+- CardFooter
+
+Dependencies:
+- Card (library)
+- Timeline (library)
+- Button (library)
+
+Library Components Used:
+- Card → container
+- Timeline → transaction activity
+- Button → view all action
+
+TypeScript Specification
+
+Inputs:
+- recentTransactions: Transaction[]
+
+Outputs:
+- onViewAllActivity()
+
+State:
+- None
+
+Methods:
+- fetchDashboard(): Promise → GET /api/youth-accounts/{youthAccountId}/dashboard
+- handleViewAllActivity(): void → open ActivityTimeline
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Card>
+  <CardHeader title="Recent Activity" />
+  <CardContent>
+    <Timeline items={recentTransactions} />
+  </CardContent>
+  <CardFooter>
+    <Button label="View All" onClick={handleViewAllActivity} />
+  </CardFooter>
+</Card>
+
+CSS SPECIFICATION
+
+Layout:
+- grid area in dashboard
+
+Spacing:
+- margin: 12px
+
+Component Styles:
+- .recent-activity-card
+- .timeline-list
+
+Responsive:
+- @media (max-width: 600px) → full width card
+
+API INTEGRATION
+- fetchDashboard() → GET /api/youth-accounts/{youthAccountId}/dashboard
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+
+INTERACTION FLOW
+User clicks View All → handleViewAllActivity → open ActivityTimeline
+
+---
+
+### 4.6 TipsCard
+
+Component Type:
+Feature
+
+Mapped From A1:
+TipsCard
+
+Purpose:
+Display financial literacy tips
+
+Parent:
+MainContainer
+
+Children:
+- CardHeader
+- CardContent
+
+Dependencies:
+- Card (library)
+- Divider (library)
+
+Library Components Used:
+- Card → container
+- Divider → separate tips
+
+TypeScript Specification
+
+Inputs:
+- tips: string[]
+
+Outputs:
+- None
+
+State:
+- None
+
+Methods:
+- None
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Card>
+  <CardHeader title="Financial Tips" />
+  <CardContent>
+    <ul>
+      {tips.map(tip => <li>{tip}</li>)}
+    </ul>
+    <Divider />
+  </CardContent>
+</Card>
+
+CSS SPECIFICATION
+
+Layout:
+- grid area in dashboard
+
+Spacing:
+- margin: 12px
+
+Component Styles:
+- .tips-card
+- .tips-list
+
+Responsive:
+- @media (max-width: 600px) → full width card
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+None
+
+---
+
+### 4.7 QuickActions
+
+Component Type:
+Feature
+
+Mapped From A1:
+QuickActions
+
+Purpose:
+Action buttons for Add Funds, Set Limit, View Activity
+
+Parent:
+MainContainer
+
+Children:
+- Button (Add Funds)
+- Button (Set Limit)
+- Button (View Activity)
+
+Dependencies:
+- Button (library)
+
+Library Components Used:
+- Button → actions
+
+TypeScript Specification
+
+Inputs:
+- None
+
+Outputs:
+- onAddFunds()
+- onSetLimit()
+- onViewActivity()
+
+State:
+- None
+
+Methods:
+- handleAddFunds(): void → open FundTransferModal
+- handleSetLimit(): void → open SpendingLimitModal
+- handleViewActivity(): void → open ActivityTimeline
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<div class="quick-actions">
+  <Button label="Add Funds" onClick={handleAddFunds} />
+  <Button label="Set Limit" onClick={handleSetLimit} />
+  <Button label="View Activity" onClick={handleViewActivity} />
+</div>
+
+CSS SPECIFICATION
+
+Layout:
+- flex horizontal
+
+Spacing:
+- gap: 8px
+
+Component Styles:
+- .quick-actions
+
+Responsive:
+- @media (max-width: 600px) → stack vertically
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+User clicks action → open corresponding modal/section
+
+---
+
+### 4.8 FundTransferModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+FundTransferModal
+
+Purpose:
+Transfer funds from parent to youth account
+
+Parent:
+MainContainer
+
+Children:
+- ModalHeader
+- ModalContent
+- ModalFooter
+
+Dependencies:
+- Modal (library)
+- Dropdown (library)
+- Textbox (library)
+- Badge (library)
+- Button (library)
+- ChipTag (library)
+
+Library Components Used:
+- Modal → container
+- Dropdown → source account select
+- Textbox → amount input
+- Badge → transfer limit
+- Button → transfer/cancel
+- ChipTag → frequent templates
+
+TypeScript Specification
+
+Inputs:
+- sourceAccounts: Account[]
+- transferAmount: number
+- transferLimit: number
+
+Outputs:
+- onTransfer(transferRequest: FundTransferRequest)
+- onCancel()
+
+State:
+- selectedSource: string
+- amount: number
+
+Methods:
+- handleSourceSelect(accountId: string): void → update selectedSource
+- handleAmountChange(amount: number): void → update amount
+- handleTransfer(): Promise → POST /api/youth-accounts/{youthAccountId}/fund-transfer
+- handleCancel(): void → close modal
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Modal>
+  <ModalHeader title="Add Funds" />
+  <ModalContent>
+    <Dropdown options={sourceAccounts} value={selectedSource} onChange={handleSourceSelect} />
+    <Textbox value={amount} onChange={handleAmountChange} />
+    <ChipTag label="Frequent Templates" />
+    <Badge label={transferLimit} />
+  </ModalContent>
+  <ModalFooter>
+    <Button label="Transfer" onClick={handleTransfer} />
+    <Button label="Cancel" onClick={handleCancel} />
+  </ModalFooter>
+</Modal>
+
+CSS SPECIFICATION
+
+Layout:
+- modal overlay, centered
+
+Spacing:
+- padding: 24px
+- gap: 16px
+
+Component Styles:
+- .fund-transfer-modal
+- .modal-content
+
+Responsive:
+- @media (max-width: 600px) → full screen modal
+
+API INTEGRATION
+- handleTransfer() → POST /api/youth-accounts/{youthAccountId}/fund-transfer
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+- Insufficient balance → show error message
+
+INTERACTION FLOW
+User selects account, enters amount, clicks Transfer → API call → ConfirmationModal
+
+---
+
+### 4.9 SpendingLimitModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+SpendingLimitModal
+
+Purpose:
+Set or update weekly spending limit
+
+Parent:
+MainContainer
+
+Children:
+- ModalHeader
+- ModalContent
+- ModalFooter
+
+Dependencies:
+- Modal (library)
+- Textbox (library)
+- Badge (library)
+- Button (library)
+- ChipTag (library)
+
+Library Components Used:
+- Modal → container
+- Textbox → new limit input
+- Badge → current limit
+- Button → save/cancel
+- ChipTag → guidance info
+
+TypeScript Specification
+
+Inputs:
+- currentLimit: number
+- guidance: string
+
+Outputs:
+- onSaveLimit(limitRequest: SpendingLimitRequest)
+- onCancel()
+
+State:
+- newLimit: number
+
+Methods:
+- handleNewLimitChange(limit: number): void → update newLimit
+- handleSaveLimit(): Promise → PUT /api/youth-accounts/{youthAccountId}/spending-limit
+- handleCancel(): void → close modal
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Modal>
+  <ModalHeader title="Set Weekly Limit" />
+  <ModalContent>
+    <Badge label={currentLimit} />
+    <Textbox value={newLimit} onChange={handleNewLimitChange} />
+    <ChipTag label={guidance} />
+  </ModalContent>
+  <ModalFooter>
+    <Button label="Save" onClick={handleSaveLimit} />
+    <Button label="Cancel" onClick={handleCancel} />
+  </ModalFooter>
+</Modal>
+
+CSS SPECIFICATION
+
+Layout:
+- modal overlay, centered
+
+Spacing:
+- padding: 24px
+- gap: 16px
+
+Component Styles:
+- .spending-limit-modal
+- .modal-content
+
+Responsive:
+- @media (max-width: 600px) → full screen modal
+
+API INTEGRATION
+- handleSaveLimit() → PUT /api/youth-accounts/{youthAccountId}/spending-limit
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+- Invalid limit → show error message
+
+INTERACTION FLOW
+User enters new limit, clicks Save → API call → ConfirmationModal
+
+---
+
+### 4.10 ActivityTimeline
+
+Component Type:
+Feature
+
+Mapped From A1:
+ActivityTimeline
+
+Purpose:
+Display chronological youth account activity
+
+Parent:
+MainContainer
+
+Children:
+- Timeline (library)
+
+Dependencies:
+- Timeline (library)
+
+Library Components Used:
+- Timeline → transaction activity
+
+TypeScript Specification
+
+Inputs:
+- transactions: Transaction[]
+
+Outputs:
+- None
+
+State:
+- None
+
+Methods:
+- fetchTransactions(): Promise → GET /api/youth-accounts/{youthAccountId}/transactions
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Timeline items={transactions} />
+
+CSS SPECIFICATION
+
+Layout:
+- grid area in activity section
+
+Spacing:
+- margin: 12px
+
+Component Styles:
+- .activity-timeline
+
+Responsive:
+- @media (max-width: 600px) → full width timeline
+
+API INTEGRATION
+- fetchTransactions() → GET /api/youth-accounts/{youthAccountId}/transactions
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+
+INTERACTION FLOW
+On load → fetchTransactions → display timeline
+
+---
+
+### 4.11 TransactionList
+
+Component Type:
+Feature
+
+Mapped From A1:
+TransactionList
+
+Purpose:
+List youth account transactions
+
+Parent:
+MainContainer
+
+Children:
+- List (library)
+
+Dependencies:
+- List (library)
+- Divider (library)
+
+Library Components Used:
+- List → transaction items
+- Divider → separate transactions
+
+TypeScript Specification
+
+Inputs:
+- transactions: Transaction[]
+
+Outputs:
+- None
+
+State:
+- None
+
+Methods:
+- fetchTransactions(): Promise → GET /api/youth-accounts/{youthAccountId}/transactions
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<ul class="transaction-list">
+  {transactions.map(tx => (
+    <li>
+      <span>{tx.date}</span>
+      <span>{tx.merchant}</span>
+      <span>{tx.amount}</span>
+      <span>{tx.balance}</span>
+      <Divider />
+    </li>
+  ))}
+</ul>
+
+CSS SPECIFICATION
+
+Layout:
+- grid area in activity section
+
+Spacing:
+- margin: 12px
+
+Component Styles:
+- .transaction-list
+- .transaction-item
+
+Responsive:
+- @media (max-width: 600px) → full width list
+
+API INTEGRATION
+- fetchTransactions() → GET /api/youth-accounts/{youthAccountId}/transactions
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+
+INTERACTION FLOW
+On load → fetchTransactions → display list
+
+---
+
+### 4.12 ConfirmationModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+ConfirmationModal
+
+Purpose:
+Confirm fund transfer or limit update
+
+Parent:
+MainContainer
+
+Children:
+- ModalHeader
+- ModalContent
+- ModalFooter
+
+Dependencies:
+- Modal (library)
+- Button (library)
+- ChipTag (library)
+
+Library Components Used:
+- Modal → container
+- Button → confirm/back
+- ChipTag → transfer/limit details
+
+TypeScript Specification
+
+Inputs:
+- transferDetails: FundTransferRequest
+- limitDetails: SpendingLimitRequest
+
+Outputs:
+- onConfirm()
+- onBack()
+
+State:
+- None
+
+Methods:
+- handleConfirm(): Promise → POST /api/youth-accounts/{youthAccountId}/fund-transfer or PUT /api/youth-accounts/{youthAccountId}/spending-limit
+- handleBack(): void → close modal
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Modal>
+  <ModalHeader title="Confirm Action" />
+  <ModalContent>
+    <ChipTag label={transferDetails || limitDetails} />
+  </ModalContent>
+  <ModalFooter>
+    <Button label="Confirm" onClick={handleConfirm} />
+    <Button label="Back" onClick={handleBack} />
+  </ModalFooter>
+</Modal>
+
+CSS SPECIFICATION
+
+Layout:
+- modal overlay, centered
+
+Spacing:
+- padding: 24px
+- gap: 16px
+
+Component Styles:
+- .confirmation-modal
+- .modal-content
+
+Responsive:
+- @media (max-width: 600px) → full screen modal
+
+API INTEGRATION
+- handleConfirm() → POST /api/youth-accounts/{youthAccountId}/fund-transfer or PUT /api/youth-accounts/{youthAccountId}/spending-limit
+
+ERROR HANDLING
+- API failure → show SnackbarComponent with error message
+
+INTERACTION FLOW
+User reviews details, clicks Confirm → API call → SuccessModal
+
+---
+
+### 4.13 SuccessModal
+
+Component Type:
+Feature
+
+Mapped From A1:
+SuccessModal
+
+Purpose:
+Show success message for transfer or limit update
+
+Parent:
+MainContainer
+
+Children:
+- ModalHeader
+- ModalContent
+- ModalFooter
+
+Dependencies:
+- Modal (library)
+- Button (library)
+- Badge (library)
+
+Library Components Used:
+- Modal → container
+- Button → dashboard/activity
+- Badge → updated balance
+
+TypeScript Specification
+
+Inputs:
+- message: string
+- updatedBalance: number
+
+Outputs:
+- onDashboard()
+- onViewActivity()
+
+State:
+- None
+
+Methods:
+- handleDashboard(): void → navigate to dashboard
+- handleViewActivity(): void → navigate to activity
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Modal>
+  <ModalHeader title="Success" />
+  <ModalContent>
+    <span>{message}</span>
+    <Badge label={updatedBalance} />
+  </ModalContent>
+  <ModalFooter>
+    <Button label="Dashboard" onClick={handleDashboard} />
+    <Button label="View Activity" onClick={handleViewActivity} />
+  </ModalFooter>
+</Modal>
+
+CSS SPECIFICATION
+
+Layout:
+- modal overlay, centered
+
+Spacing:
+- padding: 24px
+- gap: 16px
+
+Component Styles:
+- .success-modal
+- .modal-content
+
+Responsive:
+- @media (max-width: 600px) → full screen modal
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+User clicks Dashboard/View Activity → navigate
+
+---
+
+### 4.14 SnackbarComponent
+
+Component Type:
+Shared
+
+Mapped From A1:
+SnackbarComponent
+
+Purpose:
+Show error or confirmation messages
+
+Parent:
+MainContainer
+
+Children:
+- Snackbar (library)
+
+Dependencies:
+- Snackbar (library)
+- Button (library)
+
+Library Components Used:
+- Snackbar → message display
+- Button → action
+
+TypeScript Specification
+
+Inputs:
+- message: string
+- variant: string
+- action: SnackbarAction
+
+Outputs:
+- onDismiss()
+- onAction()
+
+State:
+- None
+
+Methods:
+- handleDismiss(): void → close snackbar
+- handleAction(): void → perform action
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<Snackbar message={message} variant={variant} action={action} onDismiss={handleDismiss} onAction={handleAction} />
+
+CSS SPECIFICATION
+
+Layout:
+- fixed bottom overlay
+
+Spacing:
+- margin: 16px
+
+Component Styles:
+- .snackbar-component
+
+Responsive:
+- @media (max-width: 600px) → full width snackbar
+
+API INTEGRATION
+- None
+
+ERROR HANDLING
+- None
+
+INTERACTION FLOW
+User sees message, clicks action/dismiss
+
+---
+
+5. COMPONENT MAPPING SUMMARY
+
+| A1 Component      | Final Component      | Type    |
+|-------------------|---------------------|---------|
+| Header            | HeaderComponent      | Layout  |
+| Sidebar           | SidebarComponent     | Layout  |
+| AccountBalanceCard| AccountOverviewCard  | Feature |
+| SpendingLimitCard | SpendingLimitCard    | Feature |
+| RecentActivityCard| RecentActivityCard   | Feature |
+| TipsCard          | TipsCard             | Feature |
+| QuickActions      | QuickActions         | Feature |
+| FundTransferModal | FundTransferModal    | Feature |
+| SpendingLimitModal| SpendingLimitModal   | Feature |
+| ActivityTimeline  | ActivityTimeline     | Feature |
+| TransactionList   | TransactionList      | Feature |
+| ConfirmationModal | ConfirmationModal    | Feature |
+| SuccessModal      | SuccessModal         | Feature |
+| SnackbarComponent | SnackbarComponent    | Shared  |
+
+6. DATA FLOW (FROM AGENT-1)
+
+Parent → Child:
+YouthAccountDashboardPage
+→ HeaderComponent (searchText, avatarUrl, parentName)
+→ SidebarComponent (menuItems, selectedMenu)
+→ MainContainer
+   → AccountOverviewCard (accountBalance, lastUpdated)
+   → SpendingLimitCard (spendingLimit, weeklyLimit)
+   → RecentActivityCard (recentTransactions)
+   → TipsCard (tips)
+   → QuickActions (actions)
+   → FundTransferModal (sourceAccounts, transferAmount, transferLimit)
+   → SpendingLimitModal (currentLimit, guidance)
+   → ActivityTimeline (transactions)
+   → TransactionList (transactions)
+   → ConfirmationModal (transferDetails, limitDetails)
+   → SuccessModal (message, updatedBalance)
+   → SnackbarComponent (message, variant, action)
+
+7. API USAGE SUMMARY
+
+Component → API:
+- AccountOverviewCard → GET /api/youth-accounts/{youthAccountId}/dashboard
+- SpendingLimitCard → GET /api/youth-accounts/{youthAccountId}/dashboard
+- RecentActivityCard → GET /api/youth-accounts/{youthAccountId}/dashboard
+- FundTransferModal → POST /api/youth-accounts/{youthAccountId}/fund-transfer
+- SpendingLimitModal → PUT /api/youth-accounts/{youthAccountId}/spending-limit
+- ActivityTimeline → GET /api/youth-accounts/{youthAccountId}/transactions
+- TransactionList → GET /api/youth-accounts/{youthAccountId}/transactions
+
+8. NOTES & CONSTRAINTS
+
+- HTML must follow A1 structure strictly
+- Do NOT create new components unnecessarily
+- Prefer reusable library components
+- HTML must be pseudo-code ONLY (NOT real framework code)
+- CSS should include only key classes and layout rules, not full stylesheets
+- All API errors must be handled via SnackbarComponent
+- Responsive rules must be included for all main components
+- All modals must be overlay, full screen on mobile
+- Data flow must strictly follow parent → child mapping from A1
