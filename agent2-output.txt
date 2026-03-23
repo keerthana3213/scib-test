@@ -1,422 +1,452 @@
 ## UI COMPONENT SPECIFICATIONS
 
-### 1. INPUT REFERENCE (FROM AGENT-1)
+1. INPUT REFERENCE (FROM AGENT-1)
 
-Page Name: Enterprise Dashboard Application
+Page Name: Dashboard Application
 
-Mapped Layout: Three-column layout with header, sidebar, and main content area
+Mapped Layout: CSS Grid main layout with Flexbox component layouts
 
 Components from A1:
-- HeaderComponent
-- SidebarComponent
-- DashboardCardComponent
-- ButtonComponent
-- SearchComponent
-- UserProfileComponent
-- NotificationComponent
+- HeaderComponent (aava-header)
+- SidebarComponent (aava-sidebar) 
+- MetricCards (aava-default-card)
+- ActivityTimeline (aava-timeline)
+- ActionButtons (aava-button)
+- DataTable
+- FilterControls
+- StatusIndicators
 
-### 2. GLOBAL ARCHITECTURE SUMMARY
+2. GLOBAL ARCHITECTURE SUMMARY
 
-Layout Type: Mixed (Grid + Flex)
+Layout Type: CSS Grid for main layout structure, Flexbox for component internal layouts, Responsive design with breakpoints
 
 Main Sections:
-- Header (navigation and user actions)
-- Sidebar (navigation menu)
-- Main Content (dashboard widgets and cards)
-- Modals (overlays for actions)
+- Header (HeaderComponent)
+- Sidebar (SidebarComponent)
+- Main Content (Dashboard, Data Management)
+- Modals (aava-modal)
 
 Component Strategy:
+
 Reused Components:
-- aava-header (from AAVA Play library)
-- aava-button (from AAVA Play library)
-- aava-default-card (from AAVA Play library)
-- aava-icon (from AAVA Play library)
-- aava-tabs (from AAVA Play library)
-- aava-avatars (from AAVA Play library)
+- aava-header → HeaderComponent
+- aava-sidebar → SidebarComponent
+- aava-default-card → MetricCard
+- aava-timeline → ActivityTimeline
+- aava-button → ActionButton
+- aava-modal → Modal dialogs
+- aava-tabs → Navigation tabs
+- aava-icon → Icons throughout
+- aava-avatar → User profile
+- aava-badge → Status indicators
 
 New Components (if any):
-- DashboardLayoutComponent
-- SidebarNavigationComponent
-- DashboardWidgetComponent
+- DataTable (custom implementation)
+- FilterPanel (custom implementation)
+- LoadingSpinner (custom wrapper)
+- ErrorBoundary (custom implementation)
 
-### 3. FOLDER STRUCTURE
+3. FOLDER STRUCTURE
 
 src/
  ├── pages/
  │    └── Dashboard/
  │         ├── Dashboard.tsx
- │         ├── DashboardLayout.tsx
+ │         ├── Dashboard.module.css
+ │         └── index.ts
  │
  ├── components/
  │    ├── layout/
- │    │    ├── HeaderComponent.tsx
- │    │    ├── SidebarComponent.tsx
- │    │    └── LayoutContainer.tsx
+ │    │   ├── HeaderComponent/
+ │    │   ├── SidebarComponent/
+ │    │   └── MainContainer/
  │    ├── feature/
- │    │    ├── DashboardWidget.tsx
- │    │    ├── UserProfile.tsx
- │    │    └── NotificationPanel.tsx
+ │    │   ├── MetricCard/
+ │    │   ├── ActivityTimeline/
+ │    │   ├── DataTable/
+ │    │   └── FilterPanel/
  │    ├── shared/
- │    │    ├── SearchBox.tsx
- │    │    ├── ActionButton.tsx
- │    │    └── StatusCard.tsx
+ │    │   ├── Button/
+ │    │   ├── Card/
+ │    │   ├── Modal/
+ │    │   ├── LoadingSpinner/
+ │    │   └── ErrorBoundary/
 
-### 4. COMPONENT IMPLEMENTATION
+4. COMPONENT IMPLEMENTATION
 
-#### 4.1 HeaderComponent
+### 4.1 HeaderComponent
 
 Component Type: Layout
 
-Mapped From A1: HeaderComponent
+Mapped From A1: HeaderComponent (aava-header)
 
-Purpose: Application header with navigation, search, and user actions
+Purpose: Application-wide navigation and branding with logo, navigation tabs, search, and user profile
 
-Parent: DashboardLayout
+Parent: Application
 
 Children:
-- SearchBox
-- UserProfile
-- NotificationPanel
+- LogoSection
+- NavigationTabs (aava-tabs)
+- SearchComponent
+- UserProfileSection (aava-avatar)
 
 Dependencies:
 - @aava/play-core (AavaHeaderComponent)
-- @aava/play-core (AavaIconComponent)
 - @aava/play-core (AavaTabsComponent)
-- @aava/play-core (AavaAvatarsComponent)
+- @aava/play-core (AavaIconComponent)
+- @aava/play-core (AavaAvatarComponent)
 
 Library Components Used:
 - aava-header → Main header container
-- aava-icon → Icons for actions
 - aava-tabs → Navigation tabs
-- aava-avatars → User profile avatar
+- aava-icon → Search and action icons
+- aava-avatar → User profile avatar
 
 TypeScript Specification
 
 Inputs:
 - logoUrl: string
-- navigationTabs: TabItem[]
+- navigationItems: NavigationItem[]
 - userProfile: UserProfile
 - searchEnabled: boolean
-- themeMode: 'light' | 'dark' | 'transparent'
+- activeTabId: string
 
 Outputs:
-- onTabChange(tab: TabItem)
-- onSearchChange(query: string)
-- onUserAction(action: string)
-- onThemeToggle()
+- onNavigationChange: (tabId: string) => void
+- onSearch: (query: string) => void
+- onUserAction: (action: string) => void
 
 State:
-- activeTabId: string
-- searchText: string
-- isMenuOpen: boolean
-- currentTheme: string
+- activeTab: string
+- searchQuery: string
+- isUserMenuOpen: boolean
 
 Methods:
-- toggleTheme() → Switch between light/dark themes
-- handleSearch() → Process search input
-- navigateToTab() → Handle tab navigation
-- toggleMobileMenu() → Handle mobile menu state
+- onTabChange(event: any) → Updates active tab
+- onSearchChange() → Handles search input
+- onGraphIconClick() → Theme toggle handler
+- onTranslateIconClick() → Language toggle handler
+- onDayLightModeIconClick() → Settings menu handler
+- getLoggedInUserLogo() → Returns user avatar URL
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
 
-<aava-header [theme]="currentTheme" [containerClass]="headerClasses">
+<aava-header containerClass="app-header">
   <div left-content class="header__left">
     <div class="logo">
-      <img [src]="logoUrl" alt="Application Logo" />
+      <img src="{{ logoUrl }}" alt="Company Logo" />
     </div>
   </div>
   
-  <div center-content class="header__center">
+  <div center-content class="header__center tabs-header">
     <aava-tabs
       [tabs]="navigationTabs"
       [activeTabId]="activeTabId"
       variant="default"
       size="sm"
       [showContentPanels]="false"
-      (tabChange)="onTabChange($event)">
+      (tabChange)="onTabChange($event)"
+      ariaLabel="Main navigation tabs">
     </aava-tabs>
   </div>
   
   <div right-content class="header__right">
-    <SearchBox *ngIf="searchEnabled" (searchChange)="onSearchChange($event)" />
-    <aava-icon iconName="sun" [iconSize]="20" (click)="toggleTheme()" />
-    <NotificationPanel />
-    <UserProfile [user]="userProfile" />
+    <div class="search-box" *ngIf="searchEnabled">
+      <aava-icon iconName="search" [iconSize]="16" iconColor="#000"></aava-icon>
+      <input type="text" [(ngModel)]="searchQuery" (input)="onSearchChange()" placeholder="Search" />
+    </div>
+    
+    <aava-icon class="icon" iconName="Sun" [iconSize]="20" iconColor="#000" (click)="onGraphIconClick()"></aava-icon>
+    <aava-icon class="icon" iconName="Languages" [iconSize]="20" iconColor="#000" (click)="onTranslateIconClick()"></aava-icon>
+    <aava-icon class="icon" iconName="EllipsisVertical" [iconSize]="20" iconColor="#000" (click)="onDayLightModeIconClick()"></aava-icon>
+    
+    <aava-avatars
+      size="md"
+      shape="square"
+      [imageUrl]="getLoggedInUserLogo()"
+      badgeState="high-priority"
+      badgeSize="lg"
+      [badgeCount]="9">
+    </aava-avatars>
   </div>
 </aava-header>
 
 CSS SPECIFICATION
 
 Layout:
-- display: grid
+- display: grid with three-column layout
 - grid-template-columns: auto 1fr auto
 - align-items: center
-- padding: 0 24px
-- height: 64px
 
 Spacing:
-- gap: 16px
-- padding: 0 24px
+- padding: 16px 24px
+- gap: 16px between sections
 
 Component Styles:
-- .header__left: display: flex, align-items: center
-- .header__center: display: flex, justify-content: center
-- .header__right: display: flex, align-items: center, gap: 12px
-- .logo img: height: 32px, width: auto
+- .header__left: flex layout for logo
+- .header__center: flex layout for navigation
+- .header__right: flex layout for actions
+- .search-box: flex with icon and input
+- .icon: cursor pointer with hover effects
 
 Responsive:
-- @media (max-width: 1280px): hide center content
-- @media (max-width: 768px): show mobile menu
+- @media (max-width: 1280px): hide center section
+- @media (max-width: 768px): collapse to mobile layout
 
 API INTEGRATION
 
-- getUserProfile() → GET /api/user/profile → Fetch user data
-- getNavigationTabs() → GET /api/navigation → Load navigation structure
-- updateThemePreference() → POST /api/user/preferences → Save theme choice
+- getUserProfile() → GET /user/profile → Load user data
+- getNavigationConfig() → GET /navigation → Load navigation items
 
 ERROR HANDLING
 
-- API failure → show fallback navigation
+- API failure → show default navigation
 - User profile load error → show default avatar
-- Theme toggle error → revert to previous theme
+- Search API error → show inline error message
 
 INTERACTION FLOW
 
 User Action → UI → API
-- Click tab → update activeTabId → navigate to route
-- Search input → debounce → call search API → update results
-- Theme toggle → update theme state → save preference → apply styles
-- User menu click → show dropdown → handle user actions
+- Click navigation tab → update activeTab → load page content
+- Type in search → debounce input → call search API → show results
+- Click user avatar → open user menu → load user actions
+- Click theme toggle → update theme → save preference
 
-#### 4.2 SidebarComponent
+### 4.2 SidebarComponent
 
 Component Type: Layout
 
-Mapped From A1: SidebarComponent
+Mapped From A1: SidebarComponent (aava-sidebar)
 
-Purpose: Navigation sidebar with menu items and user context
+Purpose: Secondary navigation and user context with collapsible menu
 
-Parent: DashboardLayout
+Parent: Application
 
 Children:
 - NavigationMenu
-- UserContext
+- UserProfile
+- CollapseToggle
 
 Dependencies:
+- @aava/play-core (AavaSidebarComponent)
 - @aava/play-core (AavaIconComponent)
-- @aava/play-core (AavaButtonComponent)
+- @aava/play-core (AavaAvatarComponent)
 
 Library Components Used:
-- aava-icon → Menu item icons
-- aava-button → Action buttons
+- aava-sidebar → Main sidebar container
+- aava-icon → Menu icons and collapse toggle
+- aava-avatar → User profile in sidebar
 
 TypeScript Specification
 
 Inputs:
 - menuItems: MenuItem[]
 - isCollapsed: boolean
-- currentRoute: string
-- userPermissions: string[]
+- userProfile: UserProfile
+- permissions: UserPermissions
 
 Outputs:
-- onMenuItemClick(item: MenuItem)
-- onCollapseToggle()
-- onUserAction(action: string)
+- onMenuSelect: (itemId: string) => void
+- onCollapseToggle: (collapsed: boolean) => void
 
 State:
-- activeMenuItem: string
-- isExpanded: boolean
-- filteredMenuItems: MenuItem[]
+- selectedMenuItem: string
+- collapseState: boolean
+- expandedGroups: string[]
 
 Methods:
-- toggleSidebar() → Expand/collapse sidebar
-- filterMenuByPermissions() → Filter menu based on user permissions
-- navigateToMenuItem() → Handle menu navigation
-- updateActiveItem() → Update active menu item
+- toggleCollapse() → Toggle sidebar collapse state
+- selectMenuItem(itemId: string) → Handle menu selection
+- isMenuItemActive(itemId: string) → Check if menu item is active
+- hasPermission(permission: string) → Check user permissions
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
 
-<div class="sidebar" [class.collapsed]="isCollapsed">
-  <div class="sidebar__header">
-    <aava-button
-      iconName="menu"
-      iconPosition="icon-only"
-      variant="secondary"
-      size="sm"
-      (userClick)="toggleSidebar()">
-    </aava-button>
+<aava-sidebar [isCollapsed]="collapseState" class="app-sidebar">
+  <div class="sidebar-header">
+    <aava-icon 
+      iconName="Menu" 
+      [iconSize]="24" 
+      iconColor="#000" 
+      (click)="toggleCollapse()"
+      class="collapse-toggle">
+    </aava-icon>
   </div>
   
-  <nav class="sidebar__navigation">
-    <ul class="menu-list">
-      <li *ngFor="let item of filteredMenuItems" 
-          class="menu-item"
-          [class.active]="item.id === activeMenuItem">
-        <aava-button
-          [label]="item.label"
-          [iconName]="item.icon"
-          iconPosition="left"
-          variant="clear"
-          size="md"
-          (userClick)="onMenuItemClick(item)">
-        </aava-button>
+  <nav class="sidebar-nav">
+    <ul class="nav-menu">
+      <li *ngFor="let item of menuItems" 
+          class="nav-item"
+          [class.active]="isMenuItemActive(item.id)"
+          *ngIf="hasPermission(item.permission)">
+        <a (click)="selectMenuItem(item.id)" class="nav-link">
+          <aava-icon [iconName]="item.icon" [iconSize]="20" iconColor="#666"></aava-icon>
+          <span class="nav-text" *ngIf="!collapseState">{{ item.label }}</span>
+        </a>
       </li>
     </ul>
   </nav>
   
-  <div class="sidebar__footer">
-    <UserContext [collapsed]="isCollapsed" />
+  <div class="sidebar-footer" *ngIf="!collapseState">
+    <div class="user-profile">
+      <aava-avatars
+        size="sm"
+        [imageUrl]="userProfile.avatar"
+        [alt]="userProfile.name">
+      </aava-avatars>
+      <div class="user-info">
+        <span class="user-name">{{ userProfile.name }}</span>
+        <span class="user-role">{{ userProfile.role }}</span>
+      </div>
+    </div>
   </div>
-</div>
+</aava-sidebar>
 
 CSS SPECIFICATION
 
 Layout:
-- display: flex
-- flex-direction: column
+- display: flex with column direction
 - width: 280px (expanded), 64px (collapsed)
 - height: 100vh
-- transition: width 0.3s ease
+- position: fixed
 
 Spacing:
 - padding: 16px
-- gap: 8px
+- gap: 8px between menu items
 
 Component Styles:
-- .sidebar: background: var(--sidebar-bg), border-right: 1px solid var(--border-color)
-- .menu-item: padding: 8px 12px, border-radius: 8px
-- .menu-item.active: background: var(--primary-bg), color: var(--primary-color)
-- .menu-item:hover: background: var(--hover-bg)
+- .sidebar-header: flex with collapse toggle
+- .sidebar-nav: flex-grow for menu items
+- .nav-item: hover and active states
+- .nav-link: flex layout with icon and text
+- .sidebar-footer: user profile section
 
 Responsive:
-- @media (max-width: 768px): transform: translateX(-100%) when collapsed
+- @media (max-width: 768px): overlay mode
+- transition: width 0.3s ease for collapse animation
 
 API INTEGRATION
 
-- getMenuItems() → GET /api/navigation/menu → Load menu structure
-- getUserPermissions() → GET /api/user/permissions → Get user access rights
+- getMenuItems() → GET /menu/items → Load navigation menu
+- getUserPermissions() → GET /user/permissions → Load user access rights
 
 ERROR HANDLING
 
 - Menu load failure → show default menu items
-- Permission check error → show limited menu
+- Permission check error → hide restricted items
+- User profile error → show default profile
 
 INTERACTION FLOW
 
 User Action → UI → API
-- Click menu item → update active state → navigate to route
-- Toggle sidebar → update collapsed state → save preference
-- Permission change → reload menu → update available items
+- Click menu item → update selectedMenuItem → navigate to page → load page data
+- Click collapse toggle → update collapseState → save preference
+- Hover menu item → show tooltip (if collapsed) → no API call
 
-#### 4.3 DashboardCardComponent
+### 4.3 MetricCard
 
 Component Type: Feature
 
-Mapped From A1: DashboardCardComponent
+Mapped From A1: MetricCards (aava-default-card)
 
-Purpose: Reusable card component for dashboard widgets and content display
+Purpose: Display key performance indicators and metrics with trend information
 
 Parent: DashboardPage
 
 Children:
-- CardHeader
-- CardContent
-- CardActions
+- CardHeader (title and badge)
+- CardContent (metric value and trend)
+- CardFooter (metadata)
 
 Dependencies:
 - @aava/play-core (AavaDefaultCardComponent)
 - @aava/play-core (AavaCardHeaderComponent)
 - @aava/play-core (AavaCardContentComponent)
 - @aava/play-core (AavaCardFooterComponent)
-- @aava/play-core (AavaButtonComponent)
+- @aava/play-core (AavaTagComponent)
 - @aava/play-core (AavaIconComponent)
 
 Library Components Used:
 - aava-default-card → Main card container
 - aava-card-header → Card header section
-- aava-card-content → Card content area
-- aava-card-footer → Card footer/actions
-- aava-button → Action buttons
-- aava-icon → Status and action icons
+- aava-card-content → Card content section
+- aava-card-footer → Card footer section
+- aava-tag → Status badges
+- aava-icon → Trend and status icons
 
 TypeScript Specification
 
 Inputs:
 - title: string
-- content: any
-- cardType: 'metric' | 'chart' | 'list' | 'action'
-- actions: CardAction[]
-- status: 'success' | 'warning' | 'error' | 'info'
-- loading: boolean
-- data: any
+- value: number | string
+- trend: 'up' | 'down' | 'neutral'
+- icon: string
+- variant: 'primary' | 'secondary' | 'success' | 'warning'
+- subtitle?: string
+- percentage?: number
+- timeframe?: string
 
 Outputs:
-- onActionClick(action: CardAction)
-- onCardClick()
-- onDataRefresh()
+- onCardClick: () => void
+- onActionClick: (action: string) => void
 
 State:
 - isLoading: boolean
-- cardData: any
-- lastUpdated: Date
+- data: MetricData
 - error: string | null
 
 Methods:
-- refreshData() → Reload card data
-- handleAction() → Process card actions
-- formatData() → Format display data
-- updateStatus() → Update card status
+- loadMetricData() → Fetch metric data from API
+- formatValue(value: number) → Format display value
+- getTrendIcon() → Get appropriate trend icon
+- getTrendColor() → Get trend color based on direction
+- handleCardClick() → Handle card click events
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
 
-<aava-default-card [class]="cardClasses">
+<aava-default-card class="metric-card" [class]="variant" (click)="handleCardClick()">
   <aava-card-header>
-    <div class="card-title">
-      <h4>{{ title }}</h4>
-      <aava-icon 
-        *ngIf="status" 
-        [iconName]="getStatusIcon(status)"
-        [iconColor]="getStatusColor(status)"
-        [iconSize]="16">
-      </aava-icon>
-    </div>
-    <div class="card-meta" *ngIf="lastUpdated">
-      <span>Updated: {{ lastUpdated | date:'short' }}</span>
+    <div class="header-with-badge">
+      <div class="title-section">
+        <aava-icon [iconName]="icon" [iconSize]="24" [iconColor]="getIconColor()"></aava-icon>
+        <h4 class="metric-title">{{ title }}</h4>
+      </div>
+      <aava-tag 
+        *ngIf="subtitle" 
+        [pill]="true" 
+        [label]="subtitle" 
+        [color]="variant">
+      </aava-tag>
     </div>
   </aava-card-header>
   
   <aava-card-content>
-    <div *ngIf="loading" class="loading-state">
-      <aava-icon iconName="loader" [iconSize]="24" class="spinning"></aava-icon>
-      <span>Loading...</span>
+    <div class="metric-value-section">
+      <div class="primary-value">{{ formatValue(value) }}</div>
+      <div class="trend-section" *ngIf="trend !== 'neutral'">
+        <aava-icon 
+          [iconName]="getTrendIcon()" 
+          [iconSize]="16" 
+          [iconColor]="getTrendColor()">
+        </aava-icon>
+        <span class="trend-percentage" [style.color]="getTrendColor()">{{ percentage }}%</span>
+      </div>
     </div>
     
-    <div *ngIf="!loading && !error" class="card-data">
-      <ng-container [ngSwitch]="cardType">
-        <MetricDisplay *ngSwitchCase="'metric'" [data]="cardData" />
-        <ChartDisplay *ngSwitchCase="'chart'" [data]="cardData" />
-        <ListDisplay *ngSwitchCase="'list'" [data]="cardData" />
-        <ActionDisplay *ngSwitchCase="'action'" [data]="cardData" />
-      </ng-container>
+    <div class="loading-state" *ngIf="isLoading">
+      <aava-skeleton-loader></aava-skeleton-loader>
     </div>
     
-    <div *ngIf="error" class="error-state">
-      <aava-icon iconName="alert-circle" [iconSize]="24" iconColor="#dc3545"></aava-icon>
-      <span>{{ error }}</span>
+    <div class="error-state" *ngIf="error">
+      <aava-icon iconName="alert-circle" [iconSize]="16" iconColor="#dc3545"></aava-icon>
+      <span class="error-message">{{ error }}</span>
     </div>
   </aava-card-content>
   
-  <aava-card-footer *ngIf="actions?.length">
-    <div class="card-actions">
-      <aava-button
-        *ngFor="let action of actions"
-        [label]="action.label"
-        [variant]="action.variant || 'secondary'"
-        [size]="action.size || 'sm'"
-        [iconName]="action.icon"
-        iconPosition="left"
-        (userClick)="onActionClick(action)">
-      </aava-button>
+  <aava-card-footer *ngIf="timeframe">
+    <div class="footer-info">
+      <aava-icon iconName="calendar-days" [iconSize]="14" iconColor="#6c757d"></aava-icon>
+      <span class="timeframe">{{ timeframe }}</span>
     </div>
   </aava-card-footer>
 </aava-default-card>
@@ -424,257 +454,571 @@ HTML STRUCTURE (PSEUDO CODE ONLY)
 CSS SPECIFICATION
 
 Layout:
-- display: flex
-- flex-direction: column
-- min-height: 200px
-- border-radius: 12px
-- box-shadow: 0 2px 8px rgba(0,0,0,0.1)
+- display: flex column
+- min-height: 160px
+- cursor: pointer
 
 Spacing:
-- padding: 20px
-- gap: 16px
+- padding: 24px (inherited from aava-default-card)
+- gap: 16px between sections
 
 Component Styles:
-- .card-title: display: flex, justify-content: space-between, align-items: center
-- .card-meta: font-size: 0.875rem, color: var(--text-secondary)
-- .loading-state: display: flex, align-items: center, gap: 8px, justify-content: center
-- .error-state: display: flex, align-items: center, gap: 8px, color: var(--error-color)
-- .card-actions: display: flex, gap: 8px, justify-content: flex-end
+- .metric-card: hover effects and transitions
+- .header-with-badge: flex justify-between
+- .title-section: flex align-center with gap
+- .metric-value-section: flex column align-start
+- .primary-value: large font size, bold weight
+- .trend-section: flex align-center with gap
+- .footer-info: flex align-center with gap
 
 Responsive:
-- @media (max-width: 768px): padding: 16px, min-height: 150px
+- @media (max-width: 768px): adjust padding and font sizes
+- grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
 
 API INTEGRATION
 
-- getCardData() → GET /api/dashboard/card/{id} → Fetch card data
-- refreshCardData() → GET /api/dashboard/card/{id}/refresh → Reload data
-- executeCardAction() → POST /api/dashboard/card/{id}/action → Execute card action
+- loadMetricData() → GET /metrics/{metricId} → Load metric data and trends
+- refreshMetric() → GET /metrics/{metricId}/refresh → Refresh metric data
 
 ERROR HANDLING
 
-- Data load failure → show error state with retry option
-- Action execution error → show error message
-- Network timeout → show timeout message with refresh
+- API failure → show error state with retry option
+- Data parsing error → show fallback values
+- Network timeout → show loading state with timeout message
 
 INTERACTION FLOW
 
 User Action → UI → API
-- Card click → emit cardClick event → navigate or expand
-- Action button click → show loading → call API → update state
-- Refresh → show loading → fetch data → update content
-- Error retry → reset error state → reload data
+- Click metric card → open detailed modal → call GET /metrics/{metricId}/details → show detailed view
+- Hover card → show tooltip with additional info → no API call
+- Auto refresh → call refresh API → update metric values
 
-#### 4.4 SearchComponent
+### 4.4 ActivityTimeline
 
-Component Type: Shared
+Component Type: Feature
 
-Mapped From A1: SearchComponent
+Mapped From A1: ActivityTimeline (aava-timeline)
 
-Purpose: Global search functionality with autocomplete and filtering
+Purpose: Display chronological events and process tracking with status indicators
 
-Parent: HeaderComponent
+Parent: DashboardPage
 
 Children:
-- SearchInput
-- SearchResults
-- SearchFilters
+- Timeline events with status indicators
+- Event details and descriptions
 
 Dependencies:
+- @aava/play-core (AavaTimelineComponent)
 - @aava/play-core (AavaIconComponent)
-- RxJS operators for debouncing
 
 Library Components Used:
-- aava-icon → Search and clear icons
+- aava-timeline → Main timeline container
+- aava-icon → Event status icons
 
 TypeScript Specification
 
 Inputs:
-- placeholder: string
-- searchTypes: SearchType[]
-- debounceTime: number
-- minSearchLength: number
-- showFilters: boolean
+- events: TimelineEvent[]
+- orientation: 'vertical' | 'horizontal'
+- size: 'small' | 'medium' | 'large'
+- maxEvents?: number
+- showFilters?: boolean
 
 Outputs:
-- onSearchChange(query: string, filters: SearchFilters)
-- onResultSelect(result: SearchResult)
-- onSearchClear()
+- onEventSelect: (event: TimelineEvent) => void
+- onLoadMore: () => void
 
 State:
-- searchQuery: string
-- searchResults: SearchResult[]
-- isSearching: boolean
-- selectedFilters: SearchFilters
-- showResults: boolean
+- selectedEvent: TimelineEvent | null
+- isLoading: boolean
+- filteredEvents: TimelineEvent[]
+- currentFilter: string
 
 Methods:
-- performSearch() → Execute search with current query and filters
-- clearSearch() → Clear search input and results
-- selectResult() → Handle result selection
-- updateFilters() → Update search filters
+- loadActivities() → Fetch activity data from API
+- filterEvents(filter: string) → Filter events by criteria
+- selectEvent(event: TimelineEvent) → Handle event selection
+- loadMoreEvents() → Load additional events
+- getStatusIcon(status: string) → Get appropriate status icon
+- getStatusColor(status: string) → Get status color
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
 
-<div class="search-container">
-  <div class="search-input-wrapper">
-    <aava-icon iconName="search" [iconSize]="16" class="search-icon"></aava-icon>
-    <input
-      type="text"
-      class="search-input"
-      [placeholder]="placeholder"
-      [(ngModel)]="searchQuery"
-      (input)="onSearchInput($event)"
-      (focus)="onSearchFocus()"
-      (blur)="onSearchBlur()" />
-    <aava-icon
-      *ngIf="searchQuery"
-      iconName="x"
-      [iconSize]="16"
-      class="clear-icon"
-      (click)="clearSearch()">
-    </aava-icon>
-  </div>
-  
-  <div *ngIf="showResults && searchResults.length" class="search-results">
-    <div class="results-header" *ngIf="showFilters">
-      <SearchFilters [filters]="selectedFilters" (filtersChange)="updateFilters($event)" />
+<div class="activity-timeline-container">
+  <div class="timeline-header" *ngIf="showFilters">
+    <h3 class="timeline-title">Recent Activity</h3>
+    <div class="timeline-filters">
+      <aava-button 
+        *ngFor="let filter of filterOptions"
+        [label]="filter.label"
+        [variant]="currentFilter === filter.value ? 'primary' : 'secondary'"
+        size="sm"
+        (userClick)="filterEvents(filter.value)">
+      </aava-button>
     </div>
-    
-    <ul class="results-list">
-      <li *ngFor="let result of searchResults" 
-          class="result-item"
-          (click)="selectResult(result)">
-        <aava-icon [iconName]="result.type.icon" [iconSize]="16"></aava-icon>
-        <div class="result-content">
-          <span class="result-title">{{ result.title }}</span>
-          <span class="result-description">{{ result.description }}</span>
-        </div>
-        <span class="result-type">{{ result.type.label }}</span>
-      </li>
-    </ul>
   </div>
   
-  <div *ngIf="isSearching" class="search-loading">
-    <aava-icon iconName="loader" [iconSize]="16" class="spinning"></aava-icon>
-    <span>Searching...</span>
+  <aava-timeline
+    [events]="filteredEvents"
+    [size]="size"
+    [orientation]="orientation"
+    [textAlign]="'zigzag-left'"
+    [iconCircleSize]="'40px'"
+    [iconCircleBgColor]="'#fff'"
+    [iconCircleBorderColor]="'#ccc'"
+    (eventSelect)="selectEvent($event)"
+    class="main-timeline">
+  </aava-timeline>
+  
+  <div class="timeline-footer" *ngIf="hasMoreEvents">
+    <aava-button
+      label="Load More"
+      variant="secondary"
+      size="md"
+      [loading]="isLoading"
+      (userClick)="loadMoreEvents()">
+    </aava-button>
+  </div>
+  
+  <div class="loading-state" *ngIf="isLoading && events.length === 0">
+    <aava-skeleton-loader></aava-skeleton-loader>
+  </div>
+  
+  <div class="empty-state" *ngIf="!isLoading && events.length === 0">
+    <aava-icon iconName="calendar" [iconSize]="48" iconColor="#ccc"></aava-icon>
+    <p class="empty-message">No activities found</p>
   </div>
 </div>
 
 CSS SPECIFICATION
 
 Layout:
-- position: relative
-- display: flex
-- flex-direction: column
+- display: flex column
 - width: 100%
-- max-width: 400px
+- max-height: 600px with scroll
 
 Spacing:
-- gap: 8px
+- padding: 24px
+- gap: 16px between sections
 
 Component Styles:
-- .search-input-wrapper: display: flex, align-items: center, position: relative
-- .search-input: padding: 8px 32px 8px 36px, border: 1px solid var(--border-color), border-radius: 8px
-- .search-icon: position: absolute, left: 12px, color: var(--text-secondary)
-- .clear-icon: position: absolute, right: 12px, cursor: pointer
-- .search-results: position: absolute, top: 100%, background: white, border: 1px solid var(--border-color), border-radius: 8px, box-shadow: 0 4px 12px rgba(0,0,0,0.1), z-index: 1000
-- .result-item: display: flex, align-items: center, padding: 12px, cursor: pointer, border-bottom: 1px solid var(--border-light)
-- .result-item:hover: background: var(--hover-bg)
+- .timeline-header: flex justify-between align-center
+- .timeline-filters: flex gap-8
+- .main-timeline: flex-grow with scroll
+- .timeline-footer: text-align center
+- .empty-state: text-align center with icon
 
 Responsive:
-- @media (max-width: 768px): max-width: 100%, .search-results: left: 0, right: 0
+- @media (max-width: 768px): switch to vertical orientation
+- @media (max-width: 480px): reduce padding and icon sizes
 
 API INTEGRATION
 
-- searchGlobal() → GET /api/search?q={query}&filters={filters} → Global search
-- getSearchSuggestions() → GET /api/search/suggestions?q={query} → Autocomplete
+- loadActivities() → GET /activities → Load activity timeline data
+- loadMoreActivities() → GET /activities?offset={offset} → Load additional activities
+- createActivity() → POST /activities → Create new activity
+- getActivityDetails() → GET /activities/{activityId} → Get detailed activity info
 
 ERROR HANDLING
 
-- Search API failure → show "Search unavailable" message
-- Network timeout → show retry option
-- No results → show "No results found" message
+- API failure → show error message with retry option
+- Network timeout → show timeout message
+- Empty data → show empty state with helpful message
 
 INTERACTION FLOW
 
 User Action → UI → API
-- Type in search → debounce → call search API → show results
-- Select result → emit result selection → navigate to item
-- Clear search → reset state → hide results
-- Apply filters → update search → refresh results
+- Click timeline event → selectEvent → call GET /activities/{eventId} → show event details
+- Click filter button → filterEvents → update filteredEvents → no API call (client-side filter)
+- Click load more → loadMoreEvents → call GET /activities with pagination → append new events
+- Auto refresh → call activities API → update timeline with new events
 
-### 5. COMPONENT MAPPING SUMMARY
+### 4.5 ActionButton
+
+Component Type: Shared
+
+Mapped From A1: ActionButtons (aava-button)
+
+Purpose: Trigger user actions and workflows with consistent styling and behavior
+
+Parent: Various components (Dashboard, Forms, Modals)
+
+Children: None (atomic component)
+
+Dependencies:
+- @aava/play-core (AavaButtonComponent)
+- @aava/play-core (AavaIconComponent)
+
+Library Components Used:
+- aava-button → Main button component
+- aava-icon → Button icons
+
+TypeScript Specification
+
+Inputs:
+- label: string
+- variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger'
+- size: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+- disabled: boolean
+- loading: boolean
+- iconName?: string
+- iconPosition?: 'left' | 'right' | 'only'
+- actionType?: string
+- permissions?: string[]
+
+Outputs:
+- onClick: () => void
+- onActionComplete: (result: any) => void
+- onActionError: (error: any) => void
+
+State:
+- isProcessing: boolean
+- actionResult: any
+- error: string | null
+
+Methods:
+- handleClick() → Process button click and execute action
+- executeAction() → Execute the specific action type
+- validatePermissions() → Check if user has required permissions
+- showFeedback(type: string, message: string) → Show user feedback
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<aava-button
+  [label]="label"
+  [variant]="variant"
+  [size]="size"
+  [disabled]="disabled || !hasPermissions"
+  [processing]="isProcessing"
+  [iconName]="iconName"
+  [iconPosition]="iconPosition"
+  [iconColor]="getIconColor()"
+  (userClick)="handleClick()"
+  [customStyles]="customButtonStyles"
+  class="action-button"
+  [class]="'action-' + actionType">
+</aava-button>
+
+CSS SPECIFICATION
+
+Layout:
+- display: inline-flex
+- align-items: center
+- justify-content: center
+
+Spacing:
+- margin: 8px (when in button groups)
+- padding: inherited from aava-button
+
+Component Styles:
+- .action-button: base styles for all action buttons
+- .action-primary: primary action styling
+- .action-secondary: secondary action styling
+- .action-danger: destructive action styling
+- hover and focus states inherited from aava-button
+
+Responsive:
+- @media (max-width: 768px): adjust size to 'sm' for mobile
+- stack vertically in button groups on mobile
+
+API INTEGRATION
+
+- executeAction() → POST /actions/{actionType} → Execute specific action
+- validateAction() → GET /actions/{actionType}/validate → Validate action before execution
+
+ERROR HANDLING
+
+- API failure → show error snackbar with retry option
+- Permission denied → disable button and show tooltip
+- Network timeout → show timeout message and retry option
+- Validation error → show inline error message
+
+INTERACTION FLOW
+
+User Action → UI → API
+- Click action button → show loading state → call POST /actions/{actionType} → show success/error feedback → refresh relevant data
+- Hover disabled button → show tooltip explaining why disabled → no API call
+- Long press (mobile) → show action confirmation → execute on confirm
+
+### 4.6 DataTable
+
+Component Type: Feature
+
+Mapped From A1: DataTable (custom implementation)
+
+Purpose: Display and manage structured data with sorting, filtering, and pagination
+
+Parent: DataManagementPage
+
+Children:
+- Table headers with sort controls
+- Table rows with data
+- Pagination controls
+- Filter panel
+
+Dependencies:
+- @aava/play-core (AavaIconComponent)
+- @aava/play-core (AavaButtonComponent)
+- @aava/play-core (AavaPaginationComponent)
+- @aava/play-core (AavaDropdownComponent)
+
+Library Components Used:
+- aava-icon → Sort indicators and action icons
+- aava-button → Action buttons in rows
+- aava-pagination → Table pagination
+- aava-dropdown → Filter dropdowns
+
+TypeScript Specification
+
+Inputs:
+- columns: TableColumn[]
+- data: TableRow[]
+- sortable: boolean
+- filterable: boolean
+- paginated: boolean
+- pageSize: number
+- selectable: boolean
+- actions: TableAction[]
+
+Outputs:
+- onSort: (column: string, direction: 'asc' | 'desc') => void
+- onFilter: (filters: FilterState) => void
+- onPageChange: (page: number) => void
+- onRowSelect: (rows: TableRow[]) => void
+- onRowAction: (action: string, row: TableRow) => void
+
+State:
+- sortColumn: string
+- sortDirection: 'asc' | 'desc'
+- currentPage: number
+- filters: FilterState
+- selectedRows: TableRow[]
+- isLoading: boolean
+
+Methods:
+- loadTableData() → Fetch table data from API
+- sortData(column: string) → Handle column sorting
+- filterData(filters: FilterState) → Apply filters to data
+- selectRow(row: TableRow) → Handle row selection
+- executeRowAction(action: string, row: TableRow) → Execute row action
+- exportData() → Export table data
+
+HTML STRUCTURE (PSEUDO CODE ONLY)
+
+<div class="data-table-container">
+  <div class="table-header">
+    <div class="table-title">
+      <h3>Data Management</h3>
+      <span class="record-count">{{ totalRecords }} records</span>
+    </div>
+    <div class="table-actions">
+      <aava-button
+        label="Export"
+        variant="secondary"
+        size="sm"
+        iconName="download"
+        (userClick)="exportData()">
+      </aava-button>
+      <aava-button
+        label="Add New"
+        variant="primary"
+        size="sm"
+        iconName="plus"
+        (userClick)="addNewRecord()">
+      </aava-button>
+    </div>
+  </div>
+  
+  <div class="table-filters" *ngIf="filterable">
+    <div class="filter-group" *ngFor="let column of filterableColumns">
+      <label class="filter-label">{{ column.label }}</label>
+      <aava-dropdown
+        [options]="getFilterOptions(column)"
+        [selectedValue]="filters[column.key]"
+        (selectionChange)="onFilterChange(column.key, $event)">
+      </aava-dropdown>
+    </div>
+    <aava-button
+      label="Clear Filters"
+      variant="secondary"
+      size="sm"
+      (userClick)="clearFilters()"
+      *ngIf="hasActiveFilters">
+    </aava-button>
+  </div>
+  
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th *ngIf="selectable" class="select-column">
+            <input type="checkbox" (change)="selectAllRows($event)" [checked]="allRowsSelected">
+          </th>
+          <th *ngFor="let column of columns" 
+              class="table-header-cell"
+              [class.sortable]="column.sortable"
+              (click)="sortData(column.key)">
+            <div class="header-content">
+              <span class="column-label">{{ column.label }}</span>
+              <aava-icon 
+                *ngIf="column.sortable && sortColumn === column.key"
+                [iconName]="sortDirection === 'asc' ? 'chevron-up' : 'chevron-down'"
+                [iconSize]="16"
+                iconColor="#666">
+              </aava-icon>
+            </div>
+          </th>
+          <th *ngIf="actions.length > 0" class="actions-column">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of paginatedData; trackBy: trackByRowId" 
+            class="table-row"
+            [class.selected]="isRowSelected(row)">
+          <td *ngIf="selectable" class="select-cell">
+            <input type="checkbox" (change)="selectRow(row)" [checked]="isRowSelected(row)">
+          </td>
+          <td *ngFor="let column of columns" class="table-cell">
+            <span class="cell-content">{{ getCellValue(row, column) }}</span>
+          </td>
+          <td *ngIf="actions.length > 0" class="actions-cell">
+            <div class="row-actions">
+              <aava-button
+                *ngFor="let action of actions"
+                [label]="action.label"
+                [variant]="action.variant"
+                size="xs"
+                [iconName]="action.icon"
+                (userClick)="executeRowAction(action.key, row)">
+              </aava-button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="loading-overlay" *ngIf="isLoading">
+      <aava-skeleton-loader></aava-skeleton-loader>
+    </div>
+    
+    <div class="empty-state" *ngIf="!isLoading && data.length === 0">
+      <aava-icon iconName="database" [iconSize]="48" iconColor="#ccc"></aava-icon>
+      <p class="empty-message">No data available</p>
+    </div>
+  </div>
+  
+  <div class="table-footer" *ngIf="paginated">
+    <div class="pagination-info">
+      <span>Showing {{ startRecord }} to {{ endRecord }} of {{ totalRecords }} entries</span>
+    </div>
+    <aava-pagination
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </aava-pagination>
+  </div>
+</div>
+
+CSS SPECIFICATION
+
+Layout:
+- display: flex column
+- width: 100%
+- overflow: auto
+
+Spacing:
+- padding: 24px
+- gap: 16px between sections
+
+Component Styles:
+- .data-table: border-collapse, full width
+- .table-header-cell: padding, border, hover effects
+- .table-row: hover effects, selection styles
+- .table-cell: padding, text alignment
+- .row-actions: flex layout with gap
+- .pagination-info: flex justify-between
+
+Responsive:
+- @media (max-width: 768px): horizontal scroll for table
+- @media (max-width: 480px): stack table actions vertically
+
+API INTEGRATION
+
+- loadTableData() → GET /data → Load table data with pagination and filters
+- sortTableData() → GET /data?sort={column}&direction={direction} → Load sorted data
+- filterTableData() → GET /data?filters={filters} → Load filtered data
+- updateRecord() → PUT /data/{id} → Update table record
+- deleteRecord() → DELETE /data/{id} → Delete table record
+- exportTableData() → GET /data/export → Export table data
+
+ERROR HANDLING
+
+- API failure → show error message with retry option
+- Data load timeout → show timeout message
+- Update/delete errors → show inline error messages
+- Export failure → show error snackbar
+
+INTERACTION FLOW
+
+User Action → UI → API
+- Click column header → sortData → call GET /data with sort params → update table display
+- Change filter → filterData → call GET /data with filter params → update table display
+- Click page number → onPageChange → call GET /data with pagination → update table display
+- Click row action → executeRowAction → call appropriate API → show success/error feedback → refresh data
+- Select rows → selectRow → update selectedRows state → enable bulk actions
+
+5. COMPONENT MAPPING SUMMARY
 
 | A1 Component | Final Component | Type |
 |--------------|----------------|---------|
 | HeaderComponent | HeaderComponent | Layout |
 | SidebarComponent | SidebarComponent | Layout |
-| DashboardCardComponent | DashboardCardComponent | Feature |
-| SearchComponent | SearchComponent | Shared |
-| ButtonComponent | aava-button (Library) | Shared |
-| UserProfileComponent | UserProfileComponent | Feature |
-| NotificationComponent | NotificationComponent | Feature |
+| MetricCards | MetricCard | Feature |
+| ActivityTimeline | ActivityTimeline | Feature |
+| ActionButtons | ActionButton | Shared |
+| DataTable | DataTable | Feature |
+| FilterControls | FilterPanel | Feature |
+| StatusIndicators | Badge/Icon | Shared |
 
-### 6. DATA FLOW (FROM AGENT-1)
+6. DATA FLOW (FROM AGENT-1)
 
 Parent → Child:
-<DashboardLayout>
-→ HeaderComponent (userProfile, navigationTabs)
-→ SidebarComponent (menuItems, permissions)
-→ MainContent (dashboardData)
-  → DashboardCardComponent (cardData, actions)
-  → SearchComponent (searchConfig)
+- Application → HeaderComponent (userProfile, navigationItems)
+- Application → SidebarComponent (menuItems, userProfile, permissions)
+- Application → MainContainer (currentUser, appState)
+- DashboardPage → MetricCard (metricData, variant, size)
+- DashboardPage → ActivityTimeline (events, configuration)
+- Various Components → ActionButton (actionConfig, permissions)
+- DataManagementPage → DataTable (columns, data, configuration)
 
-### 7. API USAGE SUMMARY
+7. API USAGE SUMMARY
 
 Component → API:
-- HeaderComponent → GET /api/user/profile, GET /api/navigation
-- SidebarComponent → GET /api/navigation/menu, GET /api/user/permissions
-- DashboardCardComponent → GET /api/dashboard/card/{id}, POST /api/dashboard/card/{id}/action
-- SearchComponent → GET /api/search, GET /api/search/suggestions
-- UserProfileComponent → GET /api/user/profile, POST /api/user/preferences
-- NotificationComponent → GET /api/notifications, POST /api/notifications/{id}/read
+- HeaderComponent → GET /user/profile, GET /navigation
+- SidebarComponent → GET /menu/items, GET /user/permissions
+- DashboardPage → GET /dashboard/metrics, GET /activities
+- MetricCard → GET /metrics/{metricId}
+- ActivityTimeline → GET /activities, POST /activities
+- DataTable → GET /data, PUT /data/{id}, DELETE /data/{id}
+- ActionButton → POST /actions/{actionType}
+- UserProfile → GET /user/profile, PUT /user/profile
 
-### 8. NOTES & CONSTRAINTS
+8. NOTES & CONSTRAINTS
 
-- HTML must follow A1 structure strictly (Note: A1 structure not available, using best practices)
-- Do NOT create new components unnecessarily - prioritize AAVA Play library components
-- Prefer reusable library components over custom implementations
+- HTML must follow A1 structure strictly
+- Do NOT create new components unnecessarily
+- Prefer reusable library components from AAVA Play
 - HTML must be pseudo-code ONLY (NOT real framework code)
-- All components must be accessible and follow WCAG guidelines
-- Use TypeScript for type safety and better developer experience
-- Implement proper error handling and loading states
-- Follow responsive design principles
+- All components must maintain accessibility standards
+- Responsive design is mandatory for all components
+- Error handling must be implemented for all API calls
+- Loading states must be provided for all async operations
+- User permissions must be checked for all actions
+- Component reusability should be maximized
+- Follow AAVA Play design system guidelines
+- Maintain consistent spacing and typography
+- Implement proper keyboard navigation
+- Ensure screen reader compatibility
 - Use semantic HTML elements
-- Implement proper ARIA attributes for accessibility
-- Use CSS custom properties for theming
-- Follow the established design system tokens
-- Ensure components are testable and maintainable
-- Use proper event handling and state management
-- Implement proper API integration patterns
-- Follow security best practices for data handling
-
-### IMPLEMENTATION GUIDELINES
-
-1. **Component Architecture**: Follow the modular approach with clear separation of concerns
-2. **Library Usage**: Maximize usage of AAVA Play components to ensure consistency
-3. **State Management**: Use appropriate state management patterns (local state, services, etc.)
-4. **API Integration**: Implement proper error handling, loading states, and retry mechanisms
-5. **Accessibility**: Ensure all components are keyboard navigable and screen reader friendly
-6. **Performance**: Implement lazy loading, change detection optimization, and memory management
-7. **Testing**: Write unit tests for all components and integration tests for complex interactions
-8. **Documentation**: Maintain comprehensive documentation for all custom components
-
-### TECHNICAL REQUIREMENTS
-
-- **Framework**: Angular 15+
-- **UI Library**: AAVA Play Core Components
-- **Styling**: CSS with custom properties, responsive design
-- **State Management**: RxJS for reactive programming
-- **HTTP Client**: Angular HttpClient for API calls
-- **Icons**: Lucide icons (integrated with AAVA Play)
-- **Accessibility**: WCAG 2.1 AA compliance
-- **Browser Support**: Modern browsers (Chrome, Firefox, Safari, Edge)
-- **Mobile Support**: Responsive design for mobile and tablet devices
-
-This specification provides a comprehensive guide for implementing the UI components based on the AAVA Play library documentation and enterprise application requirements. Each component includes detailed TypeScript interfaces, HTML structure, CSS specifications, API integration patterns, error handling, and interaction flows to ensure consistent and maintainable implementation.
+- Optimize for performance with lazy loading where appropriate
