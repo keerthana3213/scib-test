@@ -1,0 +1,115 @@
+Jira Requirement Summary:
+
+Story: Parent can allocate and manage funds for a youth account
+Description: AS a parent or guardian I WANT to allocate and manage funds for my child’s youth account SO THAT I can teach financial responsibility while maintaining visibility and control over spending
+
+Acceptance Criteria:
+1. Access youth account dashboard: Parent logs in, navigates to youth account section, sees dashboard with balance and recent activity.
+2. Allocate funds: Parent selects 'Add Funds', transfers funds from primary to youth account.
+3. Set spending limit: Parent configures weekly spending limit, system saves/displays limit.
+4. View youth spending activity: Parent selects activity section, sees recent transactions.
+5. Handle insufficient balance: Parent attempts transfer, system shows error if insufficient funds.
+
+Subtasks/UI Tasks:
+- Design youth account dashboard layout
+- Design fund transfer interaction for youth account
+- Design spending limit configuration interface
+- Design youth account activity view
+
+Linked Issues:
+- Create API to retrieve youth account dashboard details
+- Create API for parent to transfer funds to youth account
+- Create API for configuring youth spending limit
+- Create API to retrieve youth account transaction history
+- Define OpenAPI/Swagger specification for youth account APIs
+
+
+Detected UI Layout:
+
+Header (Navigation bar):
+- HOME
+- ASK (selected)
+- RESOURCES
+- REPORTS
+- ADMIN
+
+Main Content:
+- Title: "Select ASK type"
+- Two large option buttons: Core, Rotational
+- Two smaller action buttons: EXIT (red), START NOW (greyed out)
+
+Reusable Components from Library:
+- Header (AavaHeaderComponent)
+- Button (AavaButtonComponent)
+- Card (AavaDefaultCardComponent)
+- Tabs (AavaTabsComponent)
+- Sidebar (AavaSidebarComponent)
+- Snackbar (SnackbarService)
+- Modal/Dialog (AavaDialogService)
+- Avatar (AavaAvatarsComponent)
+- Grid (AavaGridComponent)
+
+UI Component Architecture:
+
+Screen: Youth Account Dashboard
+YouthAccountDashboardPage
+├── HeaderComponent (AavaHeaderComponent)
+│   ├── NavigationTabs (AavaTabsComponent)
+│   └── UserAvatar (AavaAvatarsComponent)
+├── SidebarComponent (AavaSidebarComponent)
+│   └── NavigationMenu
+├── MainContentContainer (AavaGridComponent)
+│   ├── DashboardTitle ("Select ASK type")
+│   ├── OptionCardContainer (AavaDefaultCardComponent)
+│   │   ├── OptionButton (AavaButtonComponent, label="Core")
+│   │   ├── OptionButton (AavaButtonComponent, label="Rotational")
+│   ├── ActionButtonContainer
+│   │   ├── ExitButton (AavaButtonComponent, variant="danger", label="EXIT")
+│   │   ├── StartNowButton (AavaButtonComponent, variant="secondary", label="START NOW", disabled)
+├── SnackbarContainer (SnackbarService)
+
+Component Responsibilities:
+
+HeaderComponent:
+- Displays navigation bar with menu options and user avatar.
+- Handles navigation tab changes.
+
+SidebarComponent:
+- Provides navigation menu for other sections (Resources, Reports, Admin).
+
+MainContentContainer:
+- Displays dashboard title and option cards.
+- OptionCardContainer: Shows "Core" and "Rotational" selection buttons.
+- ActionButtonContainer: Shows "EXIT" and "START NOW" buttons.
+
+SnackbarContainer:
+- Displays transient notifications (e.g., error for insufficient funds).
+
+Data Flow / Props:
+
+YouthAccountDashboardPage
+-> HeaderComponent (userData, navigationTabs)
+-> SidebarComponent (menuItems)
+-> MainContentContainer (dashboardTitle, options, actions)
+-> OptionButton (type, selected)
+-> ActionButton (actionType, enabled/disabled)
+-> SnackbarContainer (message, type)
+
+Layout Structure:
+
+Page Layout
+├── Header (AavaHeaderComponent)
+│   ├── NavigationTabs (AavaTabsComponent)
+│   └── UserAvatar (AavaAvatarsComponent)
+├── Sidebar (AavaSidebarComponent)
+│   └── NavigationMenu
+├── Main Content (AavaGridComponent)
+│   ├── Dashboard Title
+│   ├── Option Card Container
+│   │   ├── Option Buttons (Core, Rotational)
+│   ├── Action Button Container
+│   │   ├── Exit Button
+│   │   ├── Start Now Button
+├── Snackbar Container
+
+All components are mapped to reusable library components wherever possible. No new components are created unless the layout or interaction is not covered by the library.

@@ -1,0 +1,62 @@
+Specs for Youth Account Dashboard UI
+
+1. HeaderComponent (AavaHeaderComponent)
+- Props: navigationTabs (array), userAvatar (object)
+- Events: tabChange, avatarClick
+- Usage: Displays navigation bar, handles navigation.
+
+2. SidebarComponent (AavaSidebarComponent)
+- Props: menuItems (array), collapsed (boolean)
+- Events: collapseToggle, menuSelect
+- Usage: Provides navigation menu for dashboard sections.
+
+3. MainContentContainer (AavaGridComponent)
+- Props: dashboardTitle (string), options (array), actions (array)
+- Usage: Layouts dashboard content, option cards, and action buttons.
+
+4. OptionCardContainer (AavaDefaultCardComponent)
+- Props: optionType (string), selected (boolean)
+- Events: optionSelect
+- Usage: Container for "Core" and "Rotational" selection buttons.
+
+5. OptionButton (AavaButtonComponent)
+- Props: label (string), variant (string), size (string), disabled (boolean)
+- Events: userClick
+- Usage: Large selection buttons for ASK type.
+
+6. ActionButtonContainer
+- Contains ExitButton and StartNowButton.
+
+7. ExitButton (AavaButtonComponent)
+- Props: label="EXIT", variant="danger", size="sm"
+- Events: userClick
+- Usage: Exits the dashboard or returns to previous screen.
+
+8. StartNowButton (AavaButtonComponent)
+- Props: label="START NOW", variant="secondary", size="sm", disabled=true
+- Events: userClick
+- Usage: Starts the process, enabled when selection is made.
+
+9. SnackbarContainer (SnackbarService)
+- Props: message (string), type (string)
+- Events: dismissed, actioned
+- Usage: Shows notifications for errors, confirmations.
+
+Accessibility:
+- All buttons and navigation elements follow ARIA guidelines.
+- Keyboard navigation supported for tabs, sidebar, and main actions.
+- Focus indicators and screen reader support included.
+
+Responsive Design:
+- Header and sidebar collapse on smaller screens.
+- Option buttons stack vertically on mobile.
+- Action buttons remain accessible.
+
+Styling:
+- Uses design tokens for color, spacing, and typography.
+- Customizable via CSS custom properties.
+
+States:
+- OptionButton: selected, default
+- StartNowButton: enabled, disabled
+- Snackbar: success, error, info

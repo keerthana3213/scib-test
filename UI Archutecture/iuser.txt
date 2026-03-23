@@ -1,0 +1,25 @@
+APIContractOutline for Youth Account Dashboard
+
+1. GET /youth-account/dashboard
+- Returns: { balance: number, recentActivity: array, spendingLimit: number, options: array }
+
+2. POST /youth-account/allocate-funds
+- Body: { amount: number, fromAccount: string, toAccount: string }
+- Returns: { success: boolean, error?: string }
+
+3. POST /youth-account/set-spending-limit
+- Body: { limit: number, accountId: string }
+- Returns: { success: boolean, error?: string }
+
+4. GET /youth-account/activity
+- Returns: { transactions: array }
+
+5. Error Handling
+- Insufficient funds: { error: "Insufficient funds" }
+- Validation errors: { error: string }
+
+6. UI Data Flow
+- OptionButton: triggers POST /youth-account/allocate-funds
+- StartNowButton: triggers POST /youth-account/set-spending-limit
+- Dashboard loads via GET /youth-account/dashboard
+- Snackbar displays error messages from API
