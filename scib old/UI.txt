@@ -7,49 +7,46 @@ AS a parent or guardian I WANT to allocate and manage funds for my child’s you
 
 Acceptance Criteria:
 - Scenario 1: Access youth account dashboard (dashboard with current balance and recent activity)
-- Scenario 2: Allocate funds to youth account (Add Funds)
-- Scenario 3: Set spending limit (configure weekly spending limit, display on dashboard)
+- Scenario 2: Allocate funds to youth account (Add Funds, transfer from parent to youth)
+- Scenario 3: Set spending limit (configure weekly limit, display on dashboard)
 - Scenario 4: View youth spending activity (recent transactions)
 - Scenario 5: Handle insufficient balance during fund allocation (error message)
 
-UI Tasks / Subtasks:
+UI Tasks (from subtasks):
 - Design youth account dashboard layout
 - Design fund transfer interaction for youth account
 - Design spending limit configuration interface
 - Design youth account activity view
 
 
-2. Detected UI Layout
+2. Detected UI Layout (from image analysis)
 
-- Navigation Sidebar (left):
-  - Youth Account Dashboard (selected)
-  - Activity History
-  - Add Funds
-  - Set Spending Limit
-- Main Dashboard (center):
-  - Account Overview (Account for: Alex Johnson, Current Balance, Weekly Spending Limit, Recent Transactions)
-  - Recent Activity (list of transactions)
-  - Quick Guidance (tips for managing youth account)
-- Top Bar:
-  - Search bar
-  - Parent Guardian profile
-  - Action Buttons: Add Funds, Set Limit, View Activity
+- Header (application branding, navigation, user info)
+- Sidebar (main navigation)
+- Main Content Area (Youth Account Dashboard)
+  - Account Overview Card (current balance, youth info, guidance tips)
+  - Action Buttons (Add Funds, Set Limit)
+  - Recent Activity Timeline (list of transactions)
+  - Guidance Tips/Info Section
+- Modal Dialogs
+  - Add Funds Modal (form, error/success states)
+  - Set Limit Modal (form, success state)
+- Snackbar/Toast (for success/error feedback)
 
 
 3. Reusable Components from Library
 
-- Sidebar (AavaSidebarComponent)
 - Header (AavaHeaderComponent)
-- Card (AavaDefaultCardComponent, AavaCardHeaderComponent, AavaCardContentComponent, AavaCardFooterComponent, AavaCardActionsComponent)
+- Sidebar (AavaSidebarComponent)
+- Card (AavaDefaultCardComponent, AavaCardHeader, AavaCardContent, AavaCardFooter, AavaCardActions)
 - Button (AavaButtonComponent)
-- Tabs (AavaTabsComponent)
-- Snackbar (AavaSnackbarComponent)
-- Dialog (AavaDialogComponent)
+- Tabs (AavaTabsComponent) [if dashboard has tabbed sections]
+- Avatar (AavaAvatarsComponent)
+- Chip/Tag (AavaTagComponent)
+- Timeline (AavaTimelineComponent)
+- Dialog/Modal (AavaDialogComponent, AavaModalComponent)
+- Snackbar/Toast (AavaSnackbarComponent, AavaToastComponent)
 - Grid (AavaGridComponent)
-- Avatar (AavaAvatarComponent)
-- Chip-Tag (AavaTagComponent)
-- Textbox (AavaTextboxComponent)
-- Search-Bar (AavaSearchBarComponent)
 
 
 4. UI Component Architecture
@@ -58,77 +55,85 @@ Screen: Youth Account Dashboard
 
 YouthAccountDashboardPage
 ├── HeaderComponent (AavaHeaderComponent)
-│   ├── SearchBarComponent (AavaSearchBarComponent)
-│   ├── ProfileAvatarComponent (AavaAvatarComponent)
-│   └── HeaderActionButtons (AavaButtonComponent: Add Funds, Set Limit, View Activity)
 ├── SidebarComponent (AavaSidebarComponent)
-│   └── SidebarMenuItems (Dashboard, Activity History, Add Funds, Set Spending Limit)
 ├── MainContentContainer
 │   ├── AccountOverviewCard (AavaDefaultCardComponent)
-│   │   ├── CardHeader (AavaCardHeaderComponent: Account for Alex Johnson)
-│   │   ├── CardContent (AavaCardContentComponent: Current Balance, Weekly Spending Limit, Recent Transactions)
-│   │   └── CardActions (AavaCardActionsComponent: Add Funds, Set Limit)
-│   ├── RecentActivityCard (AavaDefaultCardComponent)
-│   │   ├── CardHeader (AavaCardHeaderComponent: Recent Activity)
-│   │   └── CardContent (AavaCardContentComponent: List of transactions, each as TransactionItem)
-│   ├── QuickGuidanceCard (AavaDefaultCardComponent)
-│   │   ├── CardHeader (AavaCardHeaderComponent: Guidance/Tips)
-│   │   └── CardContent (AavaCardContentComponent: Tips for managing youth account)
-│   └── SnackbarComponent (AavaSnackbarComponent: Error/Success messages)
+│   │   ├── CardHeader (AavaCardHeader)
+│   │   │   ├── AvatarComponent (AavaAvatarsComponent)
+│   │   │   └── YouthNameTag (AavaTagComponent)
+│   │   ├── CardContent (AavaCardContent)
+│   │   │   ├── CurrentBalanceDisplay
+│   │   │   ├── GuidanceTipsSection (AavaTagComponent or custom)
+│   │   ├── CardFooter (AavaCardFooter)
+│   │   │   ├── ActionButtonsContainer
+│   │   │   │   ├── AddFundsButton (AavaButtonComponent)
+│   │   │   │   └── SetLimitButton (AavaButtonComponent)
+│   ├── RecentActivityTimeline (AavaTimelineComponent)
+│   └── GuidanceTipsSection (AavaTagComponent or custom)
+├── AddFundsDialog (AavaDialogComponent or AavaModalComponent)
+│   ├── AddFundsForm (AavaTextboxComponent, AavaButtonComponent)
+│   └── ErrorSnackbar (AavaSnackbarComponent) [for insufficient funds]
+├── SetLimitDialog (AavaDialogComponent or AavaModalComponent)
+│   ├── SetLimitForm (AavaTextboxComponent, AavaButtonComponent)
+│   └── SuccessSnackbar (AavaSnackbarComponent)
+└── Toast/Snackbar (AavaToastComponent or AavaSnackbarComponent) [global feedback]
 
 
 5. Component Responsibilities
 
-- YouthAccountDashboardPage: Orchestrates layout, data flow, and state for the dashboard screen.
-- HeaderComponent: Displays app logo, search bar, profile avatar, and main action buttons.
-- SidebarComponent: Provides navigation for dashboard, activity history, fund transfer, and spending limit.
-- AccountOverviewCard: Shows account holder, balance, spending limit, and quick actions.
-- RecentActivityCard: Lists recent transactions (debits/credits, merchant, amount, status).
-- QuickGuidanceCard: Shows tips and guidance for parents.
-- SnackbarComponent: Displays feedback messages (e.g., insufficient funds error).
-- TransactionItem: Represents a single transaction (merchant, amount, type, status).
+- YouthAccountDashboardPage: Main container, manages state and data flow, coordinates dialogs and feedback.
+- HeaderComponent: Displays app branding, navigation, user avatar.
+- SidebarComponent: Main navigation for parent portal.
+- AccountOverviewCard: Shows youth’s name, avatar, current balance, and guidance tips.
+- ActionButtonsContainer: Hosts Add Funds and Set Limit actions.
+- RecentActivityTimeline: Displays recent transactions (uses Timeline component).
+- GuidanceTipsSection: Shows financial tips or info for parents.
+- AddFundsDialog: Modal for adding funds, handles form, validation, and error state.
+- SetLimitDialog: Modal for configuring spending limit, handles form and success state.
+- Snackbar/Toast: Shows feedback for success/error actions.
 
 
 6. Data Flow / Props
 
 YouthAccountDashboardPage
-  -> HeaderComponent (userProfile, onAddFunds, onSetLimit, onViewActivity)
-  -> SidebarComponent (menuItems, selectedMenu)
-  -> AccountOverviewCard (accountData, onAddFunds, onSetLimit)
-  -> RecentActivityCard (transactions)
-  -> QuickGuidanceCard (tips)
-  -> SnackbarComponent (message, type)
+  -> HeaderComponent (userData)
+  -> SidebarComponent (navigationItems)
+  -> AccountOverviewCard (youthData, balance, guidanceTips)
+  -> RecentActivityTimeline (activityList)
+  -> AddFundsDialog (open, onSubmit, onError)
+  -> SetLimitDialog (open, onSubmit, onSuccess)
+  -> Snackbar/Toast (message, type)
 
 AccountOverviewCard
-  -> CardHeader (accountName)
-  -> CardContent (balance, spendingLimit, recentTransactionCount)
-  -> CardActions (onAddFunds, onSetLimit)
+  -> AvatarComponent (avatarUrl)
+  -> YouthNameTag (youthName)
+  -> CurrentBalanceDisplay (balance)
+  -> GuidanceTipsSection (tips)
+  -> ActionButtonsContainer (onAddFunds, onSetLimit)
 
-RecentActivityCard
-  -> CardHeader ("Recent Activity")
-  -> CardContent (transactions[])
-    -> TransactionItem (merchant, amount, type, status)
+AddFundsDialog
+  -> AddFundsForm (amount, onSubmit)
+  -> ErrorSnackbar (visible on insufficient funds)
 
-HeaderComponent
-  -> SearchBarComponent (onSearch)
-  -> ProfileAvatarComponent (userProfile)
-  -> HeaderActionButtons (onAddFunds, onSetLimit, onViewActivity)
-
-SidebarComponent
-  -> SidebarMenuItems (menuItems, selectedMenu)
-
-SnackbarComponent
-  -> (message, type)
+SetLimitDialog
+  -> SetLimitForm (limit, onSubmit)
+  -> SuccessSnackbar (visible on success)
 
 
 7. Layout Structure
 
 Page Layout
-├── Header (AavaHeaderComponent)
-├── Main Container (flex/grid)
-│   ├── Sidebar (AavaSidebarComponent)
-│   └── Main Content
-│       ├── Account Overview Card (AavaDefaultCardComponent)
-│       ├── Recent Activity Card (AavaDefaultCardComponent)
-│       └── Quick Guidance Card (AavaDefaultCardComponent)
-└── Snackbar (AavaSnackbarComponent)
+├── Header (fixed top)
+├── Sidebar (fixed left)
+├── Main Content (youth dashboard)
+│   ├── Account Overview Card (top)
+│   ├── Action Buttons (within card footer)
+│   ├── Recent Activity Timeline (below card)
+│   └── Guidance Tips (side or bottom)
+├── Modal Dialogs (overlay)
+│   ├── Add Funds
+│   └── Set Limit
+└── Snackbar/Toast (overlay, bottom or top)
+
+
+All components are mapped to reusable library components where possible. No new base components are introduced unless required for data aggregation or layout composition.
