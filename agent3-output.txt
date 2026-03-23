@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Enterprise Dashboard User Flow Diagram</title>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+mermaid.initialize({ startOnLoad: true });
+</script>
+<style>
+body{
+font-family: Arial, sans-serif;
+padding: 40px;
+background: #f5f5f5;
+margin: 0;
+}
+.container{
+max-width: 1200px;
+margin: 0 auto;
+}
+h1{
+color: #333;
+text-align: center;
+margin-bottom: 30px;
+}
+.mermaid{
+background: white;
+padding: 30px;
+border-radius: 8px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+margin: 20px 0;
+}
+.description{
+background: white;
+padding: 20px;
+border-radius: 8px;
+margin-bottom: 20px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.description h3{
+color: #2c3e50;
+margin-top: 0;
+}
+.description ul{
+color: #555;
+line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Enterprise Dashboard User Flow Diagram</h1>
+
+<div class="description">
+<h3>User Flow Overview</h3>
+<p>This diagram represents the typical user journey through an enterprise dashboard application with the following key components:</p>
+<ul>
+<li><strong>Header Component:</strong> Navigation header with search, tabs, and user actions</li>
+<li><strong>Sidebar Component:</strong> Collapsible navigation sidebar with menu items</li>
+<li><strong>Dashboard Cards:</strong> Reusable widgets for displaying key metrics and data</li>
+<li><strong>Search Component:</strong> Global search with autocomplete and filtering capabilities</li>
+</ul>
+</div>
+
+<div class="mermaid">
+flowchart TD
+Start[User Accesses Dashboard]
+Start --> LoadHeader[Header Component Loads]
+LoadHeader --> LoadSidebar[Sidebar Component Loads]
+LoadSidebar --> LoadDashboard[Dashboard Cards Load]
+LoadDashboard --> UserReady[Dashboard Ready for User]
+
+UserReady --> SearchAction{User Wants to Search?}
+SearchAction -->|Yes| OpenSearch[Click Search in Header]
+OpenSearch --> EnterQuery[Enter Search Query]
+EnterQuery --> ShowAutocomplete[Autocomplete Suggestions Appear]
+ShowAutocomplete --> SelectSuggestion[Select Suggestion]
+SelectSuggestion --> FilterResults[Apply Search Filters]
+FilterResults --> DisplayResults[Display Filtered Results]
+DisplayResults --> UserReady
+
+SearchAction -->|No| NavigateAction{User Wants to Navigate?}
+NavigateAction -->|Yes| ClickSidebar[Click Sidebar Menu Item]
+ClickSidebar --> CheckCollapsed{Is Sidebar Collapsed?}
+CheckCollapsed -->|Yes| ExpandSidebar[Expand Sidebar]
+ExpandSidebar --> SelectMenuItem[Select Menu Item]
+CheckCollapsed -->|No| SelectMenuItem
+SelectMenuItem --> LoadNewPage[Load New Page/Section]
+LoadNewPage --> UpdateDashboard[Update Dashboard Cards]
+UpdateDashboard --> UserReady
+
+NavigateAction -->|No| InteractCard{Interact with Cards?}
+InteractCard -->|Yes| ClickCard[Click Dashboard Card]
+ClickCard --> CardAction{Card Action Type?}
+CardAction -->|View Details| ShowCardDetails[Show Detailed View]
+CardAction -->|Edit Data| OpenEditModal[Open Edit Modal]
+CardAction -->|Export Data| TriggerExport[Trigger Data Export]
+ShowCardDetails --> UserReady
+OpenEditModal --> SaveChanges[Save Changes]
+SaveChanges --> RefreshCard[Refresh Card Data]
+RefreshCard --> UserReady
+TriggerExport --> DownloadFile[Download Export File]
+DownloadFile --> UserReady
+
+InteractCard -->|No| HeaderAction{Use Header Actions?}
+HeaderAction -->|Yes| HeaderClick[Click Header Action]
+HeaderClick --> HeaderType{Action Type?}
+HeaderType -->|Profile| ShowProfile[Show User Profile]
+HeaderType -->|Settings| OpenSettings[Open Settings Panel]
+HeaderType -->|Notifications| ShowNotifications[Show Notifications]
+HeaderType -->|Logout| LogoutUser[Logout User]
+ShowProfile --> UserReady
+OpenSettings --> ConfigureSettings[Configure User Settings]
+ConfigureSettings --> SaveSettings[Save Settings]
+SaveSettings --> UserReady
+ShowNotifications --> MarkAsRead[Mark Notifications as Read]
+MarkAsRead --> UserReady
+LogoutUser --> End[Session Ended]
+
+HeaderAction -->|No| TabAction{Switch Tabs?}
+TabAction -->|Yes| ClickTab[Click Header Tab]
+ClickTab --> LoadTabContent[Load Tab Content]
+LoadTabContent --> UpdateCards[Update Dashboard Cards for Tab]
+UpdateCards --> UserReady
+
+TabAction -->|No| UserReady
+</div>
+
+<div class="description">
+<h3>Key User Interactions</h3>
+<ul>
+<li><strong>Search Flow:</strong> Users can search from the header, get autocomplete suggestions, apply filters, and view results</li>
+<li><strong>Navigation Flow:</strong> Users can navigate through sidebar menu items, with support for collapsible sidebar</li>
+<li><strong>Card Interactions:</strong> Users can view details, edit data, or export information from dashboard cards</li>
+<li><strong>Header Actions:</strong> Users can access profile, settings, notifications, and logout functionality</li>
+<li><strong>Tab Navigation:</strong> Users can switch between different dashboard views using header tabs</li>
+</ul>
+</div>
+
+</div>
+</body>
+</html>
