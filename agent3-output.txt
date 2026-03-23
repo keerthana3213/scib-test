@@ -9,147 +9,179 @@ mermaid.initialize({ startOnLoad: true });
 </script>
 <style>
 body{
-font-family: Arial;
-padding:40px;
-background:#f5f5f5;
+font-family: Arial, sans-serif;
+padding: 40px;
+background: #f5f5f5;
+margin: 0;
+}
+.container{
+max-width: 1200px;
+margin: 0 auto;
+}
+h1{
+color: #333;
+text-align: center;
+margin-bottom: 30px;
 }
 .mermaid{
-background:white;
-padding:20px;
-border-radius:8px;
-box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-margin: 20px 0;
-}
-h2{
-color: #333;
-margin-bottom: 20px;
-}
-.description{
 background: white;
-padding: 20px;
+padding: 30px;
 border-radius: 8px;
-margin-bottom: 20px;
 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+margin-bottom: 30px;
+}
+.flow-section{
+margin-bottom: 40px;
+}
+.flow-title{
+color: #2c3e50;
+font-size: 1.5em;
+margin-bottom: 15px;
+border-bottom: 2px solid #3498db;
+padding-bottom: 5px;
 }
 </style>
 </head>
 <body>
-<h2>AAVA Play Component User Flow Diagram</h2>
-<div class="description">
-<h3>Application Flow Overview</h3>
-<p>This diagram represents the user interaction flow for an application built with AAVA Play components including Header, Sidebar, Cards, and Tabs navigation.</p>
-</div>
+<div class="container">
+<h1>Enterprise Application User Flow Diagrams</h1>
 
+<div class="flow-section">
+<h2 class="flow-title">Main Application Flow</h2>
 <div class="mermaid">
 flowchart TD
 Start[User Opens Application]
-Start --> Header[Header Component Loads]
-Header --> Logo[Display Logo]
-Header --> Search[Search Bar Available]
-Header --> UserActions[User Action Icons]
-Header --> Navigation[Tab Navigation]
-
-Navigation --> Tab1[Tab 1 Selected]
-Navigation --> Tab2[Tab 2 Selected]
-Navigation --> Tab3[Tab 3 Selected]
-Navigation --> Tab4[Tab 4 Selected]
-
-Tab1 --> Dashboard[Dashboard View]
-Tab2 --> Analytics[Analytics View]
-Tab3 --> Reports[Reports View]
-Tab4 --> Settings[Settings View]
-
-Dashboard --> Sidebar[Sidebar Navigation]
-Sidebar --> SidebarCollapse[Toggle Sidebar]
-Sidebar --> MenuItems[Menu Items]
-
-MenuItems --> MenuItem1[Dashboard Menu]
-MenuItems --> MenuItem2[Users Menu]
-MenuItems --> MenuItem3[Projects Menu]
-MenuItems --> MenuItem4[Analytics Menu]
-MenuItems --> MenuItem5[Settings Menu]
-
-Dashboard --> Cards[Dashboard Cards]
-Cards --> Card1[Card 1 Content]
-Cards --> Card2[Card 2 Content]
-Cards --> Card3[Card 3 Content]
-
-Card1 --> CardHeader1[Card 1 Header]
-Card1 --> CardContent1[Card 1 Content]
-Card1 --> CardActions1[Card 1 Actions]
-
-Card2 --> CardHeader2[Card 2 Header]
-Card2 --> CardContent2[Card 2 Content]
-Card2 --> CardFooter2[Card 2 Footer]
-
-Card3 --> CardHeader3[Card 3 Header]
-Card3 --> CardContent3[Card 3 Content]
-Card3 --> CardActions3[Card 3 Actions]
-
-CardActions1 --> Action1[Primary Action]
-CardActions1 --> Action2[Secondary Action]
-CardActions3 --> Action3[Save Changes]
-CardActions3 --> Action4[Cancel]
-
-Search --> SearchResults[Display Search Results]
-SearchResults --> FilteredCards[Filtered Card Content]
-
-UserActions --> ProfileMenu[User Profile Menu]
-UserActions --> NotificationIcon[Notifications]
-UserActions --> SettingsIcon[Settings Icon]
-UserActions --> ThemeToggle[Theme Toggle]
-
-ProfileMenu --> UserProfile[View Profile]
-ProfileMenu --> Logout[Logout]
-
-NotificationIcon --> NotificationPanel[Notification Panel]
-NotificationPanel --> MarkAsRead[Mark as Read]
-NotificationPanel --> ViewAll[View All Notifications]
-
-SettingsIcon --> SettingsPanel[Settings Panel]
-SettingsPanel --> AccountSettings[Account Settings]
-SettingsPanel --> AppPreferences[App Preferences]
-
-ThemeToggle --> LightMode[Light Mode]
-ThemeToggle --> DarkMode[Dark Mode]
-
-SidebarCollapse --> CollapsedView[Collapsed Sidebar]
-SidebarCollapse --> ExpandedView[Expanded Sidebar]
-
-CollapsedView --> IconOnlyMenu[Icon Only Menu]
-ExpandedView --> FullMenu[Full Menu with Labels]
-
-MenuItem1 --> DashboardContent[Dashboard Content]
-MenuItem2 --> UsersContent[Users Management]
-MenuItem3 --> ProjectsContent[Projects Overview]
-MenuItem4 --> AnalyticsContent[Analytics Dashboard]
-MenuItem5 --> SettingsContent[Application Settings]
-
-Action1 --> ConfirmAction[Confirm Action]
-Action2 --> CancelAction[Cancel Action]
-Action3 --> SaveSuccess[Save Successful]
-Action4 --> DiscardChanges[Discard Changes]
-
-ConfirmAction --> UpdateView[Update View]
-SaveSuccess --> RefreshData[Refresh Data]
-RefreshData --> UpdateView
-
-UpdateView --> Dashboard
+Start --> LoadApp[Load Application]
+LoadApp --> Header[Header Component Loads]
+LoadApp --> Sidebar[Sidebar Component Loads]
+LoadApp --> MainContent[Main Container Loads]
+Header --> Navigation[Navigation Menu]
+Sidebar --> MenuItems[Menu Items Display]
+MainContent --> Dashboard[Dashboard Page]
+Dashboard --> MetricCards[Metric Cards Load]
+Dashboard --> Timeline[Activity Timeline Load]
+Dashboard --> Actions[Quick Actions Load]
+Navigation --> DashboardNav[Navigate to Dashboard]
+Navigation --> DataNav[Navigate to Data Management]
+Navigation --> SettingsNav[Navigate to Settings]
+MenuItems --> SelectDashboard[Select Dashboard]
+MenuItems --> SelectData[Select Data Management]
+MenuItems --> SelectSettings[Select Settings]
+</div>
 </div>
 
-<div class="description">
-<h3>Flow Description</h3>
-<ul>
-<li><strong>Application Entry:</strong> User opens the application and the Header component loads with logo, search, navigation tabs, and user actions</li>
-<li><strong>Navigation:</strong> Users can navigate through different sections using header tabs or sidebar menu items</li>
-<li><strong>Dashboard Interaction:</strong> Main dashboard displays cards with various content, headers, and action buttons</li>
-<li><strong>Sidebar Navigation:</strong> Collapsible sidebar provides additional navigation options with icon-only or full menu views</li>
-<li><strong>User Actions:</strong> Header provides access to profile, notifications, settings, and theme toggle</li>
-<li><strong>Card Interactions:</strong> Cards support various actions like save, cancel, and other primary/secondary actions</li>
-<li><strong>Search Functionality:</strong> Global search filters and displays relevant content</li>
-<li><strong>Responsive Design:</strong> Components adapt to different screen sizes and user preferences</li>
-</ul>
+<div class="flow-section">
+<h2 class="flow-title">Dashboard Interaction Flow</h2>
+<div class="mermaid">
+flowchart TD
+DashboardEntry[User Enters Dashboard]
+DashboardEntry --> LoadMetrics[Load Dashboard Metrics]
+LoadMetrics --> DisplayCards[Display Metric Cards]
+DisplayCards --> UserViewsCards[User Views Metric Cards]
+UserViewsCards --> ClickCard[User Clicks Metric Card]
+ClickCard --> OpenModal[Open Detailed Modal]
+OpenModal --> ViewDetails[View Metric Details]
+ViewDetails --> CloseModal[Close Modal]
+CloseModal --> BackToDashboard[Return to Dashboard]
+DashboardEntry --> LoadTimeline[Load Activity Timeline]
+LoadTimeline --> DisplayEvents[Display Timeline Events]
+DisplayEvents --> ClickEvent[User Clicks Timeline Event]
+ClickEvent --> ShowEventDetails[Show Event Details]
+ShowEventDetails --> BackToTimeline[Return to Timeline]
+</div>
 </div>
 
+<div class="flow-section">
+<h2 class="flow-title">Data Management Flow</h2>
+<div class="mermaid">
+flowchart TD
+DataEntry[User Enters Data Management]
+DataEntry --> LoadTable[Load Data Table]
+LoadTable --> DisplayData[Display Structured Data]
+DisplayData --> UserActions[User Interaction Options]
+UserActions --> SortData[Sort Data]
+UserActions --> FilterData[Filter Data]
+UserActions --> EditRecord[Edit Record]
+UserActions --> DeleteRecord[Delete Record]
+UserActions --> AddRecord[Add New Record]
+SortData --> RefreshTable[Refresh Table Display]
+FilterData --> RefreshTable
+EditRecord --> SaveChanges[Save Changes]
+DeleteRecord --> ConfirmDelete[Confirm Deletion]
+AddRecord --> ShowForm[Show Add Form]
+SaveChanges --> RefreshTable
+ConfirmDelete --> RefreshTable
+ShowForm --> FillForm[Fill Form Data]
+FillForm --> SubmitForm[Submit New Record]
+SubmitForm --> RefreshTable
+</div>
+</div>
+
+<div class="flow-section">
+<h2 class="flow-title">User Authentication Flow</h2>
+<div class="mermaid">
+flowchart TD
+AppStart[Application Start]
+AppStart --> CheckAuth[Check Authentication]
+CheckAuth --> IsAuthenticated{User Authenticated}
+IsAuthenticated -->|Yes| LoadDashboard[Load Dashboard]
+IsAuthenticated -->|No| ShowLogin[Show Login Form]
+ShowLogin --> EnterCredentials[Enter Credentials]
+EnterCredentials --> ValidateAuth[Validate Authentication]
+ValidateAuth --> AuthSuccess{Authentication Success}
+AuthSuccess -->|Yes| LoadDashboard
+AuthSuccess -->|No| ShowError[Show Error Message]
+ShowError --> ShowLogin
+LoadDashboard --> HeaderProfile[Load User Profile in Header]
+HeaderProfile --> SidebarPermissions[Load User Permissions in Sidebar]
+SidebarPermissions --> MainApp[Access Main Application]
+</div>
+</div>
+
+<div class="flow-section">
+<h2 class="flow-title">Action Button Workflow</h2>
+<div class="mermaid">
+flowchart TD
+UserAction[User Clicks Action Button]
+UserAction --> ShowLoading[Show Loading State]
+ShowLoading --> ExecuteAction[Execute Action API Call]
+ExecuteAction --> ActionResult{Action Result}
+ActionResult -->|Success| ShowSuccess[Show Success Message]
+ActionResult -->|Error| ShowError[Show Error Message]
+ShowSuccess --> RefreshData[Refresh Relevant Data]
+ShowError --> RetryOption[Offer Retry Option]
+RetryOption --> UserRetry{User Chooses Retry}
+UserRetry -->|Yes| ExecuteAction
+UserRetry -->|No| BackToInterface[Return to Interface]
+RefreshData --> UpdateUI[Update UI Components]
+UpdateUI --> BackToInterface
+</div>
+</div>
+
+<div class="flow-section">
+<h2 class="flow-title">Navigation and Search Flow</h2>
+<div class="mermaid">
+flowchart TD
+UserInApp[User in Application]
+UserInApp --> UseSearch[Use Search Function]
+UserInApp --> UseNavigation[Use Navigation Menu]
+UseSearch --> EnterQuery[Enter Search Query]
+EnterQuery --> ExecuteSearch[Execute Search]
+ExecuteSearch --> DisplayResults[Display Search Results]
+DisplayResults --> SelectResult[Select Search Result]
+SelectResult --> NavigateToResult[Navigate to Selected Item]
+UseNavigation --> ClickMenuItem[Click Menu Item]
+ClickMenuItem --> ValidatePermissions[Validate User Permissions]
+ValidatePermissions --> HasPermission{Has Permission}
+HasPermission -->|Yes| LoadPage[Load Requested Page]
+HasPermission -->|No| ShowAccessDenied[Show Access Denied]
+LoadPage --> UpdateActiveState[Update Active Navigation State]
+UpdateActiveState --> DisplayPage[Display Page Content]
+ShowAccessDenied --> StayOnCurrentPage[Stay on Current Page]
+NavigateToResult --> DisplayPage
+</div>
+</div>
+
+</div>
 </body>
 </html>
