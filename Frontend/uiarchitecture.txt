@@ -3,24 +3,22 @@
 1. JIRA REQUIREMENT SUMMARY
 
 Story Description:
-Create Angular component for Kanban board container with three-column layout. Implement at src/app/features/kanban/components/kanban-board/kanban-board.component.ts. Use @Component decorator and selector 'app-kanban-board'. Template must have three column containers using CSS Grid (grid-template-columns: repeat(3, 1fr)). SCSS file must support responsive breakpoints: desktop (>1024px), tablet (768px-1024px), mobile (<768px). OnInit lifecycle hook initializes columns = [{id: 'todo', title: 'To Do', cards: []}, {id: 'inprogress', title: 'In Progress', cards: []}, {id: 'done', title: 'Done', cards: []}]. Add ARIA attributes: role='region', aria-label='Kanban Board', aria-labelledby for each column header. Implement error handling with *ngIf to display error message when column configuration fails. Use Angular Material or custom CSS for styling. Add responsive meta tags and viewport configuration.
+Create Angular component for Kanban board container with three-column layout. Implement at src/app/features/kanban/components/kanban-board/kanban-board.component.ts. Use @Component decorator and selector 'app-kanban-board'. Template must have three column containers using CSS Grid (grid-template-columns: repeat(3, 1fr)). SCSS file must support responsive breakpoints: desktop (>1024px), tablet (768px-1024px), mobile (<768px). OnInit lifecycle hook initializes columns = [{id: 'todo', title: 'To Do', cards: []}, {id: 'inprogress', title: 'In Progress', cards: []}, {id: 'done', title: 'Done', cards: []}]. Add ARIA attributes: role='region', aria-label='Kanban Board', aria-labelledby for each column header. Implement error handling with *ngIf to display error message if column config fails. Use Angular Material or custom CSS for styling. Add responsive meta tags and viewport config.
 
 Acceptance Criteria:
-- Three-column Kanban board layout
-- Responsive for desktop, tablet, mobile
-- ARIA accessibility for board and columns
-- Error handling for column config
-- Styling with Material or custom CSS
-- OnInit initializes columns data structure
+- Kanban board with three columns: To Do, In Progress, Done
+- Responsive layout for desktop, tablet, mobile
+- ARIA accessibility attributes present
+- Error message shown if column config fails
+- Uses Angular Material or custom CSS
+- Viewport and meta tags for responsiveness
 
 UI Tasks:
 - Implement Kanban board container
-- Add three columns (To Do, In Progress, Done)
+- Define columns and cards data structure
 - Add ARIA attributes
 - Add error handling
-- Add responsive SCSS
-- Use CSS Grid
-- Add meta tags for viewport
+- Style for responsiveness
 
 2. HTML STRUCTURE SUMMARY (SOURCE OF TRUTH)
 
@@ -28,234 +26,260 @@ Header:
 - Top bar with search field, notification icon, and avatar
 
 Sidebar / Navigation:
-- Left sidebar with KanbanApp branding, navigation links for board scenarios, and footer
+- Left sidebar with Kanban scenarios navigation (list of pages)
+- Brand icon and name
+- Footer with app version
 
 Main Container:
-- Kanban board area with three columns: To Do, In Progress, Done
+- Kanban board with three columns (To Do, In Progress, Done)
+- Each column: header (title, summary, timestamp, add button), cards list
+- Card: title, description, meta (assignee, due date)
+- Add Task button per column
+- Inline add/edit forms (input, textarea, assignee, due date)
+- Popups/modals for welcome, confirmation, error, guided setup, support
 
 Sections:
-- Cards: Each column contains multiple cards (task items)
-- Forms: Inline add/edit forms for tasks
-- Lists: Task lists per column
-- Buttons: Add Task, Move, Save, Cancel, etc.
-- Modals/Popups: Task creation/edit modal, confirmation popups, error messages
+- Cards
+- Forms (add/edit task)
+- Lists (columns/cards)
+- Buttons (add, move, save, cancel)
+- Modals/Popups (task creation, confirmation, error)
 
 3. LAYOUT STRUCTURE (MANDATORY)
 
 Page Layout Hierarchy:
-KanbanBoardPage
+<KanbanBoardPage>
 ├── Header
 ├── Main Layout
 │   ├── Sidebar
 │   └── Content Area
 │       ├── KanbanBoard
 │           ├── KanbanColumn (To Do)
+│           │    ├── KanbanCard
+│           │    ├── AddTaskForm
 │           ├── KanbanColumn (In Progress)
-│           └── KanbanColumn (Done)
-│               ├── KanbanCard(s)
-│               └── InlineForm / Modal (for add/edit)
+│           │    ├── KanbanCard
+│           │    ├── AddTaskForm
+│           ├── KanbanColumn (Done)
+│           │    ├── KanbanCard
+│           │    ├── AddTaskForm
+│       ├── Modal/Popup (conditional)
 
 Layout Type:
-- Grid (CSS Grid for Kanban board)
-- Flex (for header, sidebar, card actions)
-- Mixed (responsive breakpoints)
+- Grid (CSS Grid for Kanban columns)
+- Flex (Sidebar, header, card content)
 
 4. REUSABLE COMPONENTS IDENTIFIED
 
 From Library (ZIP):
-- Header
-- Sidebar
-- Card
-- Button
-- Modal
-- Snackbar
-- Divider
-- Grid
+- Card (aava-default-card, aava-card-header, aava-card-content, aava-card-footer, aava-card-actions)
+- Button (aava-button)
+- Sidebar (sidebar)
+- Header (header)
+- Modal (modal)
+- Snackbar (snackbar)
+- Divider (divider)
+- Grid (grid)
+- Avatar (avatar)
+- Tabs (tabs)
+- Textbox (textbox)
+- Textarea (textarea)
 
 5. UI COMPONENT ARCHITECTURE
 
-KanbanBoardPage
-├── HeaderComponent (AavaHeaderComponent)
-├── SidebarComponent (AavaSidebarComponent)
-├── MainContainer
-│   └── KanbanBoardComponent
-│       ├── KanbanColumnComponent (To Do)
-│       │   ├── KanbanCardComponent(s)
-│       │   ├── InlineAddFormComponent / ModalComponent
-│       ├── KanbanColumnComponent (In Progress)
-│       │   ├── KanbanCardComponent(s)
-│       │   ├── InlineAddFormComponent / ModalComponent
-│       ├── KanbanColumnComponent (Done)
-│       │   ├── KanbanCardComponent(s)
-│       │   ├── InlineAddFormComponent / ModalComponent
-│       ├── SnackbarComponent (for error/success)
-│       ├── DividerComponent (optional, for visual separation)
+<KanbanBoardPage>
+├── HeaderComponent
+├── SidebarComponent
+├── KanbanBoardComponent
+│   ├── KanbanColumnComponent (To Do)
+│   │    ├── AddTaskFormComponent
+│   │    ├── KanbanCardComponent (n)
+│   ├── KanbanColumnComponent (In Progress)
+│   │    ├── AddTaskFormComponent
+│   │    ├── KanbanCardComponent (n)
+│   ├── KanbanColumnComponent (Done)
+│   │    ├── AddTaskFormComponent
+│   │    ├── KanbanCardComponent (n)
+├── ModalComponent (conditional)
+├── SnackbarComponent (conditional)
 
 6. COMPONENT DEFINITIONS
 
-Component Name: HeaderComponent (AavaHeaderComponent)
+Component Name: HeaderComponent
 Purpose:
-- Application header with search, notifications, avatar
+- Displays top navigation bar with search, notifications, avatar
 Props:
-- logoUrl: string
-- tabs: TabItem[]
-- activeTabId: string
+- user: object
+- notifications: array
 State:
-- searchText: string
+- searchQuery: string
 Events:
-- onTabChange, onSearchChange, onGraphIconClick, onTranslateIconClick, onDayLightModeIconClick
+- onSearch(query)
+- onNotificationClick()
 API Binding:
-- None (UI only)
+- None
 
-Component Name: SidebarComponent (AavaSidebarComponent)
+Component Name: SidebarComponent
 Purpose:
-- Navigation for Kanban scenarios, branding, footer
+- Displays navigation for Kanban scenarios
 Props:
-- menuItems: MenuItem[]
-- isCollapsed: boolean
+- scenarios: array
+- selectedScenario: string
 State:
-- isCollapsed: boolean
+- None
 Events:
-- collapseToggle
+- onScenarioSelect(scenario)
 API Binding:
-- None (UI only)
+- None
 
 Component Name: KanbanBoardComponent
 Purpose:
-- Container for three Kanban columns, manages board state
+- Container for Kanban columns, manages board state
 Props:
-- columns: KanbanColumn[]
-- error: string | null
+- columns: array (id, title, cards[])
+- error: string
 State:
-- columns: [{id, title, cards: KanbanCard[]}]
-- error: string | null
+- columns: array
+- error: string
 Events:
-- onCardMove, onAddTask, onEditTask, onError
+- onAddTask(columnId, task)
+- onMoveCard(cardId, fromColumn, toColumn)
+- onEditTask(cardId)
 API Binding:
 - GET /api/youth-accounts/{youthAccountId}/dashboard (for initial data)
 
 Component Name: KanbanColumnComponent
 Purpose:
-- Represents a single Kanban column (To Do, In Progress, Done)
+- Renders a single Kanban column with header, cards, add form
 Props:
-- column: {id, title, cards: KanbanCard[]}
-- isLoading: boolean
+- column: object (id, title, cards[])
+- error: string
 State:
-- cards: KanbanCard[]
+- showAddForm: boolean
 Events:
-- onAddCard, onMoveCard, onEditCard
+- onAddTask(task)
+- onMoveCard(cardId, toColumn)
 API Binding:
-- None (handled by parent)
+- None (delegated to parent)
 
-Component Name: KanbanCardComponent (AavaDefaultCardComponent)
+Component Name: KanbanCardComponent
 Purpose:
-- Displays a single task card with title, description, meta
+- Displays a single Kanban card (task)
 Props:
-- card: {title, description, assignee, dueDate}
+- card: object (title, description, assignee, dueDate)
 State:
-- isSelected: boolean
+- selected: boolean
 Events:
-- onSelect, onMove, onEdit
+- onEdit()
+- onMove(toColumn)
 API Binding:
-- None (handled by parent)
+- None (delegated to parent)
 
-Component Name: InlineAddFormComponent / ModalComponent (AavaModal)
+Component Name: AddTaskFormComponent
 Purpose:
-- Form for adding/editing a task (inline or modal)
+- Inline form to add a new task to a column
 Props:
-- mode: 'add' | 'edit'
-- card?: KanbanCard
+- columnId: string
 State:
-- form fields: title, description, assignee, dueDate
+- title: string
+- description: string
+- assignee: string
+- dueDate: string
 Events:
-- onSubmit, onCancel
+- onSubmit(task)
+- onCancel()
 API Binding:
-- POST /api/youth-accounts/{youthAccountId}/fund-transfer (if adding funds)
-- PUT /api/youth-accounts/{youthAccountId}/spending-limit (if editing limits)
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer (if adding a fund transfer task)
 
-Component Name: SnackbarComponent (AavaSnackbar)
+Component Name: ModalComponent
 Purpose:
-- Shows error/success notifications
+- Generic modal for popups (welcome, confirmation, error, guided setup)
+Props:
+- visible: boolean
+- title: string
+- content: string | component
+- actions: array
+State:
+- None
+Events:
+- onClose()
+- onAction(action)
+API Binding:
+- None
+
+Component Name: SnackbarComponent
+Purpose:
+- Displays transient messages (success, error)
 Props:
 - message: string
-- type: 'error' | 'success' | 'info'
+- type: string (success, error, info)
 State:
-- isVisible: boolean
+- visible: boolean
 Events:
-- onDismiss
-API Binding:
-- None
-
-Component Name: DividerComponent (AavaDividers)
-Purpose:
-- Visual separation between columns/sections
-Props:
-- variant: 'solid' | 'dashed' | 'dotted' | 'gradient'
-- orientation: 'horizontal' | 'vertical'
-State:
-- None
-Events:
-- None
+- onClose()
 API Binding:
 - None
 
 7. DATA FLOW / PROPS
 
 Parent → Child Mapping:
-KanbanBoardPage
-→ HeaderComponent (logoUrl, tabs, activeTabId)
-→ SidebarComponent (menuItems, isCollapsed)
+<KanbanBoardPage>
+→ HeaderComponent (user, notifications)
+→ SidebarComponent (scenarios, selectedScenario)
 → KanbanBoardComponent (columns, error)
-  → KanbanColumnComponent (column, isLoading)
+  → KanbanColumnComponent (column, error)
     → KanbanCardComponent (card)
-    → InlineAddFormComponent / ModalComponent (mode, card)
+    → AddTaskFormComponent (columnId)
+→ ModalComponent (visible, title, content, actions)
 → SnackbarComponent (message, type)
 
 8. API SUMMARY
 
 Available APIs:
 - GET /api/youth-accounts/{youthAccountId}/dashboard → Fetch Kanban board data (columns, cards)
-- POST /api/youth-accounts/{youthAccountId}/fund-transfer → Add funds (if mapped to add task)
-- PUT /api/youth-accounts/{youthAccountId}/spending-limit → Update limits (if mapped to edit task/column)
-- GET /api/youth-accounts/{youthAccountId}/transactions → List transactions (if mapped to card activity)
+- POST /api/youth-accounts/{youthAccountId}/fund-transfer → Add funds (could be mapped to add task if task is a fund transfer)
+- PUT /api/youth-accounts/{youthAccountId}/spending-limit → Update spending limit (not directly used in Kanban, but could be for task types)
+- GET /api/youth-accounts/{youthAccountId}/transactions → List transactions (could be mapped to activity/timeline)
 
 9. API TO UI MAPPING
 
 Component → API:
 - KanbanBoardComponent → GET /api/youth-accounts/{youthAccountId}/dashboard
-- InlineAddFormComponent / ModalComponent → POST /api/youth-accounts/{youthAccountId}/fund-transfer (if adding funds)
-- InlineAddFormComponent / ModalComponent → PUT /api/youth-accounts/{youthAccountId}/spending-limit (if editing limits)
-- KanbanCardComponent → GET /api/youth-accounts/{youthAccountId}/transactions (for card activity)
+- AddTaskFormComponent → POST /api/youth-accounts/{youthAccountId}/fund-transfer (if task is a fund transfer)
+- Timeline/Activity (if present) → GET /api/youth-accounts/{youthAccountId}/transactions
 
 10. API COMPATIBILITY
 
 Compatible:
-- Dashboard API supports fetching Kanban board data (columns, cards)
-- Fund transfer and spending limit APIs can be mapped to add/edit actions if required
+- Dashboard API supports fetching Kanban board data (if mapped to columns/cards)
+- Fund transfer API can be used for tasks involving fund movement
+- Transactions API can be used for activity/timeline
 
 Missing:
-- No direct API for CRUD on Kanban tasks/cards (assume mapped to fund transfer/spending limit for demo)
+- No direct API for generic Kanban task CRUD (add/edit/delete non-fund tasks)
+- No API for updating card status/column (move card)
 
 Transformations:
-- Map Kanban card add/edit to fund transfer/spending limit APIs as per business logic
-- Map card activity to transactions API
+- Map dashboard.cards/columns to Kanban columns/cards
+- Use fund transfer API only for financial tasks; otherwise, require a Kanban-specific API
 
 11. JIRA vs HTML VALIDATION
 
 Matching Elements:
-- Three-column Kanban board
+- Three Kanban columns (To Do, In Progress, Done)
 - Responsive layout
-- ARIA attributes (HTML: aria-label on columns)
-- Error handling (error-msg in HTML)
-- Add/Edit forms (inline and modal)
-- Buttons for add, move, save, cancel
-- Sidebar and header present
+- ARIA attributes (HTML has aria-labels on columns)
+- Error handling (error-msg in HTML, *ngIf in Jira)
+- Add Task button per column
+- Modal/popups for confirmation, error
 
 Missing Elements:
-- None (all Jira requirements present in HTML)
+- No explicit ARIA role='region' or aria-labelledby in HTML (should be added)
+- No direct mapping for API integration in HTML (assumed in implementation)
 
 Extra Elements:
-- Additional popups/modals for confirmations, support, etc. (enhancements)
+- Timeline/activity (if present in API, not in HTML)
+- Some popups (guided setup, support) not mentioned in Jira
 
 12. FOLDER STRUCTURE (MANDATORY)
 
@@ -269,10 +293,7 @@ src/
  │    │    ├── KanbanBoardComponent
  │    │    ├── KanbanColumnComponent
  │    │    ├── KanbanCardComponent
- │    │    ├── InlineAddFormComponent
- │    │    ├── ModalComponent
- │    │    ├── SnackbarComponent
- │    │    ├── DividerComponent
+ │    │    ├── AddTaskFormComponent
  │    │
  │    ├── shared/
  │         ├── Button
@@ -280,7 +301,10 @@ src/
  │         ├── Modal
  │         ├── Snackbar
  │         ├── Divider
- │         ├── Grid
+ │         ├── Avatar
+ │         ├── Tabs
+ │         ├── Textbox
+ │         ├── Textarea
  │
  ├── pages/
  │    ├── KanbanBoardPage/
@@ -289,35 +313,26 @@ src/
 13. INTERACTION FLOWS
 
 User Action → UI → API
-- Click "Add Task"
-  → Open InlineAddFormComponent or ModalComponent
-  → Submit
-  → Call POST API (if mapped)
-- Click "Edit Task"
-  → Open InlineAddFormComponent or ModalComponent
-  → Submit
-  → Call PUT API (if mapped)
-- Drag card to column
-  → Update KanbanBoardComponent state
-  → Optionally call API to persist
-- Error in column config
-  → Show SnackbarComponent or error-msg
-- Click "Move" button
-  → Move card between columns
-  → Update state and optionally call API
+- Click "Add Task" → Open AddTaskFormComponent → Submit → (If fund transfer) Call POST /fund-transfer
+- Click "Move Card" → Update card status in KanbanBoardComponent → (No API, local state or custom endpoint)
+- Click "Edit Task" → Open ModalComponent with AddTaskFormComponent in edit mode → Submit → (No API, local state or custom endpoint)
+- Error in column config → Show SnackbarComponent or error-msg
+- Responsive navigation → SidebarComponent updates selected scenario
 
 14. GAPS & RECOMMENDATIONS
 
 Missing UI:
-- None (all Jira requirements present in HTML)
+- No explicit ARIA role='region' or aria-labelledby in HTML (should be added for accessibility)
+- No UI for managing spending limits or viewing transactions (though available in API)
 
 Improvements:
-- Implement direct CRUD APIs for Kanban tasks/cards for full functionality
-- Enhance ARIA attributes for even better accessibility
-- Add loading skeletons for async states
-- Add undo/redo for card moves
+- Add ARIA attributes to all interactive regions and headers
+- Implement drag-and-drop for cards (HTML shows draggable, Jira does not specify)
+- Add Timeline/Activity section if using transactions API
+- Add API endpoints for generic Kanban task CRUD (add/edit/delete/move)
 
 Performance:
-- Use OnPush change detection for all feature components
-- Lazy load modals and forms
-- Minimize re-renders by memoizing props
+- Use OnPush change detection for all components
+- Lazy load modals and popups
+- Debounce search and form submissions
+- Optimize rendering of large card lists
