@@ -7,38 +7,37 @@ KanbanBoardPage
 
 Mapped Layout:
 - Header (top bar with search, notifications, avatar)
-- Sidebar (left, branding, navigation, footer)
-- Main Container (Kanban board with three columns: To Do, In Progress, Done)
-- Modal overlays (task creation/edit)
-- Snackbar (error/success)
-- Popup (confirmation, guided setup)
+- Sidebar (left, KanbanApp branding, navigation, footer)
+- Main Container (Kanban board area with three columns: To Do, In Progress, Done)
+- Cards (task items per column)
+- Inline add/edit forms, modals, popups, error messages
 
 Components from A1:
-- HeaderComponent
-- SidebarComponent
+- HeaderComponent (AavaHeaderComponent)
+- SidebarComponent (AavaSidebarComponent)
 - KanbanBoardComponent
 - KanbanColumnComponent
-- KanbanCardComponent
-- AddTaskButtonComponent
-- ModalComponent
-- SnackbarComponent
-- PopupComponent
+- KanbanCardComponent (AavaDefaultCardComponent)
+- InlineAddFormComponent / ModalComponent (AavaModal)
+- SnackbarComponent (AavaSnackbar)
+- DividerComponent (AavaDividers)
 
 2. GLOBAL ARCHITECTURE SUMMARY
 
 Layout Type:
-- Grid (Kanban columns)
-- Flex (Header, Sidebar, Card content)
+Mixed (CSS Grid for Kanban board, Flex for header/sidebar, responsive breakpoints)
 
 Main Sections:
 - Header
 - Sidebar
 - Main Content (Kanban Board)
-- Modals
-- Snackbar
-- Popup
+- Modals/Popups
+- Snackbar/Error
 
 Component Strategy:
+- Reuse library components where possible
+- Compose feature components from shared/layout components
+
 Reused Components:
 - Header
 - Sidebar
@@ -46,19 +45,21 @@ Reused Components:
 - Button
 - Modal
 - Snackbar
-- Grid
 - Divider
-- Popup
+- Grid
 
 New Components (if any):
 - KanbanBoardComponent
 - KanbanColumnComponent
-- KanbanCardComponent
-- AddTaskButtonComponent
+- InlineAddFormComponent
 
 3. FOLDER STRUCTURE
 
 src/
+ ├── pages/
+ │    └── KanbanBoardPage/
+ │         ├── KanbanBoardPage.tsx
+ │
  ├── components/
  │    ├── layout/
  │    │    ├── HeaderComponent
@@ -68,23 +69,22 @@ src/
  │    │    ├── KanbanBoardComponent
  │    │    ├── KanbanColumnComponent
  │    │    ├── KanbanCardComponent
- │    │    ├── AddTaskButtonComponent
+ │    │    ├── InlineAddFormComponent
+ │    │    ├── ModalComponent
+ │    │    ├── SnackbarComponent
+ │    │    ├── DividerComponent
  │    │
  │    ├── shared/
  │         ├── Button
  │         ├── Card
  │         ├── Modal
  │         ├── Snackbar
- │         ├── Popup
  │         ├── Divider
- │
- ├── pages/
- │    ├── KanbanBoardPage/
- │         ├── KanbanBoardPage.tsx
+ │         ├── Grid
 
 4. COMPONENT IMPLEMENTATION (REPEATS FOR EACH COMPONENT)
 
-### 4.1 HeaderComponent
+### 4.1 HeaderComponent (AavaHeaderComponent)
 
 Component Type:
 Layout
@@ -93,70 +93,78 @@ Mapped From A1:
 HeaderComponent
 
 Purpose:
-Application header with search, notifications, and user avatar
+Application header with search, notifications, and avatar.
 
 Parent:
 KanbanBoardPage
 
 Children:
-- SearchBar (from library)
-- NotificationIcon (from library)
-- Avatar (from library)
+- SearchBar
+- NotificationIcon
+- Avatar
 
 Dependencies:
-- Search-Bar.pdf
-- Icon.pdf
-- Avatar.pdf
+- Search-Bar (library)
+- Icon (library)
+- Avatar (library)
 
 Library Components Used:
-- Header → container
-- SearchBar → search input
+- Header → main container
+- Search-Bar → search input
 - Icon → notification
-- Avatar → user
+- Avatar → user profile
 
 TypeScript Specification
 Inputs:
-- searchText: string
-- user: User
+- logoUrl: string
+- tabs: TabItem[]
+- activeTabId: string
 Outputs:
-- onSearchChange(search: string)
-- onNotificationClick()
+- onTabChange(tabId: string)
+- onSearchChange(value: string)
+- onGraphIconClick()
+- onTranslateIconClick()
+- onDayLightModeIconClick()
 State:
-- activeTab: string
+- searchText: string
 Methods:
-- handleSearchChange()
-- handleNotificationClick()
+- handleTabChange(tabId)
+- handleSearchChange(value)
+- handleIconClick(type)
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
 <Header>
+  <Logo src={logoUrl} />
+  <Tabs items={tabs} active={activeTabId} onChange={onTabChange} />
   <SearchBar value={searchText} onChange={onSearchChange} />
   <Icon name="notification" onClick={onNotificationClick} />
-  <Avatar user={user} />
+  <Avatar src={user.avatarUrl} />
 </Header>
 
 CSS SPECIFICATION
 Layout:
 - display: flex; align-items: center; justify-content: space-between;
 Spacing:
-- padding: 16px; gap: 24px;
+- padding: 0 24px; gap: 16px;
 Component Styles:
-- .header { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+- .header, .header-logo, .header-tabs, .header-actions
 Responsive:
-- @media (max-width: 768px) { flex-direction: column; gap: 12px; }
+- @media (max-width: 1024px) { flex-direction: column; }
 
 API INTEGRATION
-- None
+- None (UI only)
 
 ERROR HANDLING
-- None
+- None (UI only)
 
 INTERACTION FLOW
-User types in search → onSearchChange → parent handles filter
-User clicks notification → onNotificationClick → show notifications
+- Tab click → onTabChange
+- Search input → onSearchChange
+- Icon click → respective handler
 
 ---
 
-### 4.2 SidebarComponent
+### 4.2 SidebarComponent (AavaSidebarComponent)
 
 Component Type:
 Layout
@@ -165,61 +173,60 @@ Mapped From A1:
 SidebarComponent
 
 Purpose:
-Navigation for Kanban scenarios, branding, footer
+Navigation for Kanban scenarios, branding, and footer.
 
 Parent:
 KanbanBoardPage
 
 Children:
-- Menu (from library)
-- Branding (custom)
-- Footer (custom)
+- MenuItems
+- Footer
 
 Dependencies:
-- Sidebar.pdf
-- Menu.pdf
+- Sidebar (library)
+- Icon (library)
 
 Library Components Used:
-- Sidebar → container
-- Menu → navigation
+- Sidebar → main container
+- Icon → menu icons
 
 TypeScript Specification
 Inputs:
 - menuItems: MenuItem[]
-- selected: string
+- isCollapsed: boolean
 Outputs:
-- onMenuSelect(item: string)
+- collapseToggle()
 State:
 - isCollapsed: boolean
 Methods:
-- handleMenuSelect()
-- toggleCollapse()
+- handleCollapseToggle()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<Sidebar>
+<Sidebar collapsed={isCollapsed}>
   <Branding />
-  <Menu items={menuItems} selected={selected} onSelect={onMenuSelect} />
+  <Menu items={menuItems} />
   <Footer />
+  <CollapseButton onClick={collapseToggle} />
 </Sidebar>
 
 CSS SPECIFICATION
 Layout:
 - display: flex; flex-direction: column; height: 100vh;
 Spacing:
-- padding: 16px; gap: 16px;
+- padding: 16px; gap: 8px;
 Component Styles:
-- .sidebar { background: #f7f7f9; border-right: 1px solid #e0e0e0; }
+- .sidebar, .sidebar-menu, .sidebar-footer
 Responsive:
-- @media (max-width: 1024px) { width: 56px; }
+- @media (max-width: 1024px) { width: 60px; }
 
 API INTEGRATION
-- None
+- None (UI only)
 
 ERROR HANDLING
-- None
+- None (UI only)
 
 INTERACTION FLOW
-User clicks menu item → onMenuSelect → parent updates selected
+- Collapse button → collapseToggle
 
 ---
 
@@ -232,67 +239,79 @@ Mapped From A1:
 KanbanBoardComponent
 
 Purpose:
-Container for Kanban columns, manages board state
+Container for three Kanban columns, manages board state and data.
 
 Parent:
 MainContainer
 
 Children:
-- KanbanColumnComponent (To Do)
-- KanbanColumnComponent (In Progress)
-- KanbanColumnComponent (Done)
+- KanbanColumnComponent (x3)
+- SnackbarComponent
+- DividerComponent (optional)
 
 Dependencies:
-- Grid.pdf
-- Divider.pdf
+- Grid (library)
+- Divider (library)
+- Snackbar (library)
 
 Library Components Used:
 - Grid → layout
-- Divider → between columns
+- Divider → visual separation
+- Snackbar → error/success
 
 TypeScript Specification
 Inputs:
 - columns: KanbanColumn[]
+- error: string | null
 Outputs:
-- onAddTask(columnId: string)
-- onCardMove(cardId: string, fromColumn: string, toColumn: string)
+- onCardMove(cardId, fromColumnId, toColumnId)
+- onAddTask(columnId, task)
+- onEditTask(cardId, updates)
+- onError(errorMsg)
 State:
+- columns: [{id, title, cards: KanbanCard[] }]
 - error: string | null
 Methods:
-- handleAddTask()
+- fetchBoardData()
 - handleCardMove()
+- handleAddTask()
+- handleEditTask()
+- handleError()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
 <Grid columns={3}>
   <KanbanColumnComponent column={columns[0]} />
-  <Divider vertical />
+  <Divider orientation="vertical" />
   <KanbanColumnComponent column={columns[1]} />
-  <Divider vertical />
+  <Divider orientation="vertical" />
   <KanbanColumnComponent column={columns[2]} />
 </Grid>
-<If error>
-  <SnackbarComponent message={error} type="error" />
-</If>
+<SnackbarComponent message={error} type="error" visible={!!error} />
 
 CSS SPECIFICATION
 Layout:
 - display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
 Spacing:
-- margin: 0 24px;
+- padding: 24px;
 Component Styles:
-- .kanban-board { min-height: 60vh; }
+- .kanban-board, .kanban-column, .kanban-divider
 Responsive:
 - @media (max-width: 1024px) { grid-template-columns: 1fr; }
 
 API INTEGRATION
 - fetchBoardData() → GET /api/youth-accounts/{youthAccountId}/dashboard
+- handleAddTask() → POST /api/youth-accounts/{youthAccountId}/fund-transfer
+- handleEditTask() → PUT /api/youth-accounts/{youthAccountId}/spending-limit
 
 ERROR HANDLING
-- If fetch fails → set error → show SnackbarComponent
+- If error, show SnackbarComponent with error message
+- If columns config fails, show error message in board area
 
 INTERACTION FLOW
-User drags card → handleCardMove → update state
-User clicks Add Task → handleAddTask → open ModalComponent
+- On mount → fetchBoardData()
+- Card move → handleCardMove()
+- Add/Edit task → handleAddTask()/handleEditTask()
+- API error → handleError()
 
 ---
 
@@ -305,73 +324,74 @@ Mapped From A1:
 KanbanColumnComponent
 
 Purpose:
-Represents a Kanban column (To Do, In Progress, Done)
+Represents a single Kanban column (To Do, In Progress, Done)
 
 Parent:
 KanbanBoardComponent
 
 Children:
-- KanbanCardComponent (n)
-- AddTaskButtonComponent
+- KanbanCardComponent (multiple)
+- InlineAddFormComponent / ModalComponent
 
 Dependencies:
-- Card.pdf
-- Button.pdf
+- Card (library)
+- Button (library)
+- Modal (library)
 
 Library Components Used:
-- Card → for each KanbanCardComponent
-- Button → AddTaskButtonComponent
+- Card → for each KanbanCard
+- Button → Add Task, Move, Edit
+- Modal → for add/edit
 
 TypeScript Specification
 Inputs:
-- column: KanbanColumn
+- column: {id, title, cards: KanbanCard[]}
+- isLoading: boolean
 Outputs:
-- onAddTask()
-- onCardDrop(cardId: string)
+- onAddCard(task)
+- onMoveCard(cardId, toColumnId)
+- onEditCard(cardId, updates)
 State:
 - cards: KanbanCard[]
 Methods:
-- handleAddTask()
-- handleCardDrop()
+- handleAddCard()
+- handleMoveCard()
+- handleEditCard()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<ColumnContainer aria-label={column.title} aria-labelledby={column.id}-header>
-  <ColumnHeader id={column.id}-header>
-    <Title>{column.title}</Title>
-    <Summary>{column.summary}</Summary>
-    <Timestamp>{column.timestamp}</Timestamp>
-    <AddTaskButtonComponent columnId={column.id} />
-  </ColumnHeader>
+<Column role="region" aria-label={column.title} aria-labelledby={column.id}-header>
+  <Header id={column.id}-header>{column.title}</Header>
+  <Button label="Add Task" onClick={openAddForm} />
   <CardList>
-    <For card in column.cards>
-      <KanbanCardComponent card={card} />
-    </For>
+    <KanbanCardComponent card={card} />
+    ...
   </CardList>
-</ColumnContainer>
+  <InlineAddFormComponent visible={showAddForm} mode="add" onSubmit={onAddCard} />
+</Column>
 
 CSS SPECIFICATION
 Layout:
 - display: flex; flex-direction: column; min-width: 0;
 Spacing:
-- padding: 16px; gap: 12px;
+- margin: 0 8px; gap: 12px;
 Component Styles:
-- .kanban-column { background: #fafbfc; border-radius: 8px; }
+- .kanban-column, .kanban-column-header, .kanban-card-list
 Responsive:
 - @media (max-width: 768px) { min-width: 100%; }
 
 API INTEGRATION
-- None
+- None (handled by parent)
 
 ERROR HANDLING
-- If cards load fails → show error in PopupComponent
+- If column.cards is undefined, show error message
 
 INTERACTION FLOW
-User clicks Add Task → onAddTask → parent opens modal
-User drops card → onCardDrop → parent updates state
+- Add Task → open InlineAddFormComponent
+- Move/Edit → propagate to parent
 
 ---
 
-### 4.5 KanbanCardComponent
+### 4.5 KanbanCardComponent (AavaDefaultCardComponent)
 
 Component Type:
 Feature
@@ -380,7 +400,7 @@ Mapped From A1:
 KanbanCardComponent
 
 Purpose:
-Displays a single Kanban card/task
+Displays a single task card with title, description, meta
 
 Parent:
 KanbanColumnComponent
@@ -389,24 +409,26 @@ Children:
 - None
 
 Dependencies:
-- Card.pdf
-- Avatar.pdf
-- Icon.pdf
+- Card (library)
+- Button (library)
+- Icon (library)
 
 Library Components Used:
-- Card → container
-- Avatar → assignee
-- Icon → due date
+- Card → main container
+- Button → Move, Edit
+- Icon → assignee, due date
 
 TypeScript Specification
 Inputs:
-- card: KanbanCard
+- card: {title, description, assignee, dueDate}
 Outputs:
-- onMove(toColumn: string)
-- onEdit()
+- onSelect(cardId)
+- onMove(cardId, toColumnId)
+- onEdit(cardId)
 State:
 - isSelected: boolean
 Methods:
+- handleSelect()
 - handleMove()
 - handleEdit()
 
@@ -415,192 +437,139 @@ HTML STRUCTURE (PSEUDO CODE ONLY)
   <Title>{card.title}</Title>
   <Description>{card.description}</Description>
   <Meta>
-    <Avatar user={card.assignee} />
+    <Icon name="user" /> {card.assignee}
     <Icon name="calendar" /> {card.dueDate}
   </Meta>
-  <Actions>
-    <Button icon="edit" onClick={onEdit} />
-    <Button icon="move" onClick={() => onMove(nextColumn)} />
-  </Actions>
+  <Button label="Move" onClick={onMove} />
+  <Button label="Edit" onClick={onEdit} />
 </Card>
 
 CSS SPECIFICATION
 Layout:
 - display: flex; flex-direction: column;
 Spacing:
-- padding: 12px; gap: 8px;
+- padding: 16px; gap: 8px;
 Component Styles:
-- .kanban-card.selected { border: 2px solid #1976d2; }
+- .kanban-card, .kanban-card-meta
 Responsive:
 - @media (max-width: 768px) { font-size: 14px; }
 
 API INTEGRATION
-- None
+- None (handled by parent)
 
 ERROR HANDLING
-- If card data invalid → show error in SnackbarComponent
+- None (UI only)
 
 INTERACTION FLOW
-User clicks edit → onEdit → open ModalComponent
-User clicks move → onMove → parent updates column
+- Select/Move/Edit → propagate to parent
 
 ---
 
-### 4.6 AddTaskButtonComponent
+### 4.6 InlineAddFormComponent / ModalComponent (AavaModal)
 
 Component Type:
 Feature
 
 Mapped From A1:
-AddTaskButtonComponent
+InlineAddFormComponent / ModalComponent
 
 Purpose:
-Button to trigger task creation modal
+Form for adding/editing a task (inline or modal)
 
 Parent:
 KanbanColumnComponent
 
 Children:
-- None
-
-Dependencies:
-- Button.pdf
-
-Library Components Used:
-- Button
-
-TypeScript Specification
-Inputs:
-- columnId: string
-Outputs:
-- onClick()
-State:
-- None
-Methods:
-- handleClick()
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Button icon="add" onClick={onClick}>Add Task</Button>
-
-CSS SPECIFICATION
-Layout:
-- align-self: flex-end;
-Spacing:
-- margin-top: 8px;
-Component Styles:
-- .add-task-btn { background: #1976d2; color: #fff; }
-Responsive:
-- @media (max-width: 768px) { width: 100%; }
-
-API INTEGRATION
-- None
-
-ERROR HANDLING
-- None
-
-INTERACTION FLOW
-User clicks → onClick → parent opens ModalComponent
-
----
-
-### 4.7 ModalComponent
-
-Component Type:
-Shared
-
-Mapped From A1:
-ModalComponent
-
-Purpose:
-Modal overlay for task creation/edit
-
-Parent:
-KanbanBoardPage
-
-Children:
-- Form fields (Textbox, Textarea, Date-Picker, etc.)
+- Textbox (title)
+- Textarea (description)
+- Dropdown (assignee)
+- Date-Picker (dueDate)
 - Button (Save, Cancel)
 
 Dependencies:
-- Modal.pdf
-- Textbox.pdf
-- Textarea.pdf
-- Date-Picker.pdf
-- Button.pdf
+- Modal (library)
+- Textbox (library)
+- Textarea (library)
+- Dropdown (library)
+- Date-Picker (library)
+- Button (library)
 
 Library Components Used:
-- Modal
-- Textbox
-- Textarea
-- Date-Picker
-- Button
+- Modal → container
+- Textbox → title
+- Textarea → description
+- Dropdown → assignee
+- Date-Picker → due date
+- Button → Save, Cancel
 
 TypeScript Specification
 Inputs:
-- isOpen: boolean
-- mode: 'create' | 'edit'
+- mode: 'add' | 'edit'
 - card?: KanbanCard
 Outputs:
-- onSubmit(card: KanbanCard)
+- onSubmit(task)
 - onCancel()
 State:
-- form: { title: string; description: string; dueDate: string; assignee: User }
+- form: {title, description, assignee, dueDate}
 Methods:
+- handleChange(field, value)
 - handleSubmit()
 - handleCancel()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<Modal open={isOpen}>
-  <Form>
-    <Textbox label="Title" value={form.title} />
-    <Textarea label="Description" value={form.description} />
-    <Date-Picker label="Due Date" value={form.dueDate} />
-    <Button onClick={onSubmit}>Save</Button>
-    <Button onClick={onCancel}>Cancel</Button>
-  </Form>
+<Modal visible={visible} title={mode === 'add' ? 'Add Task' : 'Edit Task'}>
+  <Textbox label="Title" value={form.title} onChange={...} />
+  <Textarea label="Description" value={form.description} onChange={...} />
+  <Dropdown label="Assignee" options={assignees} value={form.assignee} onChange={...} />
+  <DatePicker label="Due Date" value={form.dueDate} onChange={...} />
+  <Button label="Save" onClick={handleSubmit} />
+  <Button label="Cancel" onClick={handleCancel} />
 </Modal>
 
 CSS SPECIFICATION
 Layout:
-- display: flex; flex-direction: column; gap: 16px;
+- display: flex; flex-direction: column;
 Spacing:
-- padding: 24px;
+- gap: 12px; padding: 24px;
 Component Styles:
-- .modal-form { width: 400px; max-width: 90vw; }
+- .modal-form, .modal-form-field
 Responsive:
-- @media (max-width: 768px) { width: 100%; }
+- @media (max-width: 768px) { padding: 12px; }
 
 API INTEGRATION
-- onSubmit → (No direct API, recommend POST /tasks)
+- handleSubmit() →
+  - if mode === 'add': POST /api/youth-accounts/{youthAccountId}/fund-transfer
+  - if mode === 'edit': PUT /api/youth-accounts/{youthAccountId}/spending-limit
 
 ERROR HANDLING
-- If form invalid → show error in SnackbarComponent
+- If validation fails, show inline error message
+- If API fails, propagate error to parent
 
 INTERACTION FLOW
-User fills form → clicks Save → onSubmit → parent closes modal
-User clicks Cancel → onCancel → parent closes modal
+- Fill form → Save → API call
+- Cancel → close modal
 
 ---
 
-### 4.8 SnackbarComponent
+### 4.7 SnackbarComponent (AavaSnackbar)
 
 Component Type:
-Shared
+Feature
 
 Mapped From A1:
 SnackbarComponent
 
 Purpose:
-Transient notification for errors/success
+Shows error/success notifications
 
 Parent:
-KanbanBoardPage
+KanbanBoardComponent
 
 Children:
 - None
 
 Dependencies:
-- Snackbar.pdf
+- Snackbar (library)
 
 Library Components Used:
 - Snackbar
@@ -608,140 +577,129 @@ Library Components Used:
 TypeScript Specification
 Inputs:
 - message: string
-- type: 'success' | 'error' | 'info'
-- duration: number
+- type: 'error' | 'success' | 'info'
 Outputs:
 - onDismiss()
 State:
-- None
+- isVisible: boolean
 Methods:
 - handleDismiss()
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<Snackbar type={type} duration={duration} onDismiss={onDismiss}>
+<Snackbar visible={isVisible} type={type} onDismiss={handleDismiss}>
   {message}
 </Snackbar>
 
 CSS SPECIFICATION
 Layout:
-- position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+- position: fixed; bottom: 24px; right: 24px;
 Spacing:
 - padding: 16px;
 Component Styles:
-- .snackbar.error { background: #d32f2f; color: #fff; }
-- .snackbar.success { background: #388e3c; color: #fff; }
+- .snackbar-error, .snackbar-success, .snackbar-info
 Responsive:
-- @media (max-width: 768px) { width: 90vw; }
+- @media (max-width: 768px) { right: 8px; bottom: 8px; }
 
 API INTEGRATION
 - None
 
 ERROR HANDLING
-- None (shows error messages)
+- None (UI only)
 
 INTERACTION FLOW
-Auto-dismiss after duration or user clicks dismiss
+- Dismiss → onDismiss
 
 ---
 
-### 4.9 PopupComponent
+### 4.8 DividerComponent (AavaDividers)
 
 Component Type:
 Shared
 
 Mapped From A1:
-PopupComponent
+DividerComponent
 
 Purpose:
-Confirmation, guided setup, support popups
+Visual separation between columns/sections
 
 Parent:
-KanbanBoardPage
+KanbanBoardComponent
 
 Children:
 - None
 
 Dependencies:
-- Popup.pdf
+- Divider (library)
 
 Library Components Used:
-- Popup
+- Divider
 
 TypeScript Specification
 Inputs:
-- type: 'confirmation' | 'guided-setup' | 'error' | 'support'
-- message: string
+- variant: 'solid' | 'dashed' | 'dotted' | 'gradient'
+- orientation: 'horizontal' | 'vertical'
 Outputs:
-- onConfirm()
-- onCancel()
+- None
 State:
 - None
 Methods:
-- handleConfirm()
-- handleCancel()
+- None
 
 HTML STRUCTURE (PSEUDO CODE ONLY)
-<Popup type={type}>
-  <Message>{message}</Message>
-  <Button onClick={onConfirm}>Confirm</Button>
-  <Button onClick={onCancel}>Cancel</Button>
-</Popup>
+<Divider variant={variant} orientation={orientation} />
 
 CSS SPECIFICATION
 Layout:
-- position: fixed; top: 40vh; left: 50%; transform: translateX(-50%, -50%);
+- width: 100%; height: 1px; or height: 100%; width: 1px;
 Spacing:
-- padding: 24px;
+- margin: 0 8px;
 Component Styles:
-- .popup.confirmation { border-left: 4px solid #1976d2; }
+- .divider-solid, .divider-dashed, .divider-dotted, .divider-gradient
 Responsive:
-- @media (max-width: 768px) { width: 90vw; }
+- N/A
 
 API INTEGRATION
 - None
 
 ERROR HANDLING
-- None (shows error messages)
+- None
 
 INTERACTION FLOW
-User clicks Confirm → onConfirm → parent handles action
-User clicks Cancel → onCancel → parent closes popup
-
----
+- None
 
 5. COMPONENT MAPPING SUMMARY
 
 | A1 Component      | Final Component         | Type    |
 |-------------------|------------------------|---------|
-| Header            | HeaderComponent        | Layout  |
-| Sidebar           | SidebarComponent       | Layout  |
-| KanbanBoard       | KanbanBoardComponent   | Feature |
-| KanbanColumn      | KanbanColumnComponent  | Feature |
-| KanbanCard        | KanbanCardComponent    | Feature |
-| AddTaskButton     | AddTaskButtonComponent | Feature |
-| Modal             | ModalComponent         | Shared  |
-| Snackbar          | SnackbarComponent      | Shared  |
-| Popup             | PopupComponent         | Shared  |
+| Header            | HeaderComponent         | Layout  |
+| Sidebar           | SidebarComponent        | Layout  |
+| KanbanBoard       | KanbanBoardComponent    | Feature |
+| KanbanColumn      | KanbanColumnComponent   | Feature |
+| KanbanCard        | KanbanCardComponent     | Feature |
+| InlineAddForm     | InlineAddFormComponent  | Feature |
+| Modal             | ModalComponent          | Shared  |
+| Snackbar          | SnackbarComponent       | Feature |
+| Divider           | DividerComponent        | Shared  |
 
 6. DATA FLOW (FROM AGENT-1)
 
 Parent → Child:
 KanbanBoardPage
-→ HeaderComponent (searchText, user)
-→ SidebarComponent (menuItems, selected)
-→ KanbanBoardComponent (columns)
-  → KanbanColumnComponent (column)
+→ HeaderComponent (logoUrl, tabs, activeTabId)
+→ SidebarComponent (menuItems, isCollapsed)
+→ KanbanBoardComponent (columns, error)
+  → KanbanColumnComponent (column, isLoading)
     → KanbanCardComponent (card)
-    → AddTaskButtonComponent (columnId)
-→ ModalComponent (isOpen, mode, card)
-→ SnackbarComponent (message, type, duration)
-→ PopupComponent (type, message)
+    → InlineAddFormComponent / ModalComponent (mode, card)
+→ SnackbarComponent (message, type)
 
 7. API USAGE SUMMARY
 
 Component → API:
 - KanbanBoardComponent → GET /api/youth-accounts/{youthAccountId}/dashboard
-- ModalComponent (Task Creation/Edit) → (No direct API, recommend POST/PUT /tasks)
+- InlineAddFormComponent / ModalComponent → POST /api/youth-accounts/{youthAccountId}/fund-transfer (add)
+- InlineAddFormComponent / ModalComponent → PUT /api/youth-accounts/{youthAccountId}/spending-limit (edit)
+- KanbanCardComponent → GET /api/youth-accounts/{youthAccountId}/transactions (activity)
 
 8. NOTES & CONSTRAINTS
 
@@ -749,8 +707,7 @@ Component → API:
 - Do NOT create new components unnecessarily
 - Prefer reusable library components
 - HTML must be pseudo-code ONLY (NOT real framework code)
+- CSS should include only key classes and layout rules, not full stylesheets
 - ARIA attributes must be present for accessibility
-- Responsive breakpoints must be implemented as per Jira and HTML
-- Error handling must surface errors in Snackbar or Popup as appropriate
-- All interactive elements must be keyboard accessible
-- API for Kanban CRUD is missing; recommend extension
+- Error handling must be implemented as per requirements
+- Responsive breakpoints must be supported in all layouts
