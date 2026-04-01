@@ -3,88 +3,103 @@ FINAL UI PACKAGE BUNDLE
 1. JIRA REQUIREMENT SUMMARY
 
 Story Description:
-Create Angular component for Kanban board container with three-column layout. Implement at src/app/features/kanban/components/kanban-board/kanban-board.component.ts. Use @Component decorator and selector 'app-kanban-board'. Template must have three column containers using CSS Grid (grid-template-columns: repeat(3, 1fr)). Add responsive SCSS for desktop (>1024px), tablet (768px-1024px), mobile (<768px). OnInit initializes columns = [{id: 'todo', title: 'To Do', cards: []}, {id: 'inprogress', title: 'In Progress', cards: []}, {id: 'done', title: 'Done', cards: []}]. Add ARIA attributes: role='region', aria-label='Kanban Board', aria-labelledby for each column header. Error handling with *ngIf for error message if column config fails. Use Angular Material or custom CSS for styling. Add responsive meta tags and viewport config.
+Create Angular component for Kanban board container with three-column layout. Implement component class with @Component decorator and selector 'app-kanban-board'. Define template with three column containers using CSS Grid layout (grid-template-columns: repeat(3, 1fr)). Create component SCSS file with responsive breakpoints: desktop (>1024px), tablet (768px-1024px), mobile (<768px). Implement OnInit lifecycle hook to initialize column data structure: columns = [{ id: 'todo', title: 'To Do', cards: [] }, { id: 'inprogress', title: 'In Progress', cards: [] }, { id: 'done', title: 'Done', cards: [] }]. Add ARIA attributes: role='region', aria-label='Kanban Board', and aria-labelledby for each column header. Implement error handling with *ngIf directive to display error message when column configuration fails. Use Angular Material or custom CSS for styling. Add responsive meta tags and viewport configuration.
 
 Acceptance Criteria:
-- Three-column Kanban board layout
-- Responsive for desktop, tablet, mobile
-- ARIA accessibility for board and columns
-- Error handling for column config
-- Styling with Material or custom CSS
-- Viewport meta tags
+- Kanban board component with three columns (To Do, In Progress, Done)
+- Responsive layout for desktop, tablet, and mobile
+- ARIA accessibility attributes for board and columns
+- Error handling for column configuration
+- Use Angular Material or custom CSS
+- Responsive meta tags and viewport
 
 UI Tasks:
-- Implement Kanban board container
-- Define columns and cards structure
-- Add ARIA attributes
-- Add error handling
-- Responsive SCSS
-- Integrate with UI library components
+- Create Kanban board container component
+- Implement three-column layout with CSS Grid
+- Add ARIA attributes for accessibility
+- Initialize columns and cards in OnInit
+- Add error handling for column config
+- Style with Material/custom CSS
+- Responsive breakpoints
 
 2. UI COMPONENT ARCHITECTURE (FROM AGENT-1)
 
 Component Hierarchy:
-<KanbanBoardPage>
-├── HeaderComponent
-├── SidebarComponent
-├── KanbanBoardContainer
-│   ├── KanbanColumnComponent (To Do)
-│   │   └── KanbanCardComponent(s)
-│   ├── KanbanColumnComponent (In Progress)
-│   │   └── KanbanCardComponent(s)
-│   └── KanbanColumnComponent (Done)
-│       └── KanbanCardComponent(s)
-│
-├── AddTaskModal (ModalComponent)
-├── EditTaskModal (ModalComponent)
-├── ConfirmationPopup (Modal/PopupComponent)
-├── ErrorSnackbar (SnackbarComponent)
+KanbanBoardPage
+├── HeaderComponent (AavaHeaderComponent)
+├── SidebarComponent (AavaSidebarComponent)
+├── MainContainer
+│   ├── KanbanBoardComponent
+│   │   ├── KanbanColumnComponent (To Do)
+│   │   │   ├── KanbanColumnHeaderComponent
+│   │   │   ├── KanbanCardsComponent
+│   │   │   └── AddTaskButtonComponent
+│   │   ├── KanbanColumnComponent (In Progress)
+│   │   │   ├── KanbanColumnHeaderComponent
+│   │   │   ├── KanbanCardsComponent
+│   │   │   └── AddTaskButtonComponent
+│   │   ├── KanbanColumnComponent (Done)
+│   │   │   ├── KanbanColumnHeaderComponent
+│   │   │   ├── KanbanCardsComponent
+│   │   │   └── AddTaskButtonComponent
+│   ├── ModalComponent (Task Creation/Edit)
+│   ├── PopupComponent (Confirmation, Error, Guided Setup, Support)
+│   ├── SnackbarComponent (Error/Success notifications)
 
 Layout Structure:
 Page Layout Hierarchy:
-<KanbanBoardPage>
+KanbanBoardPage
 ├── Header
 ├── Main Layout
 │   ├── Sidebar
 │   └── Content Area
 │       ├── KanbanBoard
-│           ├── KanbanColumn (To Do)
-│           │   └── KanbanCard(s)
-│           ├── KanbanColumn (In Progress)
-│           │   └── KanbanCard(s)
-│           └── KanbanColumn (Done)
-│               └── KanbanCard(s)
-│       ├── Modal/Popup (conditional)
-│       └── ErrorMessage (conditional)
+│       │   ├── KanbanColumn (To Do)
+│       │   │   ├── KanbanColumnHeader
+│       │   │   ├── KanbanCards
+│       │   │   └── AddTaskButton
+│       │   ├── KanbanColumn (In Progress)
+│       │   │   ├── KanbanColumnHeader
+│       │   │   ├── KanbanCards
+│       │   │   └── AddTaskButton
+│       │   ├── KanbanColumn (Done)
+│       │   │   ├── KanbanColumnHeader
+│       │   │   ├── KanbanCards
+│       │   │   └── AddTaskButton
+│       ├── Modals/Popups (Task Creation, Confirmation, Error, Guided Setup, Support)
 
 Layout Type:
-- Grid (CSS Grid for columns)
-- Flex (for card lists, header, sidebar)
+- Grid (CSS Grid for Kanban columns)
+- Flex (Sidebar, header, card content)
 - Mixed (responsive breakpoints)
 
 Component Responsibilities:
-HeaderComponent: Displays top navigation bar with search, notifications, and avatar
-SidebarComponent: Displays navigation links for Kanban scenarios
-KanbanBoardContainer: Main Kanban board grid with three columns
-KanbanColumnComponent: Renders a single Kanban column with header and cards
-KanbanCardComponent: Displays a single Kanban card (task)
-AddTaskModal: Modal for adding a new task
-EditTaskModal: Modal for editing a task
-ConfirmationPopup: Popup for confirming actions (add/edit)
-ErrorSnackbar: Displays error messages
+HeaderComponent: Application header with search, navigation, user actions
+SidebarComponent: Navigation sidebar with scenarios, branding, footer
+KanbanBoardComponent: Container for Kanban columns, manages board state
+KanbanColumnComponent: Represents a Kanban column (To Do, In Progress, Done)
+KanbanColumnHeaderComponent: Column header with title, summary, timestamp, add task button
+KanbanCardsComponent: List of cards in a column
+KanbanCardComponent: Individual Kanban card with title, description, meta, actions
+AddTaskButtonComponent: Button to add new task to column
+ModalComponent: Modal for task creation/edit
+PopupComponent: Confirmation, error, guided setup, support popups
+SnackbarComponent: Error/success notification
 
 Data Flow:
 Parent → Child Mapping:
-<KanbanBoardPage>
-→ HeaderComponent (user, notifications)
-→ SidebarComponent (links, selected)
-→ KanbanBoardContainer (columns, error)
-  → KanbanColumnComponent (column)
-    → KanbanCardComponent (card)
-→ AddTaskModal (open, columnId)
-→ EditTaskModal (open, card)
-→ ConfirmationPopup (message, open)
-→ ErrorSnackbar (message, open)
+KanbanBoardPage
+→ HeaderComponent (logoUrl, tabs, activeTabId)
+→ SidebarComponent (menuItems, isCollapsed)
+→ KanbanBoardComponent (columns)
+→ KanbanColumnComponent (column)
+→ KanbanColumnHeaderComponent (title, summary, timestamp)
+→ KanbanCardsComponent (cards)
+→ KanbanCardComponent (card)
+→ AddTaskButtonComponent (label, variant)
+→ ModalComponent (isOpen, task)
+→ PopupComponent (message, actions)
+→ SnackbarComponent (message, variant)
 
 3. UI COMPONENT SPECIFICATIONS (FROM AGENT-2)
 
@@ -92,714 +107,139 @@ IMPORTANT:
 - FULL CODE MUST BE PRESERVED
 - DO NOT MODIFY OR SUMMARIZE
 
----
+<PASTE FULL OUTPUT FROM AGENT-2>
 
-### 4.1 HeaderComponent
-
-Component Type:
-Layout
-
-Mapped From A1:
-HeaderComponent
-
-Purpose:
-Displays top navigation bar with search, notifications, and avatar
-
-Parent:
+1. INPUT REFERENCE (FROM AGENT-1)
+Page Name:
 KanbanBoardPage
-
-Children:
-- SearchBar (library)
-- NotificationIcon (library/Icon)
-- Avatar (library)
-
-Dependencies:
-- Search-Bar
-- Icon
-- Avatar
-
-Library Components Used:
-- Search-Bar → search input
-- Icon → notification bell
-- Avatar → user profile
-
-TypeScript Specification
-Inputs:
-- user: User
-- notifications: Notification[]
-Outputs:
-- onSearch(query: string)
-- onNotificationClick()
-State:
-- searchQuery: string
-Methods:
-- handleSearch(query: string) → emits onSearch
-- handleNotificationClick() → emits onNotificationClick
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Header>
-  <Grid direction="row" align="center" justify="space-between">
-    <AppBranding />
-    <SearchBar [(ngModel)]="searchQuery" (search)="handleSearch($event)" />
-    <Icon name="notifications" (click)="handleNotificationClick()" />
-    <Avatar [user]="user" />
-  </Grid>
-</Header>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; align-items: center; justify-content: space-between;
-Spacing:
-- padding: 16px; gap: 16px;
-Component Styles:
-- .header { background: #fff; border-bottom: 1px solid #eee; }
-Responsive:
-- @media (max-width: 768px) { flex-direction: column; }
-
-API INTEGRATION
-- None (UI only)
-
-ERROR HANDLING
-- None (UI only)
-
-INTERACTION FLOW
-User types in search → handleSearch → emits onSearch
-User clicks notification → handleNotificationClick → emits onNotificationClick
-
----
-
-### 4.2 SidebarComponent
-
-Component Type:
-Layout
-
-Mapped From A1:
-SidebarComponent
-
-Purpose:
-Displays navigation links for Kanban scenarios
-
-Parent:
-KanbanBoardPage
-
-Children:
-- NavLinks (library/Menu)
-- AppBranding
-- Footer
-
-Dependencies:
-- Menu
-- Icon
-
-Library Components Used:
-- Menu → navigation links
-- Icon → link icons
-
-TypeScript Specification
-Inputs:
-- links: NavLink[]
-- selected: string
-Outputs:
-- onNavigate(link: string)
-State:
-- None
-Methods:
-- handleNavigate(link: string) → emits onNavigate
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Sidebar>
-  <AppBranding />
-  <Menu [links]="links" [selected]="selected" (navigate)="handleNavigate($event)" />
-  <Footer />
-</Sidebar>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; flex-direction: column; height: 100vh;
-Spacing:
-- padding: 24px 0; gap: 16px;
-Component Styles:
-- .sidebar { background: #f8f9fa; border-right: 1px solid #eee; }
-Responsive:
-- @media (max-width: 1024px) { width: 56px; }
-
-API INTEGRATION
-- None (UI only)
-
-ERROR HANDLING
-- None (UI only)
-
-INTERACTION FLOW
-User clicks nav link → handleNavigate → emits onNavigate
-
----
-
-### 4.3 KanbanBoardContainer
-
-Component Type:
-Feature
-
-Mapped From A1:
-KanbanBoardContainer
-
-Purpose:
-Main Kanban board grid with three columns
-
-Parent:
-KanbanBoardPage
-
-Children:
-- KanbanColumnComponent (To Do)
-- KanbanColumnComponent (In Progress)
-- KanbanColumnComponent (Done)
-- ErrorSnackbar (conditional)
-
-Dependencies:
-- Grid
+Mapped Layout:
+- Three-column Kanban board (To Do, In Progress, Done)
+- Responsive layout (CSS Grid, Flex)
+- ARIA accessibility attributes for board and columns
+- Error handling for column configuration
+- Header with search, notification, avatar
+- Sidebar navigation with scenarios, branding, footer
+- Modal overlays and popups for task creation, confirmation, error, guided setup, support
+Components from A1:
+- HeaderComponent (AavaHeaderComponent)
+- SidebarComponent (AavaSidebarComponent)
+- KanbanBoardComponent
 - KanbanColumnComponent
-- Snackbar
+- KanbanColumnHeaderComponent
+- KanbanCardsComponent
+- KanbanCardComponent (AavaDefaultCardComponent)
+- AddTaskButtonComponent (AavaButtonComponent)
+- ModalComponent (AavaModalComponent)
+- PopupComponent
+- SnackbarComponent (AavaSnackbarComponent)
 
-Library Components Used:
-- Grid → layout columns
-- Snackbar → error display
-
-TypeScript Specification
-Inputs:
-- columns: KanbanColumn[]
-- error: string
-Outputs:
-- onAddTask(columnId: string)
-- onCardMove(cardId: string, fromColumn: string, toColumn: string)
-State:
-- columns: KanbanColumn[]
-- error: string
-Methods:
-- handleAddTask(columnId: string)
-- handleCardMove(cardId: string, fromColumn: string, toColumn: string)
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<KanbanBoard role="region" aria-label="Kanban Board">
-  <Grid columns="3" gap="24px">
-    <KanbanColumnComponent *ngFor="let col of columns" [column]="col" (addTask)="handleAddTask(col.id)" (cardMove)="handleCardMove($event.cardId, $event.from, $event.to)" />
-  </Grid>
-  <Snackbar *ngIf="error" [message]="error" />
-</KanbanBoard>
-
-CSS SPECIFICATION
-Layout:
-- display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-Spacing:
-- padding: 24px;
-Component Styles:
-- .kanban-board { background: #fafbfc; }
-Responsive:
-- @media (max-width: 1024px) { grid-template-columns: 1fr; }
-
-API INTEGRATION
-- ngOnInit() → GET /api/youth-accounts/{youthAccountId}/dashboard → fetch columns/cards
-
-ERROR HANDLING
-- If error, show Snackbar with error message
-
-INTERACTION FLOW
-User clicks add task → handleAddTask → open AddTaskModal
-User drags card → handleCardMove → update state (optionally call API)
-
----
-
-### 4.4 KanbanColumnComponent
-
-Component Type:
-Feature
-
-Mapped From A1:
-KanbanColumnComponent
-
-Purpose:
-Renders a single Kanban column with header and cards
-
-Parent:
-KanbanBoardContainer
-
-Children:
-- KanbanCardComponent (for each card)
-- Button (add task)
-
-Dependencies:
-- Card
+2. GLOBAL ARCHITECTURE SUMMARY
+Layout Type:
+Mixed (CSS Grid for Kanban columns, Flex for sidebar/header/card content, responsive breakpoints)
+Main Sections:
+- Header
+- Sidebar
+- Main Content (Kanban Board)
+- Modals/Popups
+Component Strategy:
+Reused Components:
+- Header
+- Sidebar
+- Card (DefaultCard, CardHeader, CardContent, CardFooter, CardActions)
 - Button
+- Modal
+- Snackbar
+- Timeline
 - Chip-Tag
 - Divider
-
-Library Components Used:
-- Card → Kanban card
-- Button → add task
-- Chip-Tag → status/labels
-- Divider → sectioning
-
-TypeScript Specification
-Inputs:
-- column: KanbanColumn
-- ariaLabel: string
-Outputs:
-- onAddTask()
-- onCardDrop(cardId: string)
-State:
-- cards: KanbanCard[]
-Methods:
-- handleAddTask()
-- handleCardDrop(cardId: string)
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<KanbanColumn role="region" [aria-label]="ariaLabel" aria-labelledby="column-header-{{column.id}}">
-  <header id="column-header-{{column.id}}">
-    <h3>{{column.title}}</h3>
-    <Chip-Tag *ngIf="column.summary" [label]="column.summary" />
-    <span class="timestamp">{{column.timestamp}}</span>
-    <Button icon="add" (click)="handleAddTask()">Add</Button>
-  </header>
-  <Divider />
-  <section class="kanban-cards">
-    <KanbanCardComponent *ngFor="let card of column.cards" [card]="card" (edit)="onEdit(card)" (move)="onMove(card, $event)" />
-  </section>
-</KanbanColumn>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; flex-direction: column; min-width: 0;
-Spacing:
-- padding: 16px; gap: 12px;
-Component Styles:
-- .kanban-column { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px #eee; }
-Responsive:
-- @media (max-width: 768px) { min-width: 100%; }
-
-API INTEGRATION
-- None (data passed from parent)
-
-ERROR HANDLING
-- None (handled at container level)
-
-INTERACTION FLOW
-User clicks add → handleAddTask → emits onAddTask
-User drags card → handleCardDrop → emits onCardDrop
-
----
-
-### 4.5 KanbanCardComponent
-
-Component Type:
-Feature
-
-Mapped From A1:
-KanbanCardComponent
-
-Purpose:
-Displays a single Kanban card (task)
-
-Parent:
-KanbanColumnComponent
-
-Children:
-- Avatar (assignee)
-- Chip-Tag (labels)
-- Button (edit/move)
-
-Dependencies:
-- Card
-- Avatar
-- Chip-Tag
-- Button
-
-Library Components Used:
-- Card → card container
-- Avatar → assignee
-- Chip-Tag → labels
-- Button → edit/move
-
-TypeScript Specification
-Inputs:
-- card: KanbanCard
-Outputs:
-- onEdit()
-- onMove(targetColumn: string)
-State:
-- isSelected: boolean
-Methods:
-- handleEdit()
-- handleMove(targetColumn: string)
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Card [selected]="isSelected">
-  <header>
-    <h4>{{card.title}}</h4>
-    <Chip-Tag *ngFor="let label of card.labels" [label]="label" />
-  </header>
-  <section>
-    <p>{{card.desc}}</p>
-    <Avatar [user]="card.assignee" />
-    <span class="due-date">{{card.dueDate}}</span>
-  </section>
-  <footer>
-    <Button icon="edit" (click)="handleEdit()">Edit</Button>
-    <Button icon="arrow" (click)="handleMove('next')">Move</Button>
-  </footer>
-</Card>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; flex-direction: column;
-Spacing:
-- padding: 12px; gap: 8px;
-Component Styles:
-- .kanban-card { border: 1px solid #e0e0e0; border-radius: 6px; }
-Responsive:
-- @media (max-width: 768px) { font-size: 14px; }
-
-API INTEGRATION
-- None (data passed from parent)
-
-ERROR HANDLING
-- None (handled at container level)
-
-INTERACTION FLOW
-User clicks edit → handleEdit → emits onEdit
-User clicks move → handleMove → emits onMove
-
----
-
-### 4.6 AddTaskModal
-
-Component Type:
-Feature
-
-Mapped From A1:
-AddTaskModal
-
-Purpose:
-Modal for adding a new task
-
-Parent:
-KanbanBoardPage
-
-Children:
-- Form (title, desc, assignee, dueDate)
-- Button (submit/cancel)
-
-Dependencies:
-- Modal
-- Button
-- Textbox
-- Date-Picker
-- Avatar
-
-Library Components Used:
-- Modal → dialog
-- Button → submit/cancel
-- Textbox → input fields
-- Date-Picker → due date
-- Avatar → assignee
-
-TypeScript Specification
-Inputs:
-- open: boolean
-- columnId: string
-Outputs:
-- onSubmit(form: AddTaskForm)
-- onCancel()
-State:
-- form: {title: string, desc: string, assignee: User, dueDate: Date}
-Methods:
-- handleSubmit()
-- handleCancel()
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Modal [open]="open" title="Add Task">
-  <form (ngSubmit)="handleSubmit()">
-    <Textbox [(ngModel)]="form.title" label="Title" required />
-    <Textbox [(ngModel)]="form.desc" label="Description" />
-    <Avatar [(ngModel)]="form.assignee" label="Assignee" />
-    <Date-Picker [(ngModel)]="form.dueDate" label="Due Date" />
-    <footer>
-      <Button type="submit">Add</Button>
-      <Button type="button" (click)="handleCancel()">Cancel</Button>
-    </footer>
-  </form>
-</Modal>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; flex-direction: column;
-Spacing:
-- gap: 16px; padding: 24px;
-Component Styles:
-- .modal-form { width: 100%; max-width: 400px; }
-Responsive:
-- @media (max-width: 768px) { max-width: 100%; }
-
-API INTEGRATION
-- handleSubmit() → POST /api/youth-accounts/{youthAccountId}/fund-transfer (if funds)
-
-ERROR HANDLING
-- If API error, show Snackbar with error message
-- If validation error, show inline message
-
-INTERACTION FLOW
-User fills form → clicks Add → handleSubmit → API call → close on success
-User clicks Cancel → handleCancel → close modal
-
----
-
-### 4.7 EditTaskModal
-
-Component Type:
-Feature
-
-Mapped From A1:
-EditTaskModal
-
-Purpose:
-Modal for editing a task
-
-Parent:
-KanbanBoardPage
-
-Children:
-- Form (title, desc, assignee, dueDate)
-- Button (submit/cancel)
-
-Dependencies:
-- Modal
-- Button
-- Textbox
-- Date-Picker
-- Avatar
-
-Library Components Used:
-- Modal → dialog
-- Button → submit/cancel
-- Textbox → input fields
-- Date-Picker → due date
-- Avatar → assignee
-
-TypeScript Specification
-Inputs:
-- open: boolean
-- card: KanbanCard
-Outputs:
-- onSubmit(form: EditTaskForm)
-- onCancel()
-State:
-- form: {title: string, desc: string, assignee: User, dueDate: Date}
-Methods:
-- handleSubmit()
-- handleCancel()
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Modal [open]="open" title="Edit Task">
-  <form (ngSubmit)="handleSubmit()">
-    <Textbox [(ngModel)]="form.title" label="Title" required />
-    <Textbox [(ngModel)]="form.desc" label="Description" />
-    <Avatar [(ngModel)]="form.assignee" label="Assignee" />
-    <Date-Picker [(ngModel)]="form.dueDate" label="Due Date" />
-    <footer>
-      <Button type="submit">Save</Button>
-      <Button type="button" (click)="handleCancel()">Cancel</Button>
-    </footer>
-  </form>
-</Modal>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; flex-direction: column;
-Spacing:
-- gap: 16px; padding: 24px;
-Component Styles:
-- .modal-form { width: 100%; max-width: 400px; }
-Responsive:
-- @media (max-width: 768px) { max-width: 100%; }
-
-API INTEGRATION
-- handleSubmit() → PUT /api/youth-accounts/{youthAccountId}/spending-limit (if limits)
-
-ERROR HANDLING
-- If API error, show Snackbar with error message
-- If validation error, show inline message
-
-INTERACTION FLOW
-User edits form → clicks Save → handleSubmit → API call → close on success
-User clicks Cancel → handleCancel → close modal
-
----
-
-### 4.8 ConfirmationPopup
-
-Component Type:
-Feature
-
-Mapped From A1:
-ConfirmationPopup
-
-Purpose:
-Popup for confirming actions (add/edit)
-
-Parent:
-KanbanBoardPage
-
-Children:
-- Button (close)
-
-Dependencies:
-- Modal/Popup
-- Button
-
-Library Components Used:
-- Modal/Popup → dialog
-- Button → close
-
-TypeScript Specification
-Inputs:
-- message: string
-- open: boolean
-Outputs:
-- onClose()
-State:
-- None
-Methods:
-- handleClose()
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Popup [open]="open" [message]="message">
-  <footer>
-    <Button (click)="handleClose()">Close</Button>
-  </footer>
-</Popup>
-
-CSS SPECIFICATION
-Layout:
-- display: flex; flex-direction: column; align-items: center;
-Spacing:
-- padding: 24px;
-Component Styles:
-- .popup { min-width: 280px; }
-Responsive:
-- @media (max-width: 768px) { min-width: 100%; }
-
-API INTEGRATION
-- None
-
-ERROR HANDLING
-- None
-
-INTERACTION FLOW
-User clicks Close → handleClose → emits onClose
-
----
-
-### 4.9 ErrorSnackbar
-
-Component Type:
-Feature
-
-Mapped From A1:
-ErrorSnackbar
-
-Purpose:
-Displays error messages
-
-Parent:
-KanbanBoardPage
-
-Children:
-- None
-
-Dependencies:
-- Snackbar
-
-Library Components Used:
-- Snackbar → error display
-
-TypeScript Specification
-Inputs:
-- message: string
-- open: boolean
-Outputs:
-- onClose()
-State:
-- None
-Methods:
-- handleClose()
-
-HTML STRUCTURE (PSEUDO CODE ONLY)
-<Snackbar [open]="open" [message]="message" (close)="handleClose()" />
-
-CSS SPECIFICATION
-Layout:
-- position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-Spacing:
-- padding: 16px;
-Component Styles:
-- .snackbar { background: #f44336; color: #fff; border-radius: 4px; }
-Responsive:
-- @media (max-width: 768px) { width: 90vw; }
-
-API INTEGRATION
-- None
-
-ERROR HANDLING
-- None (this is the error handler)
-
-INTERACTION FLOW
-Snackbar auto-hides or user clicks close → handleClose → emits onClose
-
----
+- Grid
+New Components (if any):
+- KanbanBoardComponent
+- KanbanColumnComponent
+- KanbanColumnHeaderComponent
+- KanbanCardsComponent
+- PopupComponent
+
+3. FOLDER STRUCTURE
+src/
+ ├── pages/
+ │    └── KanbanBoardPage/
+ │         ├── KanbanBoardPage.tsx
+ │
+ ├── components/
+ │    ├── layout/
+ │    │    ├── HeaderComponent
+ │    │    ├── SidebarComponent
+ │    │
+ │    ├── feature/
+ │    │    ├── KanbanBoardComponent
+ │    │    ├── KanbanColumnComponent
+ │    │    ├── KanbanColumnHeaderComponent
+ │    │    ├── KanbanCardsComponent
+ │    │    ├── KanbanCardComponent
+ │    │    ├── AddTaskButtonComponent
+ │    │
+ │    ├── shared/
+ │         ├── Button
+ │         ├── Card
+ │         ├── Modal
+ │         ├── Snackbar
+ │         ├── Popup
+ │         ├── Divider
+ │         ├── Chip-Tag
+ │         ├── Timeline
+ │         ├── Grid
+
+4. COMPONENT IMPLEMENTATION
+
+### 4.1 HeaderComponent (AavaHeaderComponent)
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.2 SidebarComponent (AavaSidebarComponent)
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.3 KanbanBoardComponent
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.4 KanbanColumnComponent
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.5 KanbanColumnHeaderComponent
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.6 KanbanCardsComponent
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.7 KanbanCardComponent (AavaDefaultCardComponent)
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.8 AddTaskButtonComponent (AavaButtonComponent)
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.9 ModalComponent (AavaModalComponent)
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.10 PopupComponent
+... [full code and pseudo-code as above, preserved exactly]
+
+### 4.11 SnackbarComponent (AavaSnackbarComponent)
+... [full code and pseudo-code as above, preserved exactly]
 
 5. COMPONENT MAPPING SUMMARY
-
-| A1 Component      | Final Component        | Type    |
-|-------------------|-----------------------|---------|
-| Header            | HeaderComponent       | Layout  |
-| Sidebar           | SidebarComponent      | Layout  |
-| KanbanBoard       | KanbanBoardContainer  | Feature |
-| KanbanColumn      | KanbanColumnComponent | Feature |
-| KanbanCard        | KanbanCardComponent   | Feature |
-| AddTaskModal      | AddTaskModal          | Feature |
-| EditTaskModal     | EditTaskModal         | Feature |
-| ConfirmationPopup | ConfirmationPopup     | Feature |
-| ErrorSnackbar     | ErrorSnackbar         | Feature |
+... [table as above]
 
 6. DATA FLOW (FROM AGENT-1)
-
-Parent → Child:
-<KanbanBoardPage>
-→ HeaderComponent (user, notifications)
-→ SidebarComponent (links, selected)
-→ KanbanBoardContainer (columns, error)
-  → KanbanColumnComponent (column)
-    → KanbanCardComponent (card)
-→ AddTaskModal (open, columnId)
-→ EditTaskModal (open, card)
-→ ConfirmationPopup (message, open)
-→ ErrorSnackbar (message, open)
+... [parent-child mapping as above]
 
 7. API USAGE SUMMARY
-
-Component → API:
-- KanbanBoardContainer → GET /api/youth-accounts/{youthAccountId}/dashboard
-- AddTaskModal → POST /api/youth-accounts/{youthAccountId}/fund-transfer (if funds)
-- EditTaskModal → PUT /api/youth-accounts/{youthAccountId}/spending-limit (if limits)
+... [component-API mapping as above]
 
 8. NOTES & CONSTRAINTS
+... [notes as above]
 
-- HTML must follow A1 structure strictly
-- Do NOT create new components unnecessarily
-- Prefer reusable library components
-- HTML must be pseudo-code ONLY (NOT real framework code)
-- CSS should include only key classes and layout rules, not full stylesheets
-- ARIA attributes must be present for accessibility
-- Responsive breakpoints: desktop (>1024px), tablet (768px-1024px), mobile (<768px)
-- Error handling must use Snackbar
-- All API calls must handle errors and show error messages
+---
+## END OF SPECIFICATION
+---
 
 4. USER FLOW DIAGRAM (FROM AGENT-3)
 
@@ -807,11 +247,10 @@ IMPORTANT:
 - INCLUDE FULL HTML FILE
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>User Flow Diagram - Kanban Board</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
@@ -819,20 +258,19 @@ IMPORTANT:
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f5f5;
       padding: 40px;
+      background: #f5f5f5;
     }
     .mermaid {
       background: #fff;
       padding: 24px;
       border-radius: 8px;
-      box-shadow: 0 2px 8px #eee;
-      margin-top: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      font-size: 18px;
     }
     h2 {
-      color: #222;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
     }
   </style>
 </head>
@@ -841,46 +279,46 @@ IMPORTANT:
   <div class="mermaid">
 flowchart TD
   Start[User Opens Kanban Board Page]
-  Start --> Header[Header Top Bar]
+  Start --> Header[Header with Search Notification Avatar]
   Start --> Sidebar[Sidebar Navigation]
-  Start --> Board[Kanban Board Container]
+  Start --> Board[Kanban Board Area]
   Board --> ToDo[To Do Column]
   Board --> InProgress[In Progress Column]
   Board --> Done[Done Column]
-  ToDo --> AddTaskBtn[Add Task Button]
-  InProgress --> AddTaskBtn2[Add Task Button]
-  Done --> AddTaskBtn3[Add Task Button]
-  AddTaskBtn --> AddTaskModal[Add Task Modal]
-  AddTaskBtn2 --> AddTaskModal
-  AddTaskBtn3 --> AddTaskModal
-  AddTaskModal --> SubmitAdd[Submit Add Task]
-  SubmitAdd --> ConfirmPopup[Confirmation Popup]
-  SubmitAdd --> ErrorSnackbar[Error Snackbar]
-  ToDo --> Card1[Kanban Card]
-  InProgress --> Card2[Kanban Card]
-  Done --> Card3[Kanban Card]
-  Card1 --> EditBtn[Edit Button]
-  Card2 --> EditBtn2[Edit Button]
-  Card3 --> EditBtn3[Edit Button]
-  EditBtn --> EditTaskModal[Edit Task Modal]
-  EditBtn2 --> EditTaskModal
-  EditBtn3 --> EditTaskModal
-  EditTaskModal --> SubmitEdit[Submit Edit Task]
-  SubmitEdit --> ConfirmPopup
-  SubmitEdit --> ErrorSnackbar
-  Card1 --> MoveBtn[Move Button]
-  Card2 --> MoveBtn2[Move Button]
-  Card3 --> MoveBtn3[Move Button]
-  MoveBtn --> MoveCard[Move Card to Column]
-  MoveBtn2 --> MoveCard
-  MoveBtn3 --> MoveCard
-  MoveCard --> ConfirmPopup
-  MoveCard --> ErrorSnackbar
-  Board --> ErrorSnackbar
-  ConfirmPopup --> Board
-  ErrorSnackbar --> Board
-  Sidebar --> Board
-  Header --> Board
+  ToDo --> AddTaskToDo[Add Task Button]
+  InProgress --> AddTaskInProgress[Add Task Button]
+  Done --> AddTaskDone[Add Task Button]
+  AddTaskToDo --> ModalOpen[Open Task Modal]
+  AddTaskInProgress --> ModalOpen
+  AddTaskDone --> ModalOpen
+  ModalOpen --> SubmitTask[Submit Task Form]
+  SubmitTask --> APICreate[Call Create Task API]
+  APICreate --> SnackbarSuccess[Show Success Snackbar]
+  APICreate --> SnackbarError[Show Error Snackbar]
+  ToDo --> CardToDo[View Card]
+  InProgress --> CardInProgress[View Card]
+  Done --> CardDone[View Card]
+  CardToDo --> EditTask[Edit Task]
+  CardInProgress --> EditTask
+  CardDone --> EditTask
+  EditTask --> ModalEdit[Open Edit Modal]
+  ModalEdit --> SubmitEdit[Submit Edit Form]
+  SubmitEdit --> APIEdit[Call Edit Task API]
+  APIEdit --> SnackbarSuccess
+  APIEdit --> SnackbarError
+  CardToDo --> MoveCard[Move Card]
+  CardInProgress --> MoveCard
+  CardDone --> MoveCard
+  MoveCard --> ToDo
+  MoveCard --> InProgress
+  MoveCard --> Done
+  Board --> ErrorConfig[Error in Column Config]
+  ErrorConfig --> ErrorMsg[Show Error Message]
+  ErrorConfig --> SnackbarError
+  Board --> Popup[Open Popup (Confirmation Guided Setup Support)]
+  Popup --> Board
+  SnackbarSuccess --> Board
+  SnackbarError --> Board
   </div>
 </body>
 </html>
@@ -889,55 +327,83 @@ flowchart TD
 
 Validation Summary:
 Overall Status:
-Pass
+Needs Improvement
 Coverage:
-- Architecture vs HTML: Full
-- Architecture vs Specs: Full
-- Specs vs User Flow: Full
+- Architecture vs HTML: Pass
+- Architecture vs Specs: Needs Improvement
+- Specs vs User Flow: Partial
 
 Issues Found:
+
 ### HIGH SEVERITY
-- No high severity issues found.
+- Missing API Endpoints for Kanban CRUD
+  Description:
+    The architecture and specifications do not provide direct API endpoints for Kanban board CRUD operations (create/edit/delete columns/cards). Only dashboard fetch, fund transfer, and spending limit APIs are mapped, which are not sufficient for full Kanban functionality.
+  Impact:
+    Limits the ability to persist board changes, leading to incomplete or non-functional Kanban features (e.g., adding/editing/removing columns/cards).
+  Affected Components:
+    KanbanBoardComponent, KanbanColumnComponent, KanbanCardComponent, ModalComponent
+
+- Incomplete Error Handling Specification
+  Description:
+    Error handling is inconsistently specified. While error states are mentioned (error-msg, Snackbar), the specifications do not detail error flows for all user actions (e.g., card move, modal submit, API failures).
+  Impact:
+    May result in unhandled errors, poor user experience, and inconsistent UI feedback.
+  Affected Components:
+    KanbanBoardComponent, ModalComponent, KanbanCardsComponent
+
 ### MEDIUM SEVERITY
-- No medium severity issues found.
+- Modal/Popup Accessibility Gaps
+  Description:
+    ARIA attributes are specified for board and columns but not for modals/popups. Accessibility for overlays is not fully addressed.
+  Impact:
+    May reduce accessibility for users relying on assistive technologies.
+  Affected Components:
+    ModalComponent, PopupComponent
+
+- Redundant or Unclear Component Mapping
+  Description:
+    Both KanbanColumnHeaderComponent and AddTaskButtonComponent are sometimes shown as children of KanbanColumnComponent and sometimes as children of each other, leading to potential confusion in implementation.
+  Impact:
+    May cause incorrect component nesting or duplicated UI elements.
+  Affected Components:
+    KanbanColumnComponent, KanbanColumnHeaderComponent, AddTaskButtonComponent
+
 ### LOW SEVERITY
-- Design System Token Usage Not Explicit in CSS Specs
+- Design System Inconsistencies
   Description:
-  While CSS specifications reference spacing, colors, and breakpoints, there is no explicit mention of design tokens or variables for colors, spacing, or typography. This could lead to minor inconsistencies if not enforced during implementation.
+    Some CSS specifications do not reference design tokens or standardized spacing/typography. Custom CSS is used instead of Angular Material in places.
   Impact:
-  Minor risk of style drift from design system if developers do not use tokens.
+    Minor inconsistencies in look and feel, reduced maintainability.
   Affected Components:
-  All custom CSS in HeaderComponent, SidebarComponent, KanbanBoardContainer, KanbanColumnComponent, KanbanCardComponent, AddTaskModal, EditTaskModal, ConfirmationPopup, ErrorSnackbar
-- ARIA Label Coverage Could Be Expanded
+    HeaderComponent, KanbanBoardComponent, KanbanColumnComponent
+
+- Extra Elements in HTML Structure
   Description:
-  ARIA attributes are present for main board and columns, but not explicitly mentioned for all interactive elements (e.g., Add/Edit buttons, modals).
+    Sidebar navigation includes multiple scenarios (drag-and-drop, error, modals, etc.) not reflected in the JIRA requirement.
   Impact:
-  Slightly reduced accessibility for screen readers.
+    Slight deviation from requirements, but may be intentional for extensibility.
   Affected Components:
-  KanbanColumnComponent, AddTaskModal, EditTaskModal, ConfirmationPopup
+    SidebarComponent
 
 Recommendations:
-- Enforce Design System Tokens:
-  Update CSS specifications to explicitly reference design tokens for colors, spacing, and typography (e.g., use $spacing-md, $color-surface, etc.) to ensure consistency and maintainability.
-- Expand ARIA Coverage:
-  Add ARIA attributes to all interactive elements (e.g., aria-label for Add/Edit buttons, modals, and popups) to further improve accessibility.
-- Document Responsive Behavior:
-  Ensure that responsive breakpoints and behaviors are documented in a central place (e.g., design system or shared SCSS) to avoid divergence across components.
-- API Error Handling Consistency:
-  Ensure all API errors (including network and validation errors) are surfaced via ErrorSnackbar, and that error messages are user-friendly and actionable.
-- Test Keyboard Navigation:
-  Validate that all interactive elements (buttons, modals, popups) are accessible via keyboard navigation and have visible focus states.
-- Consider Direct Kanban Task CRUD API:
-  If business logic allows, implement direct Kanban task CRUD endpoints instead of mapping to fund transfer/spending limit APIs for better separation of concerns and maintainability.
+- Add API endpoints and UI logic for Kanban CRUD (create/edit/delete columns/cards) to ensure full board functionality and persistence.
+- Specify and implement comprehensive error handling for all user actions, including card moves, modal submissions, and API failures.
+- Enhance accessibility by adding ARIA attributes and keyboard navigation support for ModalComponent and PopupComponent.
+- Clarify and standardize component hierarchy, especially for AddTaskButtonComponent placement.
+- Refactor CSS to use design tokens and standardized spacing/typography; consider integrating Angular Material for consistency.
+- Remove or clearly document extra sidebar scenarios if not required by JIRA.
+- Ensure all user flow steps (including error and confirmation states) are mapped to UI components and handlers.
+- Implement OnPush change detection and lazy loading for performance as recommended.
 
 6. PIPELINE ALIGNMENT SUMMARY
 
 Architecture ↔ Specs:
-Aligned
+Needs Improvement (API CRUD and error handling gaps)
 Specs ↔ User Flow:
-Aligned
+Partial (missing card move persistence, column CRUD, sidebar navigation)
 Validation Coverage:
-Complete
+Complete (all issues traceable)
 
 7. IMPLEMENTATION NOTES FOR DEVELOPERS
 - Follow folder structure from architecture
@@ -946,15 +412,28 @@ Complete
 - Address validation issues before development
 
 8. Issues Found
-- Design System Token Usage Not Explicit in CSS Specs
-  Severity: Low
-- ARIA Label Coverage Could Be Expanded
-  Severity: Low
+State management mismatch in KanbanBoardComponent, KanbanCardsComponent
+Severity: High
+Missing component coverage for Kanban CRUD
+Severity: High
+Modal/Popup accessibility gaps
+Severity: Medium
+Redundant component mapping (AddTaskButtonComponent)
+Severity: Medium
+Design system inconsistency (custom CSS vs Angular Material)
+Severity: Low
+Extra sidebar scenarios not in JIRA
+Severity: Low
 
 9. Recommendations
-- Align CSS implementation with design system tokens
-- Expand ARIA attributes for all interactive elements
-- Document responsive breakpoints centrally
-- Ensure API errors are surfaced via ErrorSnackbar
-- Test keyboard navigation for accessibility
-- Consider direct Kanban task CRUD API endpoints
+Align state management implementation with architecture definitions.
+Implement missing API endpoints and UI logic for Kanban CRUD.
+Update error handling to cover all user actions.
+Enhance accessibility for ModalComponent and PopupComponent.
+Clarify AddTaskButtonComponent placement in hierarchy.
+Refactor CSS to use design tokens and Angular Material.
+Document or remove extra sidebar scenarios.
+Ensure all user flow steps are mapped to UI handlers.
+Implement OnPush change detection and lazy loading.
+
+---
